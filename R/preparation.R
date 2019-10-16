@@ -17,7 +17,9 @@ epaker <- function(x) {
 #' @param data a bond data
 #' @return price_slist
 #' @examples
+#' \dontrun{
 #' calc_price_slist(USbonds)
+#' }
 #' @author Bonsoo Koo and Kai-Yang Goh
 #' @details
 #' This function converts and extracts bond prices over
@@ -62,7 +64,9 @@ calc_price_slist <- function(data) {
 #' days in the data. Each element of the output will be a sparseMatrix
 #' object.
 #' @examples
+#' \dontrun{
 #' calc_cf_slist(USbonds)
+#' }
 #' @author Bonsoo Koo and Kai-Yang Goh
 #' @details
 #' This function converts and extracts coupon payments over

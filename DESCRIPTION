@@ -1,25 +1,34 @@
 Package: ycevo
 Type: Package
 Title: Non-Parametric Estimation of the Yield Curve Evolution
-Version: 0.2.0
-Authors@R: c(
-    person("Bonsoo", "Koo", email = "Bonsoo.Koo@monash.edu", role = c("aut", "cre")), 
-    person("Nathaniel", "Tomasetti", email = "nathaniel.tomasetti@gmail.com", role = c("aut")),
-    person("Kai-Yang", "Goh", email = "kai-yang.goh@monash.edu", role = c("aut")),
-    person("Yangzhuoran", "Yang", email = "Fin.Yang@monash.edu", role = c("aut"), comment = c(ORCID = "0000-0002-1232-8017")))
+Version: 1.0.0
+Authors@R: 
+    c(person(given = "Bonsoo",
+             family = "Koo",
+             role = c("aut"),
+             email = "Bonsoo.Koo@monash.edu"),
+      person(given = "Nathaniel",
+             family = "Tomasetti",
+             role = "aut",
+             email = "nathaniel.tomasetti@gmail.com"),
+      person(given = "Kai-Yang",
+             family = "Goh",
+             role = "aut",
+             email = "kai-yang.goh@monash.edu"),
+      person(given = "Yangzhuoran",
+             family = "Yang",
+             role = c("aut", "cre"),
+             email = "Fin.Yang@monash.edu",
+             comment = c(ORCID = "0000-0002-1232-8017")))
 Maintainer: Yangzhuoran Yang <Fin.Yang@monash.edu>
 Description: Provides a range of functions to facilitate the non-parametric
-    estimation of the discount rate, and yield curve, of CRSP Bond Data.
+    estimation of the discount rate, and yield curve, of the CRSP Bond Data.
 Depends: R (>= 3.5.0)
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-Imports: Rcpp (>= 0.12.18), RcppArmadillo, Matrix, dplyr, magrittr, rlang, stats
+Imports: Rcpp (>= 0.12.18), Matrix, dplyr, magrittr, rlang, stats
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 6.1.1
 Suggests: knitr, rmarkdown, tidyverse, lubridate
 VignetteBuilder: knitr
-vignette: >
-  %\VignetteIndexEntry{Put the title of your vignette here}
-  %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
