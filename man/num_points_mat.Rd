@@ -22,7 +22,7 @@ that corresponds to each time-to-maturity.}
 
 \item{rgrid}{Optional, a single value for rgrid}
 
-\item{hr}{Optinal, A single value for the bandwidth of the rgrid value for use with rgrid}
+\item{hr}{Optional, A single value for the bandwidth of the rgrid value for use with rgrid}
 
 \item{interest}{Optional, A vector of daily interest rates for use with rgrid}
 }

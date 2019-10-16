@@ -1,7 +1,7 @@
 ## Test environments
 * local Windows 10 install, R 3.6.1
 * Ubuntu Xenial 16.04 (on travis-ci), R 3.6.1
-* win-builder (devel and release)
+* win-builder (oldrelease and release)
 
 
 ## R CMD check results

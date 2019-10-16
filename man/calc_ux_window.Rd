@@ -2,7 +2,7 @@
 % Please edit documentation in R/preparation.R
 \name{calc_ux_window}
 \alias{calc_ux_window}
-\title{Weigts time to maturity grid}
+\title{Weights time to maturity grid}
 \usage{
 calc_ux_window(data, xgrid, hx, units = 365)
 }

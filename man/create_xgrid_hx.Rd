@@ -35,7 +35,7 @@ Selects xgrid and hx from values of qgrid and hq with a given number of maturing
 \details{
 Automatically select values for sparse time to maturity xgrid and hx
 for a given dense time to maturity value of qgrid and hq and quotation date ugrid and hu.
-The length of the provided xgrid may change for different ugrid values, so it is reccomended
+The length of the provided xgrid may change for different ugrid values, so it is recommended
 that the function is called separately for different values of ugrid.
 }
 \author{

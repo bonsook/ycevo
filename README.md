@@ -21,7 +21,7 @@ please use the following citation:
 > R package version 1.0.0. <https://github.com/FinYang/ycevo>.
 
 The package provides code used in Koo, La Vecchia, & Linton (2019).
-Please use the follwing citation if you use any result from the paper.
+Please use the following citation if you use any result from the paper.
 
 > Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a
 > Nonparametric model for Bond Prices from Cross-section and Time series

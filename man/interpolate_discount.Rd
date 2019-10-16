@@ -2,12 +2,12 @@
 % Please edit documentation in R/preparation.R
 \name{interpolate_discount}
 \alias{interpolate_discount}
-\title{Interpolates the discount rates resuling from estimate_yield}
+\title{Interpolates the discount rates resulting from estimate_yield}
 \usage{
 interpolate_discount(data, yield, treasury)
 }
 \arguments{
-\item{data}{Bond datafrmae}
+\item{data}{Bond dataframe}
 
 \item{yield}{Output of estimate_yield}
 
@@ -18,7 +18,7 @@ Applies three dimensional interpolation to find discount rates suitable for prov
 }
 \details{
 Given a bond data object and the output of estimate_yield, this function interpolates over each grid
-to obtain new values of the discount rate for arbitary rgrid / ugrid and qgrid values.
+to obtain new values of the discount rate for arbitrary rgrid / ugrid and qgrid values.
 }
 \author{
 Nathaniel Tomasetti

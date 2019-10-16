@@ -2,7 +2,7 @@
 % Please edit documentation in R/util.R
 \name{num_points}
 \alias{num_points}
-\title{Calcualtes the number of payments in each qgrid}
+\title{Calculates the number of payments in each qgrid}
 \usage{
 num_points(.data, ugrid, hu, qgrid, hq)
 }
@@ -20,7 +20,7 @@ for the discount function at the corresponding time.}
 that corresponds to each time-to-maturity.}
 }
 \description{
-Calcualtes the number of payments in each qgrid
+Calculates the number of payments in each qgrid
 }
 \author{
 Bonsoo Koo and Kai-Yang Goh
