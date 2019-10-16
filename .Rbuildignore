@@ -4,3 +4,8 @@ cran-comments.md
 ^\.travis\.yml$
 ^revdep$
 ^README\.Rmd$
+examples_i386
+examples_x64
+ycevo-Ex_i386.Rout
+ycevo-Ex_x64.Rout
+^CRAN-RELEASE$
