@@ -266,11 +266,14 @@ create_xgrid_hx <- function(data, ugrid, hu, qgrid, hq, min_points, rgrid, hr, i
 #' @description Applies three dimensional interpolation to find discount rates suitable for provided data
 #' @details Given a bond data object and the output of estimate_yield, this function interpolates over each grid
 #' to obtain new values of the discount rate for arbitary rgrid / ugrid and qgrid values.
-#' @export
 #' @author Nathaniel Tomasetti
 #' @param data Bond datafrmae
 #' @param yield Output of estimate_yield
 #' @param treasury Optional, dataframe of daily treasury bill rates with date and rate columns
+#' @importFrom rlang .data
+#' @importFrom dplyr ungroup distinct
+#' @importFrom stats loess predict
+#' @export
 interpolate_discount <- function(data, yield, treasury){
 
   # Check dates included in data
@@ -292,9 +295,9 @@ interpolate_discount <- function(data, yield, treasury){
   # Find unique values of xg (time to payment) in the data. Exclude time to payments before first qgrid value as this doesn't work well with the loess interpolator
   data %>%
     ungroup() %>%
-    filter(tupq > min(yield$qg) * 365) %>%
-    mutate(x = as.numeric(tupq) / 365) %>%
-    select(x) %>%
+    filter(.data$tupq > min(yield$qg) * 365) %>%
+    mutate(x = as.numeric(.data$tupq) / 365) %>%
+    select(.data$x) %>%
     distinct() %>%
     .$x %>%
     sort() -> long_term_x
@@ -302,9 +305,9 @@ interpolate_discount <- function(data, yield, treasury){
   # Linear interpolation for those values we excluded earlier
   data %>%
     ungroup() %>%
-    filter(tupq <= min(yield$qg) * 365)%>%
-    mutate(x = as.numeric(tupq) / 365) %>%
-    select(x) %>%
+    filter(.data$tupq <= min(yield$qg) * 365)%>%
+    mutate(x = as.numeric(.data$tupq) / 365) %>%
+    select(.data$x) %>%
     distinct() %>%
     .$x %>%
     sort() -> short_term_x
@@ -313,27 +316,27 @@ interpolate_discount <- function(data, yield, treasury){
 
   # Extract ugrid and rgrid
   yield %>%
-    select(ug) %>%
+    select(.data$ug) %>%
     unique() %>%
     .$ug -> ugrid
   yield %>%
-    select(ug, rg) %>%
+    select(.data$ug, .data$rg) %>%
     unique() %>%
     .$rg %>%
-    matrix(ncol = length(ugrid)) %>%
+    matrix(ncol = length(.data$ugrid)) %>%
     t() -> rgrid
 
   # Loess interpolation of each ugrid / rgrid combination for these qgrid values
   interp <- array(0, dim = c(length(unique_x), length(ugrid), ncol(rgrid)))
   for(i in 1:length(ugrid)){
     for(j in 1:ncol(rgrid)){
-      res <- filter(yield, ug == ugrid[i] & rg == rgrid[i, j])
+      res <- filter(yield, .data$ug == ugrid[i] & .data$rg == rgrid[i, j])
       loess_fit <- loess(discount ~ qg, data = res)
       interp[(length(short_term_x)+1):length(unique_x), i, j] <- predict(loess_fit, long_term_x)
 
 
       # Linear interpolation for the very small x values, where dhat = 1 at x = 0.
-      min_res <- filter(res, qg == min(qg))
+      min_res <- filter(res, .data$qg == min(.data$qg))
       interp[1:length(short_term_x), i, j] <- 1 + (short_term_x - 0) * (min_res$discount - 1) / (min_res$qg - 0)
 
     }
@@ -344,28 +347,28 @@ interpolate_discount <- function(data, yield, treasury){
 
     data %>%
       ungroup() %>%
-      mutate(x = as.numeric(tupq) / 365,
-             qdateF = factor(qdate, labels = dates),
-             u = as.numeric(qdateF) / length(dates)) %>%
-      left_join(treasury %>% select(date, rate),
+      mutate(x = as.numeric(.data$tupq) / 365,
+             qdateF = factor(.data$qdate, labels = .data$dates),
+             u = as.numeric(.data$qdateF) / length(.data$dates)) %>%
+      left_join(treasury %>% select(.data$date, .data$rate),
                 by = c('qdate'= 'date')) -> data
 
     data %>%
-      group_by(qdate, crspid, matdate, mid.price, accint, x, type) %>%
-      mutate(discount = as.numeric((interpolate_ugrid_rgrid(x, u, rate, ugrid, rgrid, interp, unique_x)))) %>%
+      group_by(.data$qdate, .data$crspid, .data$matdate, .data$mid.price, .data$accint, .data$x, .data$type) %>%
+      mutate(discount = as.numeric((interpolate_ugrid_rgrid(.data$x, .data$u, .data$rate, ugrid, rgrid, interp, unique_x)))) %>%
       ungroup() -> data
 
   } else {
 
     data %>%
       ungroup() %>%
-      mutate(x = as.numeric(tupq) / 365,
-             qdateF = factor(qdate, labels = dates),
-             u = as.numeric(qdateF) / length(dates)) -> data
+      mutate(x = as.numeric(.data$tupq) / 365,
+             qdateF = factor(.data$qdate, labels = .data$dates),
+             u = as.numeric(.data$qdateF) / length(.data$dates)) -> data
 
     data %>%
-      group_by(qdate, crspid, matdate, mid.price, accint, x, type) %>%
-      mutate(discount = as.numeric((interpolate_ugrid(x, u, ugrid, interp[,,1], unique_x)))) %>%
+      group_by(.data$qdate, .data$crspid, .data$matdate, .data$mid.price, .data$accint, .data$x, .data$type) %>%
+      mutate(discount = as.numeric((interpolate_ugrid(.data$x, .data$u, ugrid, interp[,,1], unique_x)))) %>%
       ungroup() -> data
 
     data$rg <- NULL

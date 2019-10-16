@@ -22,3 +22,5 @@ NULL
 #' @useDynLib ycevo
 #' @importFrom Rcpp sourceCpp
 NULL
+
+utils::globalVariables(c("."))
