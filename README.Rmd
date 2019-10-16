@@ -1,0 +1,106 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# ycevo
+
+<!-- badges: start -->
+  [![Travis build status](https://travis-ci.org/FinYang/ycevo.svg?branch=master)](https://travis-ci.org/FinYang/ycevo)
+<!-- badges: end -->
+
+The goal of ycevo is to provide a range of functions to facilitate the non-parametric estimation of the discount rate, and yield curve, of CRSP Bond Data.
+
+If you use any data or code from the `ycevo` package in a publication, please use the following citation:  
+ 
+> Bonsoo Koo, Nathaniel Tomasetti, Kai-Yang Goh and Yangzhuoran Yang (2019). ycevo: Non-Parametric Estimation
+  of the Yield Curve Evolution. R package version 1.0.0. https://github.com/FinYang/ycevo. 
+
+The package provides code used in Koo, La Vecchia, & Linton (2019). Please use the follwing citation if you use any result from the paper.
+
+> Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
+
+## Installation
+
+<!-- You can install the released version of ycevo from [CRAN](https://CRAN.R-project.org) with: -->
+
+<!-- ``` r -->
+<!-- install.packages("ycevo") -->
+<!-- ``` -->
+The __stable__ version on CRAN is coming soon.
+
+The __development__ version from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("FinYang/ycevo")
+```
+## Usage
+
+```{r}
+library(ycevo)
+library(tidyverse)
+library(lubridate)# Twelve quotation dates
+max_qDate <- 12
+#Estimate a 36 period ahead yield curve for each qdate
+periods <- 36
+
+set.seed(1)
+data <- simulate_data(max_qDate = max_qDate, periods = periods)
+glimpse(data)
+# grid values
+ugrid <- (1:(max_qDate - 2))/(max_qDate - 1)
+# bandwidth for each grid value
+hu <- rep(0.5 /  max_qDate, max_qDate -2)
+
+qgrid <- 1:periods
+max_tumat <- max(data$tumat)
+qgrid <- qgrid[1:min(which(qgrid >= max_tumat))]
+hq <- rep(0.1, length(qgrid))
+
+xgrid <- qgrid
+hx <- hq
+
+yield <- estimate_yield(
+    data = data,
+    ugrid = ugrid,
+    hu = hu,
+    xgrid = xgrid,
+    hx = hx,
+    qgrid = qgrid,
+    hq = hq,
+    units = 1)
+glimpse(yield)
+
+# Yield vs Time (qgrid)
+yield %>%
+  mutate(ug = round(ug, 2)) %>%
+  ggplot() + geom_line(aes(qg, yield)) +
+  facet_wrap(~ug) +
+  theme_bw()
+
+# Yield vs Quotation Dates (ugrid) for some time to maturities
+
+select_qgrid <- c(3, 12, 24, 36)
+
+yield %>%
+  filter(qg %in% select_qgrid) %>%
+  ggplot() + geom_line(aes(ug, yield)) +
+  facet_wrap(~qg) +
+  theme_bw()
+```
+
+
+## License
+
+This package is free and open source software, licensed under GPL-3
