@@ -1,0 +1,21 @@
+Package: ycevo
+Type: Package
+Title: Non-Parametric Estimation of the Yield Curve Evolution
+Version: 0.2.0
+Author: Bonsoo Koo, Nathaniel Tomasetti
+Maintainer: Nathaniel Tomasetti <nathaniel.tomasetti@gmail.com>
+Description: Provides a range of functions to facilitate the non-parametric
+    estimation of the discount rate, and yield curve, of CRSP Bond Data.
+Depends: R (>= 3.4.0)
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+Imports: Rcpp (>= 0.12.18), RcppArmadillo, Matrix, dplyr, magrittr, rlang, stats
+LinkingTo: Rcpp, RcppArmadillo
+RoxygenNote: 6.1.1
+Suggests: knitr, rmarkdown, tidyverse, lubridate
+VignetteBuilder: knitr
+vignette: >
+  %\VignetteIndexEntry{Put the title of your vignette here}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
