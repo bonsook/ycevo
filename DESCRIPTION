@@ -2,11 +2,15 @@ Package: ycevo
 Type: Package
 Title: Non-Parametric Estimation of the Yield Curve Evolution
 Version: 0.2.0
-Author: Bonsoo Koo, Nathaniel Tomasetti
-Maintainer: Nathaniel Tomasetti <nathaniel.tomasetti@gmail.com>
+Authors@R: c(
+    person("Bonsoo", "Koo", email = "Bonsoo.Koo@monash.edu", role = c("aut", "cre")), 
+    person("Nathaniel", "Tomasetti", email = "nathaniel.tomasetti@gmail.com", role = c("aut")),
+    person("Kai-Yang", "Goh", email = "kai-yang.goh@monash.edu", role = c("aut")),
+    person("Yangzhuoran", "Yang", email = "Fin.Yang@monash.edu", role = c("aut"), comment = c(ORCID = "0000-0002-1232-8017")))
+Maintainer: Yangzhuoran Yang <Fin.Yang@monash.edu>
 Description: Provides a range of functions to facilitate the non-parametric
     estimation of the discount rate, and yield curve, of CRSP Bond Data.
-Depends: R (>= 3.4.0)
+Depends: R (>= 3.5.0)
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
