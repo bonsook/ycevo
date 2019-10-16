@@ -2,7 +2,7 @@
 title: "Introduction to ycevo"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction}
+  %\VignetteIndexEntry{Introduction to ycevo}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
@@ -49,7 +49,7 @@ The functions require particular column names:
 
 * tupq: Time until a given payment, usually given in days
 
-* tumat: Time unti maturity, in days (equal to tupq for zero coupon bonds)
+* tumat: Time until maturity, in days (equal to tupq for zero coupon bonds)
 
 * pdint: Numeric value of payment
 

@@ -42,7 +42,7 @@ interpolate_ugrid <- function(x, u, ugrid, interp, xvals) {
 #' @param r, the value to be interpolated
 #' @param ugrid, vector, the range of u values we have data for
 #' @param rgrid, matrix, each row corresponds to the xgrid values for a given ugrid.
-#' Pad end of a row with duplicates if neccesary to make a matrix
+#' Pad end of a row with duplicates if necessary to make a matrix
 #' @param xvals, vector, the unique values of x we have a dhat for, corresponds to interp rows
 #' @param interp, three dimensional array, element i,j,k gives the dhat value for the i'th value of xvals, the j'th value of ugrid and k'th value of rgrid.
 #' @export

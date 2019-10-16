@@ -1,4 +1,4 @@
-#' @title Calcualtes the number of payments in each qgrid
+#' @title Calculates the number of payments in each qgrid
 #' @param .data A data frame; bond data to estimate discount curve from.
 #' @param ugrid A single value for ugrid between 0 and 1
 #' @param hu A single value for the bandwidth of the ugrid value
@@ -31,7 +31,7 @@ num_points <- function(.data, ugrid, hu, qgrid, hq) {
 #' @param hq A numeric vector matching qgrid, bandwidth parameter determining the size of the window
 #' that corresponds to each time-to-maturity.
 #' @param rgrid Optional, a single value for rgrid
-#' @param hr Optinal, A single value for the bandwidth of the rgrid value for use with rgrid
+#' @param hr Optional, A single value for the bandwidth of the rgrid value for use with rgrid
 #' @param interest Optional, A vector of daily interest rates for use with rgrid
 #' @keywords internal
 #' @author Bonsoo Koo, Kai-Yang Goh and Nathaniel Tomasetti
@@ -81,7 +81,7 @@ num_points_mat <- function(data, ugrid, hu, qgrid, hq, rgrid, hr, interest, unit
 #' @param quadratic Quadratic term in yield curve evolution. Defaults to 0.55
 #' @param cubic Cubic term in yield curve evolution. Defaults to -0.55
 #' @details Returns a matrix where each column corresponds to a yield curve at a different point in time.
-#' The initial cyrve at time to maturity zero is estimated from the following equation
+#' The initial curve at time to maturity zero is estimated from the following equation
 #' \deqn{Yield_{i, 0} = b_0 + b_1 * ((1 - \exp(-\tau_i / t_1)) / (\tau / t_1)) + b_2 * ((1 - \exp(-\tau_i / t_2)) / (\tau_i / t2) - \exp(-\tau_i / t_2))}
 #' where \eqn{\tau_i} is the index of the time to maturity period. This defines the yield curve for the quotation date = 0
 #' The yield curve for quotation dates = 1, 2, ... , max_q_date multiplies this curve by the cubic equation,

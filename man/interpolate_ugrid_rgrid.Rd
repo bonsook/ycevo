@@ -16,7 +16,7 @@ interpolate_ugrid_rgrid(x, u, r, ugrid, rgrid, interp, xvals)
 \item{ugrid, }{vector, the range of u values we have data for}
 
 \item{rgrid, }{matrix, each row corresponds to the xgrid values for a given ugrid.
-Pad end of a row with duplicates if neccesary to make a matrix}
+Pad end of a row with duplicates if necessary to make a matrix}
 
 \item{interp, }{three dimensional array, element i,j,k gives the dhat value for the i'th value of xvals, the j'th value of ugrid and k'th value of rgrid.}
 

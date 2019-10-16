@@ -132,7 +132,7 @@ calc_uu_window <- function(data, ugrid, hu) {
 #' @export
 #' @param interest vector of daily interest rates
 #' @param rgrid vector of interest rate grid
-#' @param hr vector of intereest rate bandwidth
+#' @param hr vector of interest rate bandwidth
 #' @return calc_r_window
 #' @keywords internal
 #' @author Bonsoo Koo, Kai-Yang Goh and Nathaniel Tomasetti
@@ -173,7 +173,7 @@ calc_day_idx <- function(data, ugrid, hu) {
 #' @name calc_ux_window
 #' @aliases calc_ux_window
 #' @export
-#' @title Weigts time to maturity grid
+#' @title Weights time to maturity grid
 #' @description Apply kernel in relation to time-to-maturity grids
 #' @param data a bond data frame
 #' @param xgrid vector of the time-to-maturity grid
@@ -220,7 +220,7 @@ calc_tupq_idx <- function(data, xgrid, hx, units = 365) {
 #' @description Selects xgrid and hx from values of qgrid and hq with a given number of maturing bonds
 #' @details Automatically select values for sparse time to maturity xgrid and hx
 #' for a given dense time to maturity value of qgrid and hq and quotation date ugrid and hu.
-#' The length of the provided xgrid may change for different ugrid values, so it is reccomended
+#' The length of the provided xgrid may change for different ugrid values, so it is recommended
 #' that the function is called separately for different values of ugrid.
 #' @export
 #' @author Nathaniel Tomasetti
@@ -266,12 +266,12 @@ create_xgrid_hx <- function(data, ugrid, hu, qgrid, hq, min_points, rgrid, hr, i
 }
 
 #' @name interpolate_discount
-#' @title Interpolates the discount rates resuling from estimate_yield
+#' @title Interpolates the discount rates resulting from estimate_yield
 #' @description Applies three dimensional interpolation to find discount rates suitable for provided data
 #' @details Given a bond data object and the output of estimate_yield, this function interpolates over each grid
-#' to obtain new values of the discount rate for arbitary rgrid / ugrid and qgrid values.
+#' to obtain new values of the discount rate for arbitrary rgrid / ugrid and qgrid values.
 #' @author Nathaniel Tomasetti
-#' @param data Bond datafrmae
+#' @param data Bond dataframe
 #' @param yield Output of estimate_yield
 #' @param treasury Optional, dataframe of daily treasury bill rates with date and rate columns
 #' @importFrom rlang .data

@@ -2,7 +2,7 @@
 % Please edit documentation in R/estimation.R
 \name{calc_hhat_num}
 \alias{calc_hhat_num}
-\title{A component of the estimate_yield functoin}
+\title{A component of the estimate_yield function}
 \usage{
 calc_hhat_num(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_slist,
   interest, units = 465)

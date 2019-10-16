@@ -11,7 +11,7 @@ calc_r_window(interest, rgrid, hr)
 
 \item{rgrid}{vector of interest rate grid}
 
-\item{hr}{vector of intereest rate bandwidth}
+\item{hr}{vector of interest rate bandwidth}
 }
 \value{
 calc_r_window

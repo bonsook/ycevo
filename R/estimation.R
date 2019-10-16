@@ -126,7 +126,7 @@ calc_dbar <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, price_slist, cf_sli
   dbar
 }
 
-#' @title A component of the estimate_yield functoin
+#' @title A component of the estimate_yield function
 #' @description Internal function that calculates coupon payment cross products
 #' @export
 #' @param data A data frame; bond data to estimate discount curve from.
