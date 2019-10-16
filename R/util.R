@@ -14,7 +14,7 @@ num_points <- function(.data, ugrid, hu, qgrid, hq) {
   u_idx <- calc_day_idx(.data, ugrid, hu)
   x_idx <- calc_tupq_idx(.data, qgrid, hq)
   #for(i in 1:length(ugrid)) {
-  for(j in 1:length(xgrid)) {
+  for(j in 1:length(qgrid)) {
     out[1, j] <- sum((.data$tupq %in% x_idx[j,1]:x_idx[j,2]))# &
     # (US_2$pqdate-min(US_2$pqdate) %in% u_idx[i,1]:u_idx[i,2]))
   }
@@ -56,7 +56,7 @@ num_points_mat <- function(data, ugrid, hu, qgrid, hq, rgrid, hr, interest, unit
   kernel <- data.frame(qdate = dates, k = window)
   data %>%
     left_join(kernel, by = 'qdate') %>%
-    filter(k > 0) -> dataSub
+    filter(.data$k > 0) -> dataSub
 
   # Calculate number of maturing bonds in each x window
   x_idx <- calc_tupq_idx(data, qgrid, hq, units)
@@ -184,7 +184,7 @@ simulate_data <- function(max_qDate = 12, periods = 36, bond_multiplier = 2, cou
     bondErrors <- rbind(bondErrors,
                         data.frame(crspid = as.character(i),
                                qdate = qDates,
-                               error = c(suppressWarnings(arima.sim(arma_terms, max_qDate)))))
+                               error = c(suppressWarnings(stats::arima.sim(arma_terms, max_qDate)))))
   }
 
 
