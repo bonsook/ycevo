@@ -22,7 +22,9 @@ Authors@R:
              comment = c(ORCID = "0000-0002-1232-8017")))
 Maintainer: Yangzhuoran Yang <Fin.Yang@monash.edu>
 Description: Provides a range of functions to facilitate the non-parametric
-    estimation of the discount rate, and yield curve, of the CRSP Bond Data.
+    estimation of the discount rate, and yield curve, of 
+    the Center for Research in Security Prices 
+    (CRSP) Bond Data.
 License: GPL-3
 Depends: R (>= 3.5.0)
 Encoding: UTF-8
