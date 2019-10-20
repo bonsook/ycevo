@@ -25,6 +25,8 @@ Description: Provides a range of functions to facilitate the non-parametric
     estimation of the discount rate, and yield curve, of 
     the Center for Research in Security Prices 
     (CRSP) Bond Data.
+URL: https://github.com/FinYang/ycevo
+BugReports: https://github.com/FinYang/ycevo/issues
 License: GPL-3
 Depends: R (>= 3.5.0)
 Encoding: UTF-8
