@@ -1,3 +1,23 @@
+## Resubmission
+This is a resubmission. In this version I have:
+
+* Explained acronym in the description text
+
+* Replaced \dontrun{} with \donttest{}: 
+    the examples take more than 10 sec to run 
+
+
+
+
+
+
+
+Please add \value to .Rd files regarding methods and explain the functions results in the documentation.
+
+
+
+
+
 ## Test environments
 * local Windows 10 install, R 3.6.1
 * local Windows 10 install, R-devel
