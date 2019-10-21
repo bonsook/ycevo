@@ -18,7 +18,7 @@ please use the following citation:
 
 > Bonsoo Koo, Nathaniel Tomasetti, Kai-Yang Goh and Yangzhuoran Yang
 > (2019). ycevo: Non-Parametric Estimation of the Yield Curve Evolution.
-> R package version 1.0.0. <https://github.com/FinYang/ycevo>.
+> R package version 1.0.0. <https://github.com/bonsook/ycevo>.
 
 The package provides code used in Koo, La Vecchia, & Linton (2019).
 Please use the following citation if you use any result from the paper.
@@ -44,7 +44,7 @@ The **development** version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("FinYang/ycevo")
+devtools::install_github("bonsook/ycevo")
 ```
 
 ## Usage
