@@ -28,6 +28,9 @@ Defaults to 0.1}
 \item{yield}{Matrix of yield curves at different time to maturities from generate_yield().
 If NULL, a yield matrix is created from the default values of generate_yield() with the values of max_qDate and periods input to simulate_data()}
 }
+\value{
+Data frame. See \code{Details}.
+}
 \description{
 Simulates fake data used in the vignette
 }
