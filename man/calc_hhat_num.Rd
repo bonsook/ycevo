@@ -49,12 +49,15 @@ If omitted, hq is set equal to hx}
 Internal function that calculates coupon payment cross products
 }
 \examples{
-ugrid<-c(0.2,0.4)
-hu<-c(0.18,0.18)
-xgrid<-c(30, 60, 90) / 365
-hx<-c(15, 15 , 15) / 365
+ugrid <- c(0.2,0.4)
+hu <- c(0.18,0.18)
+qgrid <- c(30, 60, 90) / 365
+xgrid <- qgrid
+hq <- c(15, 15 , 15) / 365
+hx <- hq
 cf <- calc_cf_slist(USbonds)
-calc_dbar(USbonds, ugrid, hu, xgrid = xgrid, hx = hx, cf_slist = cf)
+calc_hhat_num(data = USbonds, ugrid = ugrid, hu = hu, xgrid = xgrid,
+          hx = hx,qgrid = qgrid, hq=hq, cf_slist = cf)
 }
 \author{
 Nathaniel Tomasetti

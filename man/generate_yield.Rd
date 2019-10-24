@@ -41,3 +41,6 @@ The yield curve for quotation dates = 1, 2, ... , max_q_date multiplies this cur
 \deqn{Yield_{i, t} = Yield_{i, 0} * (1 + linear * t + quadratic * t^2 + cubic * t^3)}
 so the yield curve slowly changes over different quotation dates.
 }
+\examples{
+generate_yield()
+}
