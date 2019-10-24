@@ -29,6 +29,9 @@ generate_yield(max_qDate = 12, periods = 36, b0 = 0, b1 = 0.05,
 
 \item{cubic}{Cubic term in yield curve evolution. Defaults to -0.55}
 }
+\value{
+Matrix. See \code{Details}.
+}
 \description{
 Generate a yield curve with cubic time evolution
 }

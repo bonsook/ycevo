@@ -360,6 +360,7 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
 #' 3. Interpolation of hhat when the provided xgrid values are not equal to those found in qgrid.
 #' 4. Solving a linear equation to result in dhat, the discount rate.
 #' 5. Transformation of the discount rate into a yield.
+#' @return Data frame of the yield and discount rate at each combination of the provided grids.
 estimate_yield <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, price_slist, cf_slist, interest, units = 365){
   if (missing(xgrid)){
     xgrid <- qgrid

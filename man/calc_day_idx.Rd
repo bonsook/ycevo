@@ -14,7 +14,7 @@ calc_day_idx(data, ugrid, hu)
 \item{hu}{vector of quotation date bandwidth}
 }
 \value{
-calc_day_idx
+Matrix. The start and end of the qdates included in the ugrid kernel windows
 }
 \description{
 Provide indices in relation to time grids
@@ -23,9 +23,9 @@ Provide indices in relation to time grids
 This function provide indices for the start and end of the qdates included in the ugrid kernel windows
 }
 \examples{
-ugrid <- c(0.2,0.4)
-hu <- c(0.18,0.18)
-calc_day_idx(data = USbonds, ugrid = ugrid, hu = hu)
+ ugrid <- c(0.2,0.4)
+ hu <- c(0.18,0.18)
+ calc_day_idx(data = USbonds, ugrid = ugrid, hu = hu)
 }
 \author{
 Bonsoo Koo and Kai-Yang Goh

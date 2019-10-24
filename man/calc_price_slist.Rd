@@ -10,7 +10,7 @@ calc_price_slist(data)
 \item{data}{a bond data}
 }
 \value{
-price_slist
+price_slist: A large list of sparse matrices. See \code{Details}
 }
 \description{
 Tranforms data into a format suitable for estimation

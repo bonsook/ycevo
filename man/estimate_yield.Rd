@@ -44,6 +44,9 @@ If this is a vector or T x 1 matrix, entries represents the qgrid, which will be
 
 \item{units}{(Optional) number of tupq per xgrid (e.g. 365 for daily data with annual grid values). Defaults to 365}
 }
+\value{
+Data frame of the yield and discount rate at each combination of the provided grids.
+}
 \description{
 Estimation of discount function and transformation to yield at given dates, time to maturities, and interest rates.
 }

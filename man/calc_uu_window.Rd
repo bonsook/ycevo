@@ -24,9 +24,9 @@ This function generates a weight function attached to each quotation date grid
 for the estimation of a discount function
 }
 \examples{
-ugrid <- c(0.2,0.4)
-hu <- c(0.18,0.18)
-calc_uu_window(data = USbonds, ugrid = ugrid,hu = hu)
+ ugrid <- c(0.2,0.4)
+ hu <- c(0.18,0.18)
+ calc_uu_window(data = USbonds, ugrid = ugrid,hu = hu)
 }
 \author{
 Bonsoo Koo and Kai-Yang Goh

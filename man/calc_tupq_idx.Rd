@@ -14,7 +14,7 @@ calc_tupq_idx(data, xgrid, hx, units = 365)
 \item{hx}{vector of the time-to-maturity grid bandwidth}
 }
 \value{
-calc_tupq_idx
+Matrix. The first and last xgrid included in the current kernel window.
 }
 \description{
 Provide indices in relation to time-to-maturity grids
