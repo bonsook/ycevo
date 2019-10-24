@@ -23,6 +23,11 @@ Apply kernel in relation to time-to-maturity grids
 This function generates a weight function attached to each time grid
 for the estimation of a discount function
 }
+\examples{
+xgrid <- c(30, 60, 90) / 365
+hx <- c(15, 15 , 15) / 365
+calc_ux_window(data = USbonds, xgrid = xgrid, hx = hx)
+}
 \author{
 Bonsoo Koo and Kai-Yang Goh
 }

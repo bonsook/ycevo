@@ -56,15 +56,16 @@ Provides a data.frame of the yield and discount rate at each combination of the 
 5. Transformation of the discount rate into a yield.
 }
 \examples{
-\donttest{
-ugrid<-0.2
-hu<-0.2
-xgrid<-seq(0,360,30) / 365
-hq <-rep(15,length(xgrid)) / 365
-price <- calc_price_slist(USbonds)
-cf <- calc_cf_slist(USbonds)
-estimate_yield(USbonds, ugrid, hu,xgrid =  xgrid,hq= hq, price_slist, cf_slist = cf)
-}
+ ugrid<-0.2
+ hu<-0.2
+ qgrid<-seq(0,360,30) / 365
+ xgrid <- qgrid
+ hq <-rep(15,length(xgrid)) / 365
+ hx <- hq
+ price <- calc_price_slist(USbonds)
+ cf <- calc_cf_slist(USbonds)
+ estimate_yield(data = USbonds, ugrid = ugrid, hu = hu, xgrid = xgrid,
+                hx=hx, qgrid = qgrid,hq= hq, price_slist=price, cf_slist = cf)
 }
 \author{
 Nathaniel Tomasetti

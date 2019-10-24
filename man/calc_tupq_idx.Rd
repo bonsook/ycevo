@@ -22,6 +22,11 @@ Provide indices in relation to time-to-maturity grids
 \details{
 This function provides indices for the first and last xgrid included in the current kernel window
 }
+\examples{
+xgrid <- c(30, 60, 90) / 365
+hx <- c(15, 15 , 15) / 365
+calc_tupq_idx(data = USbonds, xgrid = xgrid, hx = hx)
+}
 \author{
 Bonsoo Koo and Kai-Yang Goh
 }

@@ -39,7 +39,5 @@ After getting the discount rate for each quotation date and time to maturity, bo
 A small error is added to each price. The resulting data may be input into estimate_yield with suitable grid values. This is shown in the vignette
 }
 \examples{
-\dontrun{
 data <- simulate_data()
-}
 }

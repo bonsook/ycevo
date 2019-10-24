@@ -39,15 +39,16 @@ Internal function that estimates the discount function without taking into accou
 cross products of coupon payments
 }
 \examples{
-\donttest{
-ugrid<-c(0.2,0.4)
-hu<-c(0.18,0.18)
-xgrid<-c(30, 60, 90) / 365
-hx<-c(15, 15 , 15) / 365
+ugrid <- c(0.2,0.4)
+hu <- c(0.18,0.18)
+qgrid <- c(30, 60, 90) / 365
+xgrid <- qgrid
+hq <- c(15, 15 , 15) / 365
+hx <- hq
 price <- calc_price_slist(USbonds)
 cf <- calc_cf_slist(USbonds)
-calc_dbar(USbonds, ugrid, hu, xgrid = xgrid, hx=hx, price_slist =  price,cf_slist =  cf)
-}
+calc_dbar(data = USbonds, ugrid = ugrid, hu = hu, xgrid = xgrid, 
+          hx=hx, price_slist =  price, cf_slist =  cf)
 }
 \author{
 Nathaniel Tomasetti

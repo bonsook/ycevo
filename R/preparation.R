@@ -17,9 +17,7 @@ epaker <- function(x) {
 #' @param data a bond data
 #' @return price_slist
 #' @examples
-#' \dontrun{
 #' calc_price_slist(USbonds)
-#' }
 #' @author Bonsoo Koo and Kai-Yang Goh
 #' @details
 #' This function converts and extracts bond prices over
@@ -64,9 +62,7 @@ calc_price_slist <- function(data) {
 #' days in the data. Each element of the output will be a sparseMatrix
 #' object.
 #' @examples
-#' \dontrun{
 #' calc_cf_slist(USbonds)
-#' }
 #' @author Bonsoo Koo and Kai-Yang Goh
 #' @details
 #' This function converts and extracts coupon payments over
@@ -103,7 +99,6 @@ calc_cf_slist <- function(data) {
 #' @aliases calc_uu_window
 #' @title Weights time grid
 #' @description Generate a kernel weight function in relation to time grids
-#' @export
 #' @param data a bond dataframe
 #' @param ugrid vector of the quotation date grid
 #' @param hu vector of quotation date bandwidth
@@ -113,6 +108,11 @@ calc_cf_slist <- function(data) {
 #' @details
 #' This function generates a weight function attached to each quotation date grid
 #' for the estimation of a discount function
+#' @examples 
+#' ugrid <- c(0.2,0.4)
+#' hu <- c(0.18,0.18)
+#' calc_uu_window(data = USbonds, ugrid = ugrid,hu = hu)
+#' @export
 calc_uu_window <- function(data, ugrid, hu) {
   #u = values you want to compute dbar and hhat for
   #h = bandwidth parameter
@@ -129,7 +129,6 @@ calc_uu_window <- function(data, ugrid, hu) {
 #' @aliases calc_r_window
 #' @title Weights interest rate grid
 #' @description Generate a kernel weight function in relation to interest rate grids
-#' @export
 #' @param interest vector of daily interest rates
 #' @param rgrid vector of interest rate grid
 #' @param hr vector of interest rate bandwidth
@@ -139,6 +138,7 @@ calc_uu_window <- function(data, ugrid, hu) {
 #' @details
 #' This function generates a weight function attached to each interest rate grid
 #' for the estimation of a discount function
+#' @export
 calc_r_window <- function(interest, rgrid, hr) {
 
   r <- matrix(0, nrow = length(interest), ncol = length(rgrid))
@@ -157,9 +157,13 @@ calc_r_window <- function(interest, rgrid, hr) {
 #' @return calc_day_idx
 #' @keywords internal
 #' @author Bonsoo Koo and Kai-Yang Goh
-#' @export
 #' @details
 #' This function provide indices for the start and end of the qdates included in the ugrid kernel windows
+#' @examples 
+#' ugrid <- c(0.2,0.4)
+#' hu <- c(0.18,0.18)
+#' calc_day_idx(data = USbonds, ugrid = ugrid, hu = hu)
+#' @export
 calc_day_idx <- function(data, ugrid, hu) {
   u <- calc_uu_window(data, ugrid, hu)
   apply(u, 2, function(y) {
@@ -172,7 +176,6 @@ calc_day_idx <- function(data, ugrid, hu) {
 
 #' @name calc_ux_window
 #' @aliases calc_ux_window
-#' @export
 #' @title Weights time to maturity grid
 #' @description Apply kernel in relation to time-to-maturity grids
 #' @param data a bond data frame
@@ -184,6 +187,11 @@ calc_day_idx <- function(data, ugrid, hu) {
 #' @details
 #' This function generates a weight function attached to each time grid
 #' for the estimation of a discount function
+#' @examples 
+#' xgrid <- c(30, 60, 90) / 365
+#' hx <- c(15, 15 , 15) / 365
+#' calc_ux_window(data = USbonds, xgrid = xgrid, hx = hx)
+#' @export
 calc_ux_window <- function(data, xgrid, hx, units = 365) {
   #x = values you want to compute dbar and hhat for
   #h = bandwidth parameter
@@ -197,7 +205,6 @@ calc_ux_window <- function(data, xgrid, hx, units = 365) {
 #' @name calc_tupq_idx
 #' @aliases calc_tupq_idx
 #' @title Provide indices in relation to time-to-maturity grids
-#' @export
 #' @param data Bond dataframe
 #' @param xgrid vector of the time-to-maturity grid
 #' @param hx vector of the time-to-maturity grid bandwidth
@@ -206,6 +213,11 @@ calc_ux_window <- function(data, xgrid, hx, units = 365) {
 #' @author Bonsoo Koo and Kai-Yang Goh
 #' @details
 #' This function provides indices for the first and last xgrid included in the current kernel window
+#' @examples 
+#' xgrid <- c(30, 60, 90) / 365
+#' hx <- c(15, 15 , 15) / 365
+#' calc_tupq_idx(data = USbonds, xgrid = xgrid, hx = hx)
+#' @export
 calc_tupq_idx <- function(data, xgrid, hx, units = 365) {
   x <- calc_ux_window(data,xgrid,hx, units)
   apply(x, 2, function(y) {
@@ -222,7 +234,6 @@ calc_tupq_idx <- function(data, xgrid, hx, units = 365) {
 #' for a given dense time to maturity value of qgrid and hq and quotation date ugrid and hu.
 #' The length of the provided xgrid may change for different ugrid values, so it is recommended
 #' that the function is called separately for different values of ugrid.
-#' @export
 #' @author Nathaniel Tomasetti
 #' @param data Bond dataframe
 #' @param ugrid A single value for ugrid between 0 and 1
@@ -235,6 +246,7 @@ calc_tupq_idx <- function(data, xgrid, hx, units = 365) {
 #' @param interest, Optional, a vector of daily interest rates for use with rgrid. Must have a length equal to the number of unique qdates in data
 #' @param units, Optional, number of units per period. Eg 365 for daily data, 12 for monthly.
 #' Grid values without maturing bonds do not have sufficient data for stable estimates.
+#' @export
 create_xgrid_hx <- function(data, ugrid, hu, qgrid, hq, min_points, rgrid, hr, interest, units = 365){
 
   points <- num_points_mat(data, ugrid, hu, qgrid, hq, rgrid, hr, interest, units)

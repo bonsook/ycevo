@@ -18,15 +18,16 @@
 #' @param units (Optional) number of tupq per xgrid (e.g. 365 for daily data with annual grid values). Defaults to 365
 #' @author Nathaniel Tomasetti
 #' @examples
-#' \donttest{
-#' ugrid<-c(0.2,0.4)
-#' hu<-c(0.18,0.18)
-#' xgrid<-c(30, 60, 90) / 365
-#' hx<-c(15, 15 , 15) / 365
+#' ugrid <- c(0.2,0.4)
+#' hu <- c(0.18,0.18)
+#' qgrid <- c(30, 60, 90) / 365
+#' xgrid <- qgrid
+#' hq <- c(15, 15 , 15) / 365
+#' hx <- hq
 #' price <- calc_price_slist(USbonds)
 #' cf <- calc_cf_slist(USbonds)
-#' calc_dbar(USbonds, ugrid, hu, xgrid = xgrid, hx=hx, price_slist =  price,cf_slist =  cf)
-#' }
+#' calc_dbar(data = USbonds, ugrid = ugrid, hu = hu, xgrid = xgrid, 
+#'           hx=hx, price_slist =  price, cf_slist =  cf)
 #' @export
 calc_dbar <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, price_slist, cf_slist, interest, units = 365) {
   if (missing(cf_slist)){
@@ -155,12 +156,15 @@ calc_dbar <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, price_slist, cf_sli
 #' @param units (Optional) number of tupq per xgrid (e.g. 365 for daily data with annual grid values). Defaults to 365
 #' @author Nathaniel Tomasetti
 #' @examples
-#' ugrid<-c(0.2,0.4)
-#' hu<-c(0.18,0.18)
-#' xgrid<-c(30, 60, 90) / 365
-#' hx<-c(15, 15 , 15) / 365
+#' ugrid <- c(0.2,0.4)
+#' hu <- c(0.18,0.18)
+#' qgrid <- c(30, 60, 90) / 365
+#' xgrid <- qgrid
+#' hq <- c(15, 15 , 15) / 365
+#' hx <- hq
 #' cf <- calc_cf_slist(USbonds)
-#' calc_dbar(USbonds, ugrid, hu, xgrid = xgrid, hx = hx, cf_slist = cf)
+#' calc_hhat_num(data = USbonds, ugrid = ugrid, hu = hu, xgrid = xgrid,
+#'           hx = hx,qgrid = qgrid, hq=hq, cf_slist = cf)
 #' @export
 calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_slist, interest, units = 465) {
   if (missing(cf_slist)){
@@ -339,15 +343,16 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
 #' @param units (Optional) number of tupq per xgrid (e.g. 365 for daily data with annual grid values). Defaults to 365
 #' @author Nathaniel Tomasetti
 #' @examples
-#' \donttest{
-#' ugrid<-0.2
-#' hu<-0.2
-#' xgrid<-seq(0,360,30) / 365
-#' hq <-rep(15,length(xgrid)) / 365
-#' price <- calc_price_slist(USbonds)
-#' cf <- calc_cf_slist(USbonds)
-#' estimate_yield(USbonds, ugrid, hu,xgrid =  xgrid,hq= hq, price_slist, cf_slist = cf)
-#' }
+#'  ugrid<-0.2
+#'  hu<-0.2
+#'  qgrid<-seq(0,360,30) / 365
+#'  xgrid <- qgrid
+#'  hq <-rep(15,length(xgrid)) / 365
+#'  hx <- hq
+#'  price <- calc_price_slist(USbonds)
+#'  cf <- calc_cf_slist(USbonds)
+#'  estimate_yield(data = USbonds, ugrid = ugrid, hu = hu, xgrid = xgrid,
+#'                 hx=hx, qgrid = qgrid,hq= hq, price_slist=price, cf_slist = cf)
 #' @export
 #' @details Provides a data.frame of the yield and discount rate at each combination of the provided grids. Estimation follows (CITATION), with five major steps:
 #' 1. Estimation of dbar, a component of the discount rate that ignores cross products.
