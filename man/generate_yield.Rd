@@ -45,5 +45,5 @@ The yield curve for quotation dates = 1, 2, ... , max_q_date multiplies this cur
 so the yield curve slowly changes over different quotation dates.
 }
 \examples{
-generate_yield()
+out <- generate_yield()
 }

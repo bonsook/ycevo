@@ -25,7 +25,9 @@ quotation days and different bonds from the raw data
 into a list of sparse matrices for estimation
 }
 \examples{
-calc_cf_slist(USbonds)
+\donttest{
+cf <- calc_cf_slist(USbonds)
+}
 }
 \author{
 Bonsoo Koo and Kai-Yang Goh

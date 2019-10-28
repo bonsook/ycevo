@@ -342,6 +342,7 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
 #' @param loess (Optional) Logical. Whether the output estimated discount and yield are to be smoothed using locally estimated scatterplot smoothing (LOESS)
 #' @author Nathaniel Tomasetti
 #' @examples
+#' \donttest{
 #' ugrid <- 0.207171315
 #' hu <- 0.2
 #' max_tumat <- max(USbonds$tumat)
@@ -354,8 +355,8 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
 #' # Cut qgrid so that there is one value greater than the maximum to maturity
 #' qgrid <- qgrid[1:min(which(qgrid >= max_tumat / 365))]
 #' 
-#' laggap <- qgrid - lag(qgrid)
-#' leadgap <- lead(qgrid) - qgrid
+#' laggap <- qgrid - dplyr::lag(qgrid)
+#' leadgap <- dplyr::lead(qgrid) - qgrid
 #' hq <- vapply(1:length(qgrid), function(x) max(laggap[x], leadgap[x], na.rm = TRUE), runif(1))
 #' grids <- create_xgrid_hx(USbonds, ugrid, hu, qgrid, hq, 5)
 #' 
@@ -363,6 +364,7 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
 #' cf <- calc_cf_slist(USbonds)
 #' dhat <- estimate_yield(data = USbonds, ugrid = ugrid, hu = hu, xgrid = grids$xgrid,
 #'                hx=grids$hx, qgrid = qgrid,hq= hq, price_slist=price, cf_slist = cf)
+#' }
 #' @export
 #' @details Provides a data.frame of the yield and discount rate at each combination of the provided grids. Estimation follows (CITATION), with five major steps:
 #' 1. Estimation of dbar, a component of the discount rate that ignores cross products.

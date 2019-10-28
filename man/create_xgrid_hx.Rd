@@ -29,6 +29,9 @@ create_xgrid_hx(data, ugrid, hu, qgrid, hq, min_points, rgrid, hr,
 \item{units, }{Optional, number of units per period. Eg 365 for daily data, 12 for monthly.
 Grid values without maturing bonds do not have sufficient data for stable estimates.}
 }
+\value{
+List of xgrid, hx, qgrid and hq. qgrid and hq is the same as input.
+}
 \description{
 Selects xgrid and hx from values of qgrid and hq with a given number of maturing bonds
 }
@@ -37,6 +40,13 @@ Automatically select values for sparse time to maturity xgrid and hx
 for a given dense time to maturity value of qgrid and hq and quotation date ugrid and hu.
 The length of the provided xgrid may change for different ugrid values, so it is recommended
 that the function is called separately for different values of ugrid.
+}
+\examples{
+ugrid <- 0.2
+hu <- 0.18
+qgrid <- c(30, 60, 90) / 365
+hq <- c(15, 15 , 15) / 365
+out <- create_xgrid_hx(data = USbonds, ugrid = ugrid, hu = hu, qgrid = qgrid,hq =hq, min_points = 5)
 }
 \author{
 Nathaniel Tomasetti

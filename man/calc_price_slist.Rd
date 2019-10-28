@@ -21,7 +21,9 @@ quotation days and different bonds from the raw data
 into a list of sparse matrices for estimation
 }
 \examples{
-calc_price_slist(USbonds)
+\donttest{
+price <- calc_price_slist(USbonds)
+}
 }
 \author{
 Bonsoo Koo and Kai-Yang Goh

@@ -89,7 +89,7 @@ num_points_mat <- function(data, ugrid, hu, qgrid, hq, rgrid, hr, interest, unit
 #' so the yield curve slowly changes over different quotation dates.
 #' @return Matrix. See \code{Details}.
 #' @examples 
-#' generate_yield()
+#' out <- generate_yield()
 generate_yield <- function(max_qDate = 12, periods = 36, b0 = 0, b1 = 0.05, b2 = 2, t1 = 3, t2 = 500,
                            linear = -0.55, quadratic = 0.55, cubic = -0.55){
 
