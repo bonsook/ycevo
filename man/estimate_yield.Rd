@@ -5,7 +5,7 @@
 \title{Estimate yield function}
 \usage{
 estimate_yield(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq,
-  price_slist, cf_slist, interest, units = 365)
+  price_slist, cf_slist, interest, units = 365, loess = TRUE)
 }
 \arguments{
 \item{data}{A data frame; bond data to estimate discount curve from.}
@@ -43,9 +43,17 @@ If this is a vector or T x 1 matrix, entries represents the qgrid, which will be
 \item{interest}{(Optional) A vector of daily short term interest rates}
 
 \item{units}{(Optional) number of tupq per xgrid (e.g. 365 for daily data with annual grid values). Defaults to 365}
+
+\item{loess}{(Optional) Logical. Whether the output estimated discount and yield are to be smoothed using locally estimated scatterplot smoothing (LOESS)}
 }
 \value{
 Data frame of the yield and discount rate at each combination of the provided grids.
+\describe{
+  \item{discount}{Estimated discount rate}
+  \item{ug}{Same as input \code{ugrid}}
+  \item{qg}{Same as input \code{qgrid}}
+  \item{yield}{Estimated yield}
+}
 }
 \description{
 Estimation of discount function and transformation to yield at given dates, time to maturities, and interest rates.
