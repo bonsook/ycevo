@@ -17,7 +17,9 @@ epaker <- function(x) {
 #' @param data a bond data
 #' @return price_slist: A large list of sparse matrices. See \code{Details}
 #' @examples
-#' calc_price_slist(USbonds)
+#' \donttest{
+#' price <- calc_price_slist(USbonds)
+#' }
 #' @author Bonsoo Koo and Kai-Yang Goh
 #' @details
 #' This function converts and extracts bond prices over
@@ -62,7 +64,9 @@ calc_price_slist <- function(data) {
 #' days in the data. Each element of the output will be a sparseMatrix
 #' object.
 #' @examples
-#' calc_cf_slist(USbonds)
+#' \donttest{
+#' cf <- calc_cf_slist(USbonds)
+#' }
 #' @author Bonsoo Koo and Kai-Yang Goh
 #' @details
 #' This function converts and extracts coupon payments over
@@ -111,7 +115,7 @@ calc_cf_slist <- function(data) {
 #' @examples 
 #'  ugrid <- c(0.2,0.4)
 #'  hu <- c(0.18,0.18)
-#'  calc_uu_window(data = USbonds, ugrid = ugrid,hu = hu)
+#'  out <- calc_uu_window(data = USbonds, ugrid = ugrid,hu = hu)
 #' @export
 calc_uu_window <- function(data, ugrid, hu) {
   #u = values you want to compute dbar and hhat for
@@ -162,7 +166,7 @@ calc_r_window <- function(interest, rgrid, hr) {
 #' @examples 
 #'  ugrid <- c(0.2,0.4)
 #'  hu <- c(0.18,0.18)
-#'  calc_day_idx(data = USbonds, ugrid = ugrid, hu = hu)
+#'  out <- calc_day_idx(data = USbonds, ugrid = ugrid, hu = hu)
 #' @export
 calc_day_idx <- function(data, ugrid, hu) {
   u <- calc_uu_window(data, ugrid, hu)
@@ -181,7 +185,8 @@ calc_day_idx <- function(data, ugrid, hu) {
 #' @param data a bond data frame
 #' @param xgrid vector of the time-to-maturity grid
 #' @param hx vector of the time-to-maturity grid bandwidth
-#' @return calc_ux_window
+#' @return Matrix. The weight attached to each time grid
+#' for the estimation of a discount function
 #' @keywords internal
 #' @author Bonsoo Koo and Kai-Yang Goh
 #' @details
@@ -190,7 +195,7 @@ calc_day_idx <- function(data, ugrid, hu) {
 #' @examples 
 #' xgrid <- c(30, 60, 90) / 365
 #' hx <- c(15, 15 , 15) / 365
-#' calc_ux_window(data = USbonds, xgrid = xgrid, hx = hx)
+#' out <- calc_ux_window(data = USbonds, xgrid = xgrid, hx = hx)
 #' @export
 calc_ux_window <- function(data, xgrid, hx, units = 365) {
   #x = values you want to compute dbar and hhat for
@@ -216,7 +221,7 @@ calc_ux_window <- function(data, xgrid, hx, units = 365) {
 #' @examples 
 #' xgrid <- c(30, 60, 90) / 365
 #' hx <- c(15, 15 , 15) / 365
-#' calc_tupq_idx(data = USbonds, xgrid = xgrid, hx = hx)
+#' out <- calc_tupq_idx(data = USbonds, xgrid = xgrid, hx = hx)
 #' @export
 calc_tupq_idx <- function(data, xgrid, hx, units = 365) {
   x <- calc_ux_window(data,xgrid,hx, units)
@@ -246,12 +251,13 @@ calc_tupq_idx <- function(data, xgrid, hx, units = 365) {
 #' @param interest, Optional, a vector of daily interest rates for use with rgrid. Must have a length equal to the number of unique qdates in data
 #' @param units, Optional, number of units per period. Eg 365 for daily data, 12 for monthly.
 #' Grid values without maturing bonds do not have sufficient data for stable estimates.
+#' @return List of xgrid, hx, qgrid and hq. qgrid and hq is the same as input.
 #' @examples 
 #' ugrid <- 0.2
 #' hu <- 0.18
 #' qgrid <- c(30, 60, 90) / 365
 #' hq <- c(15, 15 , 15) / 365
-#' create_xgrid_hx(data = USbonds, ugrid = ugrid, hu = hu, qgrid = qgrid,hq =hq, min_points = 5)
+#' out <- create_xgrid_hx(data = USbonds, ugrid = ugrid, hu = hu, qgrid = qgrid,hq =hq, min_points = 5)
 #' @export
 create_xgrid_hx <- function(data, ugrid, hu, qgrid, hq, min_points, rgrid, hr, interest, units = 365){
 

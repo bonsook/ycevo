@@ -14,7 +14,8 @@ calc_ux_window(data, xgrid, hx, units = 365)
 \item{hx}{vector of the time-to-maturity grid bandwidth}
 }
 \value{
-calc_ux_window
+Matrix. The weight attached to each time grid
+for the estimation of a discount function
 }
 \description{
 Apply kernel in relation to time-to-maturity grids
@@ -26,7 +27,7 @@ for the estimation of a discount function
 \examples{
 xgrid <- c(30, 60, 90) / 365
 hx <- c(15, 15 , 15) / 365
-calc_ux_window(data = USbonds, xgrid = xgrid, hx = hx)
+out <- calc_ux_window(data = USbonds, xgrid = xgrid, hx = hx)
 }
 \author{
 Bonsoo Koo and Kai-Yang Goh

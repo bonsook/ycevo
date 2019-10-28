@@ -6,16 +6,9 @@ This is a resubmission. In this version I have:
 * Replaced \dontrun{} with \donttest{}: 
     the examples take more than 10 sec to run 
 
+* Added examples for main functions.
 
-
-
-
-
-
-Please add \value to .Rd files regarding methods and explain the functions results in the documentation.
-
-
-
+* Explained the results for main functions.
 
 
 ## Test environments

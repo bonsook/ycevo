@@ -25,7 +25,7 @@ This function provide indices for the start and end of the qdates included in th
 \examples{
  ugrid <- c(0.2,0.4)
  hu <- c(0.18,0.18)
- calc_day_idx(data = USbonds, ugrid = ugrid, hu = hu)
+ out <- calc_day_idx(data = USbonds, ugrid = ugrid, hu = hu)
 }
 \author{
 Bonsoo Koo and Kai-Yang Goh
