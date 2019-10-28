@@ -5,8 +5,8 @@
 
 <!-- badges: start -->
 
-[![Travis build
-status](https://travis-ci.org/FinYang/ycevo.svg?branch=master)](https://travis-ci.org/FinYang/ycevo)
+[![Build
+Status](https://travis-ci.org/bonsook/ycevo.svg?branch=master)](https://travis-ci.org/bonsook/ycevo)
 <!-- badges: end -->
 
 The goal of ycevo is to provide a range of functions to facilitate the
@@ -52,12 +52,12 @@ devtools::install_github("bonsook/ycevo")
 ``` r
 library(ycevo)
 library(tidyverse)
-#> -- Attaching packages -------------------------------------------------------------------------------- tidyverse 1.2.1 --
+#> -- Attaching packages ------------------------------------------------------------------------------------------------------ tidyverse 1.2.1 --
 #> v ggplot2 3.2.1     v purrr   0.3.2
 #> v tibble  2.1.3     v dplyr   0.8.3
 #> v tidyr   1.0.0     v stringr 1.4.0
 #> v readr   1.3.1     v forcats 0.4.0
-#> -- Conflicts ----------------------------------------------------------------------------------- tidyverse_conflicts() --
+#> -- Conflicts --------------------------------------------------------------------------------------------------------- tidyverse_conflicts() --
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
 library(lubridate)# Twelve quotation dates
@@ -103,7 +103,8 @@ yield <- estimate_yield(
     hx = hx,
     qgrid = qgrid,
     hq = hq,
-    units = 1)
+    units = 1, 
+    loess = FALSE)
 glimpse(yield)
 #> Observations: 360
 #> Variables: 4

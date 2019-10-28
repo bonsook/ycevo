@@ -79,7 +79,8 @@ yield <- estimate_yield(
     hx = hx,
     qgrid = qgrid,
     hq = hq,
-    units = 1)
+    units = 1, 
+    loess = FALSE)
 glimpse(yield)
 
 # Yield vs Time (qgrid)
