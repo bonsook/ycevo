@@ -3,7 +3,7 @@
 \docType{data}
 \name{USbonds}
 \alias{USbonds}
-\title{CRSP US Bond Dataset from 02/01/1970 to 31/12/1970}
+\title{CRSP US Bond Dataset from 02/01/2007 to 31/12/2007}
 \format{A data frame with 111791 rows and 12 variables:
 \describe{
   \item{qdate}{Quotation Date}

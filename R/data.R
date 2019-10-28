@@ -1,4 +1,4 @@
-#' CRSP US Bond Dataset from 02/01/1970 to 31/12/1970
+#' CRSP US Bond Dataset from 02/01/2007 to 31/12/2007
 #'
 #' A dataset containing the prices and other attributes
 #' of CRSP US treasury bills, notes, and bonds.
