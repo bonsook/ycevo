@@ -345,7 +345,7 @@ interpolate_discount <- function(data, yield, treasury){
     select(.data$ug, .data$rg) %>%
     unique() %>%
     .$rg %>%
-    matrix(ncol = length(.data$ugrid)) %>%
+    matrix(ncol = length(ugrid)) %>%
     t() -> rgrid
 
   # Loess interpolation of each ugrid / rgrid combination for these qgrid values
