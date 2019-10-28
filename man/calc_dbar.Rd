@@ -3,6 +3,9 @@
 \name{calc_dbar}
 \alias{calc_dbar}
 \title{A component of the estimate_yield function}
+\source{
+Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
+}
 \usage{
 calc_dbar(data, ugrid, hu, rgrid, hr, xgrid, hx, price_slist, cf_slist,
   interest, units = 365)
@@ -34,21 +37,19 @@ bandwidth parameter determining the size of the window that corresponds to each 
 
 \item{units}{(Optional) number of tupq per xgrid (e.g. 365 for daily data with annual grid values). Defaults to 365}
 }
+\value{
+Data frame with the follwing variables
+
+\describe{
+  \item{ug}{Same as input \code{ugrid}}
+  \item{dbar_numer}{Numerator in dbar. See source}
+  \item{dbar_denom}{Denominator in dbar. See source}
+  \item{xg}{Same as input \code{xgrid}}
+}
+}
 \description{
 Internal function that estimates the discount function without taking into account
-cross products of coupon payments
-}
-\examples{
-ugrid <- c(0.2,0.4)
-hu <- c(0.18,0.18)
-qgrid <- c(30, 60, 90) / 365
-xgrid <- qgrid
-hq <- c(15, 15 , 15) / 365
-hx <- hq
-price <- calc_price_slist(USbonds)
-cf <- calc_cf_slist(USbonds)
-calc_dbar(data = USbonds, ugrid = ugrid, hu = hu, xgrid = xgrid, 
-          hx=hx, price_slist =  price, cf_slist =  cf)
+cross products of coupon payments. Not to be used independently. Exported for documentation purpose.
 }
 \author{
 Nathaniel Tomasetti

@@ -3,6 +3,9 @@
 \name{calc_hhat_num}
 \alias{calc_hhat_num}
 \title{A component of the estimate_yield function}
+\source{
+Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
+}
 \usage{
 calc_hhat_num(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_slist,
   interest, units = 465)
@@ -45,19 +48,19 @@ If omitted, hq is set equal to hx}
 
 \item{units}{(Optional) number of tupq per xgrid (e.g. 365 for daily data with annual grid values). Defaults to 365}
 }
-\description{
-Internal function that calculates coupon payment cross products
+\value{
+Data frame with the follwing variables
+
+\describe{
+  \item{hhat_numer}{Numerator in H hat. See source}
+  \item{ug}{Same as input \code{ugrid}}
+  \item{xg}{Same as input \code{xgrid}}
+  \item{qg}{Same as input \code{qgrid}}
 }
-\examples{
-ugrid <- c(0.2,0.4)
-hu <- c(0.18,0.18)
-qgrid <- c(30, 60, 90) / 365
-xgrid <- qgrid
-hq <- c(15, 15 , 15) / 365
-hx <- hq
-cf <- calc_cf_slist(USbonds)
-calc_hhat_num(data = USbonds, ugrid = ugrid, hu = hu, xgrid = xgrid,
-          hx = hx,qgrid = qgrid, hq=hq, cf_slist = cf)
+}
+\description{
+Internal function that calculates coupon payment cross products. 
+Not to be used independently. Exported for documentation purpose.
 }
 \author{
 Nathaniel Tomasetti

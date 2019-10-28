@@ -67,16 +67,27 @@ Provides a data.frame of the yield and discount rate at each combination of the 
 5. Transformation of the discount rate into a yield.
 }
 \examples{
- ugrid<-0.2
- hu<-0.2
- qgrid<-seq(0,360,30) / 365
- xgrid <- qgrid
- hq <-rep(15,length(xgrid)) / 365
- hx <- hq
- price <- calc_price_slist(USbonds)
- cf <- calc_cf_slist(USbonds)
- estimate_yield(data = USbonds, ugrid = ugrid, hu = hu, xgrid = xgrid,
-                hx=hx, qgrid = qgrid,hq= hq, price_slist=price, cf_slist = cf)
+ugrid <- 0.207171315
+hu <- 0.2
+max_tumat <- max(USbonds$tumat)
+qgrid <- c(seq(30, 6 * 30, 30),  # Monthly up to six months
+           seq(240, 2 * 365, 60),  # Two months up to two years
+           seq(720 + 90, 6 * 365, 90),  # Three months up to six years
+           seq(2160 + 120, 20 * 365, 120),  # Four months up to 20 years
+           #               seq(20 * 365 + 182, 30 * 365, 182)) / 365 # Six months up to 30 years
+           seq(20 * 365 + 182, 30.6 * 365, 182)) / 365
+# Cut qgrid so that there is one value greater than the maximum to maturity
+qgrid <- qgrid[1:min(which(qgrid >= max_tumat / 365))]
+
+laggap <- qgrid - lag(qgrid)
+leadgap <- lead(qgrid) - qgrid
+hq <- vapply(1:length(qgrid), function(x) max(laggap[x], leadgap[x], na.rm = TRUE), runif(1))
+grids <- create_xgrid_hx(USbonds, ugrid, hu, qgrid, hq, 5)
+
+price <- calc_price_slist(USbonds)
+cf <- calc_cf_slist(USbonds)
+dhat <- estimate_yield(data = USbonds, ugrid = ugrid, hu = hu, xgrid = grids$xgrid,
+               hx=grids$hx, qgrid = qgrid,hq= hq, price_slist=price, cf_slist = cf)
 }
 \author{
 Nathaniel Tomasetti
