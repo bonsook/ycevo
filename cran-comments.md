@@ -1,5 +1,11 @@
 ## Resubmission
+
 This is a resubmission. In this version I have:
+
+* Added references describing the methods in the description field of the DESCRIPTION file.
+
+
+In last version I have:
 
 * Explained acronym in the description text
 
