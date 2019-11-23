@@ -14,7 +14,8 @@ calc_uu_window(data, ugrid, hu)
 \item{hu}{vector of quotation date bandwidth}
 }
 \value{
-calc_uu_window
+Matrix with number of columns being the length of \code{ugrid} and number of rows being the number of unique qdates.
+Each column represents the weights of each qdate for that ugrid.
 }
 \description{
 Generate a kernel weight function in relation to time grids

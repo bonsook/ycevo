@@ -17,9 +17,6 @@ calc_tupq_idx(data, xgrid, hx, units = 365)
 Matrix. The first and last xgrid included in the current kernel window.
 }
 \description{
-Provide indices in relation to time-to-maturity grids
-}
-\details{
 This function provides indices for the first and last xgrid included in the current kernel window
 }
 \examples{

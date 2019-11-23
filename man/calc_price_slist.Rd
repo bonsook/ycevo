@@ -10,7 +10,11 @@ calc_price_slist(data)
 \item{data}{a bond data}
 }
 \value{
-price_slist: A large list of sparse matrices. See \code{Details}
+If all the required information is present, then the
+output will be a list with length equal to the number of quotation
+days in the data. Each element of the output will be a sparseMatrix
+object with the number of rows being the number of bonds 
+and the number of columns being the maximum of time-to-maturity.
 }
 \description{
 Tranforms data into a format suitable for estimation

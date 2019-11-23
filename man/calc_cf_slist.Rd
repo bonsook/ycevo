@@ -14,7 +14,8 @@ time until payment and payment amount.}
 If all the required information is present, then the
 output will be a list with length equal to the number of quotation
 days in the data. Each element of the output will be a sparseMatrix
-object.
+object with the number of rows being the number of bonds 
+and the number of columns being the maximum of time-to-maturity.
 }
 \description{
 Tranforms data into a format suitable for estimation
