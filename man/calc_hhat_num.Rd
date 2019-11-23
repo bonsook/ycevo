@@ -2,7 +2,7 @@
 % Please edit documentation in R/estimation.R
 \name{calc_hhat_num}
 \alias{calc_hhat_num}
-\title{A component of the estimate_yield function}
+\title{A component of the \code{estimate_yield} function that calculates \eqn{hhat}}
 \source{
 Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
 }
@@ -52,7 +52,7 @@ If omitted, hq is set equal to hx}
 Data frame with the follwing variables
 
 \describe{
-  \item{hhat_numer}{Numerator in H hat. See source}
+  \item{hhat_numer}{Numerator in H hat. See \code{Source}}
   \item{ug}{Same as input \code{ugrid}}
   \item{xg}{Same as input \code{xgrid}}
   \item{qg}{Same as input \code{qgrid}}

@@ -45,7 +45,7 @@ The functions require particular column names:
 
 * crspid: Some character or factor that uniquely identifies the bond
 
-* mid.price: the quoted price of the bond on that day
+* mid.price: The quoted price of the bond on that day
 
 * tupq: Time until a given payment, usually given in days
 
@@ -78,7 +78,7 @@ glimpse(data)
 
 We want to estimate the yield curve at various quotation dates to find how it evolves over time.
 
-First we need to define `ugrid`, the grid of quotation dates that we want to estimate the discount rate for. `ugrid` is provided as a decimal from 0 to 1. A `ugrid` of 0 indicates the first available day in the data, and a `ugrid` of 1 indicates the last available day. The first line will create max_qDate - 2 = 10 `ugrid` values spread evenly throughout the 12 quotation dates in the data. Each `ugrid` value is associated with a bandwidth. Quotation dates within `ugrid` $\pm$ `hu` will be included in the calculations, with the epaker kernel function. 
+First we need to define `ugrid`, the grid of quotation dates that we want to estimate the discount rate for. `ugrid` is provided as a decimal from 0 to 1. A `ugrid` of 0 indicates the first available day in the data, and a `ugrid` of 1 indicates the last available day. The first line below will create max_qDate - 2 = 10 `ugrid` values spread evenly throughout the 12 quotation dates in the data. Each `ugrid` value is associated with a bandwidth. Quotation dates within `ugrid` $\pm$ `hu` will be included in the calculations, with the epaker kernel function. 
 It works best if the intervals defined by `ugrid` $\pm$ `hu` do not include zero or one.
 
 ```{r}
@@ -97,7 +97,9 @@ qgrid <- qgrid[1:min(which(qgrid >= max_tumat))]
 hq <- rep(0.1, length(qgrid))
 ```
 
-We also need a different grid of time-to-payment values for some cross-product terms. This is called `xgrid`, and for now we will keep it equal to `qgrid`. Later on, we will introduce a function to automatically select `xgrid` values. 
+We also need a different grid of time-to-payment values for some cross-product terms. This is called `xgrid`, and can be automatically selected by function `create_xgrid_hx`. For now we will keep it equal to `qgrid` for simplicity. 
+
+
 ```{r}
 xgrid <- qgrid
 hx <- hq

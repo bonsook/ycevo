@@ -8,8 +8,12 @@
 arma::mat calc_dbar_c(int nday, int ntupq, arma::mat day_idx, arma::mat tupq_idx, arma::mat ux_window, arma::mat uu_window,
                 Rcpp::List price_slist, Rcpp::List cf_slist){
   arma::mat dbar(nday * ntupq, 2);
+  
+  // For each element in ugrid
   for(int i = 0; i < nday; ++i){
     arma::rowvec seq_day = day_idx.row(i);
+    
+    // For each element in xgrid
     for(int j = 0; j < ntupq; ++j){
       Rcpp::checkUserInterrupt();
       arma::rowvec seq_tupq;
@@ -21,17 +25,27 @@ arma::mat calc_dbar_c(int nday, int ntupq, arma::mat day_idx, arma::mat tupq_idx
         windowOffset = i * ntupq;
       }
       arma::vec num(seq_day[1] - seq_day[0] + 1, arma::fill::zeros), den(seq_day[1] - seq_day[0] + 1, arma::fill::zeros);
+      
+      // For each element in the window of the current element of ugrid: t=1 to T in the paper
+      // The kernel for the rest is 0
       for(int k = seq_day[0] - 1; k < seq_day[1]; ++k){
         arma::sp_mat price_temp =  Rcpp::as<arma::sp_mat>(price_slist[k]);
         arma::sp_mat cf_temp =  Rcpp::as<arma::sp_mat>(cf_slist[k]);
         double ncols = price_temp.n_cols;
+        
+        // The next two loops are to loop over elements in the cash flow and price matrix in the price_slist and cf_slist
+        // For each bond: i=1 to n_t in the paper
         for(unsigned int m = 0; m < price_temp.n_rows; ++m){
+          
+          // For each element in the window of the current element of xgrid: j=1 to m_it in the paper
+          // The kernel for the rest is 0
           for(int n = seq_tupq[0] - 1; n < std::min(seq_tupq[1], ncols); ++n) {
             num(k - seq_day[0] + 1) += price_temp(m, n) * cf_temp(m, n) * ux_window(n, windowOffset + j) * uu_window(k, i);
             den(k - seq_day[0] + 1) += pow(cf_temp(m, n), 2) * ux_window(n, windowOffset + j) * uu_window(k, i);
           }
         }
       }
+      
       double numer = arma::sum(num), denom = arma::sum(den);
       dbar(i*ntupq + j, 0) = numer;
       dbar(i*ntupq + j, 1) = denom;
@@ -167,8 +181,11 @@ arma::cube calc_hhat_num2_c(int nday, int ntupq_x, int ntupq_q, arma::mat day_id
 
   arma::cube hhat(ntupq_x, ntupq_q, nday, arma::fill::zeros);
 
+  // For each element in ugrid
   for (int i = 0; i < nday; ++i) {
     arma::rowvec seq_day = day_idx.row(i);
+    
+    // For each element in xgrid
     for (int j = 0; j < ntupq_x; ++j) {
       arma::rowvec seq_tupq_x;
       int window_lower_x, window_upper_x;
@@ -181,6 +198,8 @@ arma::cube calc_hhat_num2_c(int nday, int ntupq_x, int ntupq_q, arma::mat day_id
         window_lower_x = ntupq_x * i;
         window_upper_x = ntupq_x * (i + 1) - 1;
       }
+      
+      // For each element in qgrid
       for (int k = 0; k < ntupq_q; ++k) {
         Rcpp::checkUserInterrupt();
         arma::rowvec seq_tupq_q;
@@ -197,6 +216,7 @@ arma::cube calc_hhat_num2_c(int nday, int ntupq_x, int ntupq_q, arma::mat day_id
         hhat(j, k, i) = calc_hhat_once(j, k, seq_day, seq_tupq_x, seq_tupq_q, cf_slist,
              ux_window.cols(window_lower_x, window_upper_x), uq_window.cols(window_lower_q, window_upper_q), uu_window.col(i));
       }
+      
     }
   }
   return hhat;

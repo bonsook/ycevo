@@ -2,7 +2,7 @@
 % Please edit documentation in R/estimation.R
 \name{calc_dbar}
 \alias{calc_dbar}
-\title{A component of the estimate_yield function}
+\title{A component of the \code{estimate_yield} function that calculates \eqn{dbar}}
 \source{
 Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
 }
@@ -42,8 +42,8 @@ Data frame with the follwing variables
 
 \describe{
   \item{ug}{Same as input \code{ugrid}}
-  \item{dbar_numer}{Numerator in dbar. See source}
-  \item{dbar_denom}{Denominator in dbar. See source}
+  \item{dbar_numer}{Numerator in dbar. See \code{Source}}
+  \item{dbar_denom}{Denominator in dbar. See \code{Source}}
   \item{xg}{Same as input \code{xgrid}}
 }
 }

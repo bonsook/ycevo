@@ -9,22 +9,27 @@ epaker <- function(x) {
   # (1-x^2)*(abs(x)<=1)
 }
 
-#' @name calc_price_slist
-#' @description Tranforms data into a format suitable for estimation
-#' @aliases calc_price_slist
-#' @title Create a bond price list from the data
-#' @export
+#' Create a bond price list from the data
+#' 
+#' Tranforms data into a format suitable for estimation
+#' 
+#' This function converts and extracts bond prices over
+#' quotation days and different bonds from the raw data
+#' into a list of sparse matrices for estimation
+#' 
 #' @param data a bond data
-#' @return price_slist: A large list of sparse matrices. See \code{Details}
+#' 
+#' @return If all the required information is present, then the
+#' output will be a list with length equal to the number of quotation
+#' days in the data. Each element of the output will be a sparseMatrix
+#' object with the number of rows being the number of bonds 
+#' and the number of columns being the maximum of time-to-maturity.
 #' @examples
 #' \donttest{
 #' price <- calc_price_slist(USbonds)
 #' }
 #' @author Bonsoo Koo and Kai-Yang Goh
-#' @details
-#' This function converts and extracts bond prices over
-#' quotation days and different bonds from the raw data
-#' into a list of sparse matrices for estimation
+#' @export
 calc_price_slist <- function(data) {
   price_list <- data %>%
     mutate(mid.price = !!sym('mid.price') + !!sym('accint')) %>%
@@ -52,26 +57,28 @@ calc_price_slist <- function(data) {
 }
 
 
-#' @name calc_cf_slist
-#' @aliases calc_cf_slist
-#' @description Tranforms data into a format suitable for estimation
-#' @title Create a list of sparse matrices to represent cash flows
-#' @export
+#' Create a list of sparse matrices to represent cash flows
+#' 
+#' Tranforms data into a format suitable for estimation
+#' 
+#' This function converts and extracts coupon payments over
+#' quotation days and different bonds from the raw data
+#' into a list of sparse matrices for estimation
+#' 
 #' @param data data for bonds including quotation days, bond id,
 #' time until payment and payment amount.
+#' 
 #' @return If all the required information is present, then the
 #' output will be a list with length equal to the number of quotation
 #' days in the data. Each element of the output will be a sparseMatrix
-#' object.
+#' object with the number of rows being the number of bonds 
+#' and the number of columns being the maximum of time-to-maturity.
 #' @examples
 #' \donttest{
 #' cf <- calc_cf_slist(USbonds)
 #' }
 #' @author Bonsoo Koo and Kai-Yang Goh
-#' @details
-#' This function converts and extracts coupon payments over
-#' quotation days and different bonds from the raw data
-#' into a list of sparse matrices for estimation
+#' @export
 calc_cf_slist <- function(data) {
 
   cf_list <- data %>%
@@ -99,27 +106,30 @@ calc_cf_slist <- function(data) {
 }
 
 
-#' @name calc_uu_window
-#' @aliases calc_uu_window
-#' @title Weights time grid
-#' @description Generate a kernel weight function in relation to time grids
+#' Weights time grid
+#' 
+#' Generate a kernel weight function in relation to time grids
+#' 
+#' This function generates a weight function attached to each quotation date grid
+#' for the estimation of a discount function
+#' 
 #' @param data a bond dataframe
 #' @param ugrid vector of the quotation date grid
 #' @param hu vector of quotation date bandwidth
-#' @return calc_uu_window
+#' 
+#' @return Matrix with number of columns being the length of \code{ugrid} and number of rows being the number of unique qdates.
+#' Each column represents the weights of each qdate for that ugrid.
+#' 
 #' @keywords internal
 #' @author Bonsoo Koo and Kai-Yang Goh
-#' @details
-#' This function generates a weight function attached to each quotation date grid
-#' for the estimation of a discount function
 #' @examples 
 #'  ugrid <- c(0.2,0.4)
 #'  hu <- c(0.18,0.18)
 #'  out <- calc_uu_window(data = USbonds, ugrid = ugrid,hu = hu)
 #' @export
 calc_uu_window <- function(data, ugrid, hu) {
-  #u = values you want to compute dbar and hhat for
-  #h = bandwidth parameter
+  #ugrid = values you want to compute dbar and hhat for
+  #hu = bandwidth parameter
   qdate_len <- length(unique(data$qdate))
   gamma <- seq(1, qdate_len, 1) / qdate_len
   uu = matrix(0, nrow = length(gamma), ncol = length(ugrid))
@@ -178,20 +188,22 @@ calc_day_idx <- function(data, ugrid, hu) {
 }
 
 
-#' @name calc_ux_window
-#' @aliases calc_ux_window
-#' @title Weights time to maturity grid
-#' @description Apply kernel in relation to time-to-maturity grids
+#' Weights time to maturity grid
+#' 
+#' Apply kernel in relation to time-to-maturity grids
+#' 
+#' This function generates a weight function attached to each time grid
+#' for the estimation of a discount function
+#' 
 #' @param data a bond data frame
 #' @param xgrid vector of the time-to-maturity grid
 #' @param hx vector of the time-to-maturity grid bandwidth
+#' 
 #' @return Matrix. The weight attached to each time grid
 #' for the estimation of a discount function
+#' 
 #' @keywords internal
 #' @author Bonsoo Koo and Kai-Yang Goh
-#' @details
-#' This function generates a weight function attached to each time grid
-#' for the estimation of a discount function
 #' @examples 
 #' xgrid <- c(30, 60, 90) / 365
 #' hx <- c(15, 15 , 15) / 365
@@ -207,17 +219,18 @@ calc_ux_window <- function(data, xgrid, hx, units = 365) {
   epaker(ux)
 }
 
-#' @name calc_tupq_idx
-#' @aliases calc_tupq_idx
-#' @title Provide indices in relation to time-to-maturity grids
+#' Provide indices in relation to time-to-maturity grids
+#' 
+#' This function provides indices for the first and last xgrid included in the current kernel window
+#' 
 #' @param data Bond dataframe
 #' @param xgrid vector of the time-to-maturity grid
 #' @param hx vector of the time-to-maturity grid bandwidth
+#' 
 #' @return Matrix. The first and last xgrid included in the current kernel window.
+#' 
 #' @keywords internal
 #' @author Bonsoo Koo and Kai-Yang Goh
-#' @details
-#' This function provides indices for the first and last xgrid included in the current kernel window
 #' @examples 
 #' xgrid <- c(30, 60, 90) / 365
 #' hx <- c(15, 15 , 15) / 365
