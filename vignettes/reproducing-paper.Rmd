@@ -129,8 +129,8 @@ qgrid <- c(seq(30, 6 * 30, 30),  # Monthly up to six months
            seq(5 * 365+ 120, 10 * 365, 120),  # four months up to ten years
            seq(10 * 365 + 365, 35 * 365, 365)) / 365 # Annually up to 35 years
 max_tumat <- max(USbonds$tumat)
-if(max_tumat < max(qgrid)){
-  qgrid <- qgrid[1:min(which(qgrid >= max_tumat))]
+if(max_tumat/365 < max(qgrid)){
+  qgrid <- qgrid[1:min(which(qgrid >= max_tumat/365))]
 }
 
 ```
@@ -158,7 +158,7 @@ for(i in seq_along(ugrid)){
       hu = hu[i],
       qgrid = qgrid,
       hq = hq,
-      min_points = 10,
+      min_points = 5,
       rgrid = rgrid[j],
       hr = hr[j],
       interest = treasury$rate)
@@ -172,8 +172,8 @@ for(i in seq_along(ugrid)){
       hr = hr[j],
       xgrid = grids$xgrid,
       hx = grids$hx,
-      qgrid = qgrid,
-      hq = hq,
+      qgrid = grids$qgrid,
+      hq = grids$hq,
       interest = treasury$rate)
 
     yield <- rbind(yield, estim)
