@@ -1,0 +1,225 @@
+---
+title: "US yield curve 2007: Reproducing Koo, La Vecchia, & Linton (2019)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{US yield curve 2007: Reproducing Koo, La Vecchia, & Linton (2019)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+collapse = TRUE,
+comment = "#>"
+)
+```
+
+
+## Introduction
+
+The goal of ycevo is to provide a range of functions to facilitate the non-parametric estimation of the discount rate, and yield curve, of CRSP Bond Data.
+
+If you use any data or code from the `ycevo` package in a publication, please use the following citation:  
+
+> Bonsoo Koo, Nathaniel Tomasetti, Kai-Yang Goh and Yangzhuoran Yang (2019). ycevo: Non-Parametric Estimation
+of the Yield Curve Evolution. R package version 1.0.0. https://github.com/bonsook/ycevo. 
+
+The package provides code used in Koo, La Vecchia, & Linton (2019). Please use the follwing citation if you use any result from the paper.
+
+> Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
+
+This vignette aims to provide steps and documentation for producing part of the results (tables, figures, etc) in Koo, La Vecchia, & Linton (2019). For a simple simulation example using the package, refer to vignette _Introduction to ycevo: Simulation example_.
+
+
+## Reproducing paper
+
+Load in the libraries we will use.
+```{r, message = FALSE}
+library(ycevo)
+library(tidyverse)
+library(lubridate)
+```
+
+The data must be provided as a data.frame or tibble object, with one row corresponding to each payment - either the coupon or principal - for one bond on one quotation date.
+The functions require particular column names:
+
+* qdate: The quotation date, as an integer or lubridate::date object
+
+* crspid: Some character or factor that uniquely identifies the bond
+
+* mid.price: The quoted price of the bond on that day
+
+* tupq: Time until a given payment, usually given in days
+
+* tumat: Time until maturity, in days (equal to tupq for zero coupon bonds)
+
+* pdint: Numeric value of payment
+
+* accint: The accumulated interest on payments
+
+For example, if a bond traded on 18/9/2019 has five payments remaining until maturity, it should have five rows in the data with a quotation date of 18/9/2019. Each of these five rows will have a different value of pdint and tupq, corresponding to the five payments, but will have the same value for price, accint, and tumat
+
+The CRSP bond database for 2007 is provided as USbonds as an example
+```{r}
+glimpse(USbonds)
+```
+
+
+
+The daily three month treasury bill rate from 1954 to 2018 is provided, it's called DTB3. 
+```{r}
+glimpse(DTB3)
+```
+
+There are two variables:
+
+1. date, the current day.
+
+2. rate, the three month treasury bill interest rate on that day.
+
+First we need to define our `ugrid`, the grid of quotation dates that we want to estimate the discount rate for. `ugrid` is provided as a decimal from 0 to 1. A `ugrid` of 0 indicates the first available day in the data, and a `ugrid` of 1 indicates the last available day. Each `ugrid` value is associated with a bandwidth. Quotation dates within `ugrid` $\pm$ `hu` will be included in the calculations, with the epaker kernel function. 
+It works best if the intervals defined by `ugrid` $\pm$ `hu` do not include zero or one. We could simply use the following as it is only one year.
+
+
+```{r, eval = FALSE}
+ugrid <- c(0.2, 0.4, 0.6, 0.8)
+hu <- rep(0.2, 4)
+```
+
+The data used in Koo, La Vecchia, & Linton (2019) covers the seven-year-period from Jan. 2001 to Dec. 2007. To reproduce the result in the paper, instead of using the simple `ugrid` as shown above, we retrieve the `ugrid` used in the paper, which is calculated over a seven-year-period.
+
+```{r}
+years <- 2001:2007
+ugridPerYear <- c(seq(0.2, 0.8, 0.2), rep(seq(0, 0.8, 0.2), length(years) - 1))
+ugrid <- seq(0.2, length(years) - 0.2, 0.2) / length(years)
+year <- rep(years, c(4, rep(5, length(years) - 1)))
+hu <- rep(0.2/length(years), 5*length(years) - 1)
+
+
+```
+
+
+
+
+The following was the interest rates for this period. We will define `rgrid` and `hr` as the interest rate grid and bandwidth. Make sure the interest rate is within `rgrid` $\pm$ `hr` for long enough in each ugrid window or we may not have enough data. We use deterministic time and three-month treasury bill rates `treasure$rate` as factors.
+
+```{r, fig.cap="Three-month Treasury bill rates (2007)", fig.align="center"}
+treasury <- filter(DTB3, date %in% unique(USbonds$qdate))
+ggplot(treasury) + geom_line(aes(date, rate))
+```
+
+
+```{r}
+rgrid <- c(3, 5)
+hr <- c(10, 10)
+```
+
+The interest grid is entirely optional, and we can simply ignore the rgrid, hr, and interest arguments in all of our functions. 
+
+
+
+Next we need a grid of the time-to-payment values that we want to estimate a discount rate for. This grid is referred to as `qgrid`. Some of the functions used below have a units argument. If qgrid is in the same unit as tupq is (e.g., days), set units to 1. If tupq is in days and you want to specify qgrid in years, set units to 365. Each value of qgrid plus/minus hq defines a bin. It is okay if there is no observed payments for some of these bins (we will interpolate nearby payments) but the first and last bin needs to contain some payment. We include a few lines here to check the latest bond in the data, and truncate qgrid to this value.
+
+There's lots of data for short term maturities, and less data for longer maturities. We will let `qgrid` change as the duration increases.
+
+```{r}
+qgrid <- c(seq(30, 6 * 30, 30),  # Monthly up to six months
+           seq(240, 2 * 365, 60),  # Two months up to two years
+           seq(2 * 365 + 90, 5 * 365, 90),  # Three months up to five years
+           seq(5 * 365+ 120, 10 * 365, 120),  # four months up to ten years
+           seq(10 * 365 + 365, 35 * 365, 365)) / 365 # Annually up to 35 years
+max_tumat <- max(USbonds$tumat)
+if(max_tumat < max(qgrid)){
+  qgrid <- qgrid[1:min(which(qgrid >= max_tumat))]
+}
+
+```
+
+Create a bandwidth for each of these qgrid values. We will use `max(qgrid - dplyr::lag(qgrid), dplyr::lead(qgrid) - qgrid)`.
+```{r}
+# We set hq to be the maximum of the gap between a given qgrid and the previous value, and that qgrid and the next value
+laggap <- qgrid - dplyr::lag(qgrid)
+leadgap <- dplyr::lead(qgrid) - qgrid
+hq <- vapply(1:length(qgrid), function(x) max(laggap[x], leadgap[x], na.rm = TRUE), numeric(1))
+```
+
+Data of this type often leaves large gaps in the time-to-payment grid where we have insufficient data to estimate the discount rate. We use a sparse grid of time values, `xgrid`, where we are sure we have enough data for stable estimates. This is done via the `create_xgrid_hx` function, which has a `min_points` argument. This function inputs `qgrid`, as well as our other grids, `ugrid` and optionally `rgrid`. It creates an `xgrid` that has values of `qgrid` that have at least `min_points` many maturing bonds appearing in that window, and discards the other points. The function outputs a list with named values `xgrid` and `hx`. `hx` is defined by default to be the same as `hq`, but is increased whenever we have omitted an `xgrid` value from `qgrid.` You may use your own `xgrid` and `hx` as you like, but we have found this approach works well for the CRSP data. This usually happens for longer time-to-payment values, above around 15 years.
+
+Unfortunately the strategy used by `create_xgrid_hx` usually means that the size of `xgrid` changes for different values of `ugrid` and `rgrid`. The functions don't support `xgrid` with differing lengths, so we loop through the `rgrid` and `ugrid` values and input one combination at a time.
+
+```{r, eval = FALSE,}
+yield <- tibble()
+for(i in seq_along(ugrid)){
+  for(j in seq_along(rgrid)){
+    # Use the provided function to find a sparse window of xgrid valeus
+    grids <- create_xgrid_hx(
+      data = USbonds,
+      ugrid = ugrid[i],
+      hu = hu[i],
+      qgrid = qgrid,
+      hq = hq,
+      min_points = 10,
+      rgrid = rgrid[j],
+      hr = hr[j],
+      interest = treasury$rate)
+
+    # Estimate dhat over this xgrid.
+    estim <- estimate_yield(
+      data = USbonds,
+      ugrid = ugrid[i],
+      hu = hu[i],
+      rgrid = rgrid[j],
+      hr = hr[j],
+      xgrid = grids$xgrid,
+      hx = grids$hx,
+      qgrid = qgrid,
+      hq = hq,
+      interest = treasury$rate)
+
+    yield <- rbind(yield, estim)
+  }
+
+}
+
+glimpse(yield)
+
+yield %>%
+  gather(var, value, discount, yield) %>%
+  ggplot() + geom_line(aes(qg, value, colour = factor(rg))) + facet_grid(var~ug, scales = 'free')
+
+```
+
+```{r, echo = FALSE}
+# Running the code while compiling the Rmd is slow - so just load in pre-calculated results.
+yield <- vignette_yield
+glimpse(yield)
+yield %>%
+  gather(var, value, discount, yield) %>%
+  ggplot() + geom_line(aes(qg, value, colour = factor(rg))) + facet_grid(var~ug, scales = 'free')
+
+```
+
+Now we have a discount rate and yield on a three-dimensional grid of values. If we want to estimate a price for each bond in our dataset we will need to interpolate the grid of discount rates to the values in the data. We expect that discount rates are non-linear over `xgrid`, so we use loess to interpolate this. The other grids, `ugrid` and `rgrid`, use linear interpolation. The function `interpolate_discount` does all of this for us. If you didn't include `rgrid`, you can omit the `treasury` argument, but if you did include `rgrid`, and the dataframe from `estimate_yield()` includes the `rg` column, you will need `treasury`.
+
+Now we have a discount rate (and yield) on a three-dimensional grid of values. There are many values that appear in the data that we do not have a discount rate for, so we interpolate the results to get a discount rate on any quotation date (`qdate` / `ugrid`), time to payment (`tupq` / `xgrid`) and interest rate (`rgrid`). We expect that discount rates are non-linear over `xgrid`, so we use loess to interpolate this. The other grids have linear interpolation. The function `interpolate_dhat` does all of this for us. If you didn't include `rgrid`, you can omit the `treasury` argument, but if you did include `rgrid`, and the resulting dataframe `dhat` includes the corresponding `rg` column, you will need `treasury`.
+
+
+```{r}
+fitted_data <- interpolate_discount(USbonds, yield, treasury)
+```
+
+From here we can add up all the bond payments for a given `qdate` / `crspid` combination (ie. for each bond on each day) using $\widehat{Price} = \sum dhat \times pdint$ to estimate a price, and the price residuals.
+
+```{r}
+fitted_data %>%
+  mutate(price = mid.price + accint) %>%
+  group_by(qdate, crspid, price) %>%
+  summarise(price_hat = sum(discount * pdint)) %>%
+  mutate(error = price - price_hat) -> errors
+```
+
+
+
+## License
+
+This package is free and open source software, licensed under GPL-3
