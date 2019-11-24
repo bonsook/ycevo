@@ -1,8 +1,8 @@
 ---
-title: "Introduction to ycevo"
+title: "Introduction to ycevo: Simulation example"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to ycevo}
+  %\VignetteIndexEntry{Introduction to ycevo: Simulation example}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
@@ -28,6 +28,8 @@ If you use any data or code from the `ycevo` package in a publication, please us
 The package provides code used in Koo, La Vecchia, & Linton (2019). Please use the follwing citation if you use any result from the paper.
 
 > Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
+
+This vignette aims to provide a simple simulation example using the ycevo package. For helps with reproducing results in Koo, La Vecchia, & Linton (2019), refer to vignette _US yield curve 2007: Reproducing Koo, La Vecchia, & Linton (2019)_.
 
 ## Simulation Example
 
