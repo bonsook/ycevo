@@ -226,9 +226,13 @@ arma::cube calc_hhat_num2_c(int nday, int ntupq_x, int ntupq_q, arma::mat day_id
 arma::cube calc_w_c(int nday, int ntupq, arma::mat day_idx, arma::mat tupq_idx, arma::mat ux_window, arma::mat uu_window, Rcpp::List cf_slist){
   arma::sp_mat cf_temp = Rcpp::as<arma::sp_mat>(cf_slist[0]);
   arma::cube w(cf_temp.n_rows, cf_slist.length(), nday * ntupq, arma::fill::zeros);
+  
+  // For each element in ugrid
   for(int i = 0; i < nday; ++i){
 
     arma::rowvec seq_day = day_idx.row(i);
+    
+    // For each element in xgrid
     for(int j = 0; j < ntupq; ++j){
       Rcpp::checkUserInterrupt();
 
@@ -241,22 +245,30 @@ arma::cube calc_w_c(int nday, int ntupq, arma::mat day_idx, arma::mat tupq_idx, 
         windowOffset = i * ntupq;
       }
       arma::cube cf(cf_temp.n_rows, seq_day[1] - seq_day[0] + 1, seq_tupq[1] - seq_tupq[0] + 1);
-
+      
+      // For each element in the window of the current element of ugrid
       for(int k = 0; k < cf.n_cols; ++k){
         arma::sp_mat cf_temp =  Rcpp::as<arma::sp_mat>(cf_slist[k]);
+        // For each bond
         for(unsigned int rows = 0; rows < cf.n_rows; ++rows){
+          // For each element in the window of the current element of xgrid
           for(unsigned int slices = 0; slices < cf.n_slices; ++slices){
             cf(rows, k, slices) = cf_temp(rows, slices);
           }
         }
       }
+      
       arma::vec K_x = ux_window(arma::span(seq_tupq[0]-1, seq_tupq[1]-1), j + windowOffset);
       arma::vec K_u = uu_window(arma::span(seq_day[0]-1, seq_day[1]-1), i);
 
       arma::cube wit = cf;
       arma::cube den = pow(cf, 2);
+      
+      // For each element in the window of the current element of ugrid
       for(unsigned int cols = 0; cols < wit.n_cols; ++cols){
+        // For each bond
         for(unsigned int rows = 0; rows < wit.n_rows; ++rows){
+          // For each element in the window of the current element of xgrid
           for(unsigned int slices = 0; slices < wit.n_slices; ++ slices){
             wit(rows, cols, slices) *= K_x(slices) * K_u(cols);
             den(rows, cols, slices) *= K_x(slices) * K_u(cols);
