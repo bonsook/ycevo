@@ -54,6 +54,7 @@ num_points_mat <- function(data, ugrid, hu, qgrid, hq, rgrid, hr, interest, unit
 
   # Find subset of data with positive kernel
   kernel <- data.frame(qdate = dates, k = window)
+  if("k" %in% colnames(data)) colnames(data)[colnames(data) == "k"] <- "original_k"
   data %>%
     left_join(kernel, by = 'qdate') %>%
     filter(.data$k > 0) -> dataSub

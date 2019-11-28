@@ -240,7 +240,9 @@ calc_tupq_idx <- function(data, xgrid, hx, units = 365) {
   x <- calc_ux_window(data,xgrid,hx, units)
   apply(x, 2, function(y) {
     window_idx <- which(y > 0.01)
-    return(c(window_idx[1], window_idx[length(window_idx)]))
+    lth <- length(window_idx)
+    if(lth==0) lth <- 1
+    return(c(window_idx[1], window_idx[lth]))
   }) %>%
     t()
 }
@@ -389,8 +391,8 @@ interpolate_discount <- function(data, yield, treasury){
     data %>%
       ungroup() %>%
       mutate(x = as.numeric(.data$tupq) / 365,
-             qdateF = factor(.data$qdate, labels = .data$dates),
-             u = as.numeric(.data$qdateF) / length(.data$dates)) %>%
+             qdateF = factor(.data$qdate, labels = dates),
+             u = as.numeric(.data$qdateF) / length(dates)) %>%
       left_join(treasury %>% select(.data$date, .data$rate),
                 by = c('qdate'= 'date')) -> data
 
@@ -404,8 +406,8 @@ interpolate_discount <- function(data, yield, treasury){
     data %>%
       ungroup() %>%
       mutate(x = as.numeric(.data$tupq) / 365,
-             qdateF = factor(.data$qdate, labels = .data$dates),
-             u = as.numeric(.data$qdateF) / length(.data$dates)) -> data
+             qdateF = factor(.data$qdate, labels = dates),
+             u = as.numeric(.data$qdateF) / length(dates)) -> data
 
     data %>%
       group_by(.data$qdate, .data$crspid, .data$matdate, .data$mid.price, .data$accint, .data$x, .data$type) %>%
