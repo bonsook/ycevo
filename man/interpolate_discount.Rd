@@ -13,6 +13,9 @@ interpolate_discount(data, yield, treasury)
 
 \item{treasury}{Optional, dataframe of daily treasury bill rates with date and rate columns}
 }
+\value{
+Interpolated bond dataframe
+}
 \description{
 Applies three dimensional interpolation to find discount rates suitable for provided data
 }

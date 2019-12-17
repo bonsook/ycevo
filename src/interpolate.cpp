@@ -12,6 +12,7 @@
 //' @param ugrid, vector, the range of u values we have data for
 //' @param interp, matrix, element i,j gives the dhat value of the i'th xval and j'th ugrid
 //' @param xvals, vector, the unique values of xvals that are included in interp. x must appear in this vector.
+//' @return dhat at a given xgrid over the nearest ugrid values
 //' @export
 // [[Rcpp::export]]
 double interpolate_ugrid(double x, double u, arma::vec ugrid, arma::mat interp, arma::vec xvals){
@@ -54,6 +55,7 @@ double interpolate_ugrid(double x, double u, arma::vec ugrid, arma::mat interp, 
 //' Pad end of a row with duplicates if necessary to make a matrix
 //' @param xvals, vector, the unique values of x we have a dhat for, corresponds to interp rows
 //' @param interp, three dimensional array, element i,j,k gives the dhat value for the i'th value of xvals, the j'th value of ugrid and k'th value of rgrid.
+//' @return dhat value at a given xgrid value over both ugrid and rgrid
 //' @export
 // [[Rcpp::export]]
 double interpolate_ugrid_rgrid(double x, double u, double r, arma::vec ugrid, arma::mat rgrid, arma::cube interp, arma::vec xvals){
@@ -88,7 +90,8 @@ double interpolate_ugrid_rgrid(double x, double u, double r, arma::vec ugrid, ar
         rVal = length_r - 1;
       }
       // U and R are both outside the boundary, set xInt to the boundary value
-  ///Rprintf("%i %i %i lll", row, uVal, rVal);///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // Rprintf("%i %i %i lll", row, uVal, rVal);///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Rprintf("%i", 0); /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--------
       xInt = interp(row, uVal, rVal);
     } else {
       // U is outside the boundary, R is inside: Interpolate R for the boundary U

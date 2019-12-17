@@ -14,7 +14,7 @@ calc_r_window(interest, rgrid, hr)
 \item{hr}{vector of interest rate bandwidth}
 }
 \value{
-calc_r_window
+Matrix
 }
 \description{
 Generate a kernel weight function in relation to interest rate grids
