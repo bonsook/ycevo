@@ -146,7 +146,7 @@ calc_uu_window <- function(data, ugrid, hu) {
 #' @param interest vector of daily interest rates
 #' @param rgrid vector of interest rate grid
 #' @param hr vector of interest rate bandwidth
-#' @return calc_r_window
+#' @return Matrix
 #' @keywords internal
 #' @author Bonsoo Koo, Kai-Yang Goh and Nathaniel Tomasetti
 #' @details
@@ -313,6 +313,7 @@ create_xgrid_hx <- function(data, ugrid, hu, qgrid, hq, min_points, rgrid, hr, i
 #' @param data Bond dataframe
 #' @param yield Output of estimate_yield
 #' @param treasury Optional, dataframe of daily treasury bill rates with date and rate columns
+#' @return Interpolated bond dataframe
 #' @importFrom rlang .data
 #' @importFrom dplyr ungroup distinct
 #' @importFrom stats loess predict

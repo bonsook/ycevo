@@ -17,6 +17,9 @@ interpolate_ugrid(x, u, ugrid, interp, xvals)
 
 \item{xvals, }{vector, the unique values of xvals that are included in interp. x must appear in this vector.}
 }
+\value{
+dhat at a given xgrid over the nearest ugrid values
+}
 \description{
 Given the inputs, this interpolates dhat at a given xgrid over the nearest ugrid values
 }
