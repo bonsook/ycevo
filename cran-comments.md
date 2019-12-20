@@ -6,7 +6,7 @@ This is a resubmission. In this version I have:
 
 * Added another vignette.
 
-
+* Added more documentation to explain what the functions return.
 
 In previous versions I have:
 
@@ -23,6 +23,9 @@ In previous versions I have:
 ## Test environments
 * local Windows 10 install, R 3.6.2
 * Ubuntu Xenial 16.04 (on travis-ci), R 3.6.1
+* Ubuntu Xenial 16.04 (on travis-ci), R 3.6.2
+* Ubuntu Xenial 16.04 (on travis-ci), R 3.5.3
+* Ubuntu Xenial 16.04 (on travis-ci), R Under development (unstable) (2019-12-19 r77605)
 * win-builder (devel, oldrelease and release)
 * Windows Server 2008 R2 SP1, R-devel, 32/64 bit (on Rhub)
 
