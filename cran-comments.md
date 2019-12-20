@@ -4,8 +4,11 @@ This is a resubmission. In this version I have:
 
 * Added references describing the methods in the description field of the DESCRIPTION file.
 
+* Added another vignette.
 
-In last version I have:
+
+
+In previous versions I have:
 
 * Explained acronym in the description text
 
@@ -18,14 +21,12 @@ In last version I have:
 
 
 ## Test environments
-* local Windows 10 install, R 3.6.1
-* local Windows 10 install, R-devel
+* local Windows 10 install, R 3.6.2
 * Ubuntu Xenial 16.04 (on travis-ci), R 3.6.1
-* win-builder (oldrelease and release)
-* Fedora Linux, R-devel, clang, gfortran (on Rhub)
-* Debian Linux, R-devel, GCC ASAN/UBSAN  (on Rhub)
+* win-builder (devel, oldrelease and release)
 * Windows Server 2008 R2 SP1, R-devel, 32/64 bit (on Rhub)
-* Ubuntu Linux 16.04 LTS, R-release, GCC (on Rhub)
+
+
 
 ## R CMD check results
 There were no ERRORs, or WARNINGs.
@@ -36,9 +37,11 @@ There was 2 NOTE:
   Maintainer: 'Yangzhuoran Yang <Fin.Yang@monash.edu>'
   New submission
   Possibly mis-spelled words in DESCRIPTION:
-    CRSP (25:62)
+    CRSP (27:6)
+    Koo (28:50)
+    Vecchia (28:62)
 
-  CRSP is short for Center for Research in Security Prices and is commonly used.
+  CRSP is explained in the description and Koo and Vecchia are names.
 
 * checking for non-standard things in the check directory ... NOTE
   Found the following files/directories:

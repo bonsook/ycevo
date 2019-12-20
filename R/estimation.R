@@ -19,7 +19,7 @@
 #' @param interest (Optional) A vector of daily short term interest rates
 #' @param units (Optional) number of tupq per xgrid (e.g. 365 for daily data with annual grid values). Defaults to 365
 #' 
-#' @return Data frame with the follwing variables
+#' @return Data frame with the following variables
 #' 
 #' \describe{
 #'   \item{ug}{Same as input \code{ugrid}}
@@ -159,7 +159,7 @@ calc_dbar <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, price_slist, cf_sli
 #' @param interest (Optional) A vector of daily short term interest rates
 #' @param units (Optional) number of tupq per xgrid (e.g. 365 for daily data with annual grid values). Defaults to 365
 #' 
-#' @return Data frame with the follwing variables
+#' @return Data frame with the following variables
 #' 
 #' \describe{
 #'   \item{hhat_numer}{Numerator in H hat. See \code{Source}}

@@ -49,7 +49,7 @@ bandwidth parameter determining the size of the window that corresponds to each 
 \item{units}{(Optional) number of tupq per xgrid (e.g. 365 for daily data with annual grid values). Defaults to 365}
 }
 \value{
-Data frame with the follwing variables
+Data frame with the following variables
 
 \describe{
   \item{ug}{Same as input \code{ugrid}}

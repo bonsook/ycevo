@@ -111,7 +111,7 @@ generate_yield <- function(max_qDate = 12, periods = 36, b0 = 0, b1 = 0.05, b2 =
 #' 
 #' @details The discount rate for each time to maturity and quotation date is calculated as
 #' \deqn{Discount_{i, t} = \exp(-\tau_i * Yield_t)}
-#' After getting the discount rate for each quotation date and time to maturity, bonds are simulated and priced, where the price of Bond \eqn{j} on quotatoin date \eqn{t} is given by
+#' After getting the discount rate for each quotation date and time to maturity, bonds are simulated and priced, where the price of Bond \eqn{j} on quotation date \eqn{t} is given by
 #' \deqn{Price_{t, j} = \sum_i payment_i Discount_{i, t}}
 #' A small error is added to each price. The resulting data may be input into estimate_yield with suitable grid values. This is shown in the vignette
 #' 
