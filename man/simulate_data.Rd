@@ -4,9 +4,16 @@
 \alias{simulate_data}
 \title{Simulates fake data used in the vignette}
 \usage{
-simulate_data(max_qDate = 12, periods = 36, bond_multiplier = 2,
-  coupon_frequency = 3, coupon_rates = 1:5, sdev = 0.1,
-  arma_terms = list(ar = 0.1, ma = 0), yield = NULL)
+simulate_data(
+  max_qDate = 12,
+  periods = 36,
+  bond_multiplier = 2,
+  coupon_frequency = 3,
+  coupon_rates = 1:5,
+  sdev = 0.1,
+  arma_terms = list(ar = 0.1, ma = 0),
+  yield = NULL
+)
 }
 \arguments{
 \item{max_qDate}{An integer giving the number of quotation dates to use in the data. Defaults to 12.}

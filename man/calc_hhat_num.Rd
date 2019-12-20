@@ -7,8 +7,20 @@
 Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
 }
 \usage{
-calc_hhat_num(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_slist,
-  interest, units = 465)
+calc_hhat_num(
+  data,
+  ugrid,
+  hu,
+  rgrid,
+  hr,
+  xgrid,
+  hx,
+  qgrid,
+  hq,
+  cf_slist,
+  interest,
+  units = 465
+)
 }
 \arguments{
 \item{data}{A data frame; bond data to estimate discount curve from.}

@@ -7,8 +7,19 @@
 Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
 }
 \usage{
-calc_dbar(data, ugrid, hu, rgrid, hr, xgrid, hx, price_slist, cf_slist,
-  interest, units = 365)
+calc_dbar(
+  data,
+  ugrid,
+  hu,
+  rgrid,
+  hr,
+  xgrid,
+  hx,
+  price_slist,
+  cf_slist,
+  interest,
+  units = 365
+)
 }
 \arguments{
 \item{data}{A data frame; bond data to estimate discount curve from.}

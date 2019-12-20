@@ -4,8 +4,22 @@
 \alias{estimate_yield}
 \title{Estimate yield function}
 \usage{
-estimate_yield(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq,
-  price_slist, cf_slist, interest, units = 365, loess = TRUE)
+estimate_yield(
+  data,
+  ugrid,
+  hu,
+  rgrid,
+  hr,
+  xgrid,
+  hx,
+  qgrid,
+  hq,
+  price_slist,
+  cf_slist,
+  interest,
+  units = 365,
+  loess = TRUE
+)
 }
 \arguments{
 \item{data}{A data frame; bond data to estimate discount curve from.}

@@ -4,8 +4,18 @@
 \alias{create_xgrid_hx}
 \title{Automatic selection of xgrid and hx values}
 \usage{
-create_xgrid_hx(data, ugrid, hu, qgrid, hq, min_points, rgrid, hr,
-  interest, units = 365)
+create_xgrid_hx(
+  data,
+  ugrid,
+  hu,
+  qgrid,
+  hq,
+  min_points,
+  rgrid,
+  hr,
+  interest,
+  units = 365
+)
 }
 \arguments{
 \item{data}{Bond dataframe}
