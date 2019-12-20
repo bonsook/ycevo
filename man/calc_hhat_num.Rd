@@ -61,7 +61,7 @@ If omitted, hq is set equal to hx}
 \item{units}{(Optional) number of tupq per xgrid (e.g. 365 for daily data with annual grid values). Defaults to 365}
 }
 \value{
-Data frame with the follwing variables
+Data frame with the following variables
 
 \describe{
   \item{hhat_numer}{Numerator in H hat. See \code{Source}}

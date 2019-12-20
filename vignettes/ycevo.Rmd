@@ -25,7 +25,7 @@ If you use any data or code from the `ycevo` package in a publication, please us
 > Bonsoo Koo, Nathaniel Tomasetti, Kai-Yang Goh and Yangzhuoran Yang (2019). ycevo: Non-Parametric Estimation
   of the Yield Curve Evolution. R package version 1.0.0. https://github.com/bonsook/ycevo. 
 
-The package provides code used in Koo, La Vecchia, & Linton (2019). Please use the follwing citation if you use any result from the paper.
+The package provides code used in Koo, La Vecchia, & Linton (2019). Please use the following citation if you use any result from the paper.
 
 > Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
 
