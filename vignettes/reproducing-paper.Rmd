@@ -401,16 +401,16 @@ for(i in tail(seq_along(ugrid), 4)){
 }
 ```
 
-We now can produce some of the figures and tables in the paper. All the figures and tables we produce here only include 2007 results. Comparing to what is in the paper, they may be truncated. 
+We now can produce some of the figures and tables in the paper. All the figures and tables we produce here only include 2007 results. Comparing to what is in the paper, they may be truncated. Note there may be possible difference from the paper, as the results in the paper are generated using the development version of the package. The difference in the way to count the dates in the development version from the current version may result in one or two days difference in the kernel bandwidth.
+
+Due to the time limit, the result generated using the above code is stored in the data set `vignette_data` and extracted to produce the following figures and tables.
 
 
-```{r, eval = TRUE, echo = FALSE}
+```{r, eval = TRUE}
 attach(vignette_data)
 ```
 
 ```{r, eval = TRUE}
-
-
 ## ---- Figure-3 ----
 
 interestUgrid <- data.frame()
@@ -559,8 +559,11 @@ for(i in 31:34){
 
 # knitr::kable(table_yield), format = 'latex')
 knitr::kable(table_yield)
+```
 
+Due to the size limit of the vignette, we do not show the 3d charts but just to provide the code.
 
+```{r, eval = TRUE}
 ## ---- Figure-6-a ----
 
 plot_data <- mutate(variance, time = year + ugpy)%>%
@@ -574,7 +577,10 @@ time <- seq(0, 0.8, 0.05) # controls number of lines and how close they are
 ttm <- seq(0.2, 18, 0.05)
 
 time_grid <- years + time
+```
 
+
+```{r, eval = FALSE}
 # discount function
 dh <- akima::interp(x = plot_data$qg, y = plot_data$time, z = plot_data$discount,
                     xo = ttm, yo = time_grid, duplicate = "mean")
@@ -605,8 +611,10 @@ plot_ly(yh, x = ~x, y = ~y, z = ~z, type = 'scatter3d', mode = 'lines') %>%
                    ticktext = time_grid),
       zaxis = list(title = "Yield")
     ))
+```
 
 
+```{r, eval = TRUE}
 ## ---- Figure-7-a ----
 xVals <- unique(plot_data$qg)
 TimeToMat <- 0.5

@@ -4,8 +4,7 @@
 \alias{num_points_mat}
 \title{Calculates number of bonds that mature in each qgrid}
 \usage{
-num_points_mat(data, ugrid, hu, qgrid, hq, rgrid, hr, interest,
-  units = 365)
+num_points_mat(data, ugrid, hu, qgrid, hq, rgrid, hr, interest, units = 365)
 }
 \arguments{
 \item{data}{A data frame; bond data to estimate discount curve from.}

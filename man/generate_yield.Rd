@@ -4,9 +4,18 @@
 \alias{generate_yield}
 \title{Generate a yield curve with cubic time evolution}
 \usage{
-generate_yield(max_qDate = 12, periods = 36, b0 = 0, b1 = 0.05,
-  b2 = 2, t1 = 3, t2 = 500, linear = -0.55, quadratic = 0.55,
-  cubic = -0.55)
+generate_yield(
+  max_qDate = 12,
+  periods = 36,
+  b0 = 0,
+  b1 = 0.05,
+  b2 = 2,
+  t1 = 3,
+  t2 = 500,
+  linear = -0.55,
+  quadratic = 0.55,
+  cubic = -0.55
+)
 }
 \arguments{
 \item{max_qDate}{An integer giving the number of quotation dates to use in the data. Defaults to 12.}

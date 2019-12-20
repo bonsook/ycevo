@@ -780,7 +780,7 @@ dhat_var <- function(data, ugrid, hu, xgrid, hx, perrors, dhat, cf_slist) {
     select(!!sym('ug'), !!sym('xg'), !!sym('dhat_var')) -> dbar_var
   dbar_var
 
-  dbar_var <- right_join(dhat, dbar_var, by = c("ug" = "ug", "qg" = "xg"))
+  dbar_var <- dplyr::right_join(dhat, dbar_var, by = c("ug" = "ug", "qg" = "xg"))
   dbar_var$yield_var = dbar_var$dhat_var / (dbar_var$qg * dbar_var$discount)^2
   dbar_var
 }
