@@ -7,15 +7,15 @@
 interpolate_ugrid(x, u, ugrid, interp, xvals)
 }
 \arguments{
-\item{x, }{the value to be interpolated}
+\item{x}{the value to be interpolated}
 
-\item{u, }{the value to be interpolated}
+\item{u}{the value to be interpolated}
 
-\item{ugrid, }{vector, the range of u values we have data for}
+\item{ugrid}{vector, the range of u values we have data for}
 
-\item{interp, }{matrix, element i,j gives the dhat value of the i'th xval and j'th ugrid}
+\item{interp}{matrix, element i,j gives the dhat value of the i'th xval and j'th ugrid}
 
-\item{xvals, }{vector, the unique values of xvals that are included in interp. x must appear in this vector.}
+\item{xvals}{vector, the unique values of xvals that are included in interp. x must appear in this vector.}
 }
 \value{
 dhat at a given xgrid over the nearest ugrid values
