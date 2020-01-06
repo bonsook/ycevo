@@ -14,7 +14,9 @@ calc_r_window(interest, rgrid, hr)
 \item{hr}{vector of interest rate bandwidth}
 }
 \value{
-Matrix
+Matrix with number of columns being the length of \code{rgrid} and number of rows being the number of unique qdates.
+Each column represents the weights of each qdate for that \code{rgrid}.
+Each column is a \code{rgrid} date with the weights of the qdates used in discount function estimation. qdates correspond to rows.
 }
 \description{
 Generate a kernel weight function in relation to interest rate grids
@@ -23,7 +25,12 @@ Generate a kernel weight function in relation to interest rate grids
 This function generates a weight function attached to each interest rate grid
 for the estimation of a discount function
 }
+\examples{
+ interest <- c(1.01, 1.02)
+ rgrid <- c(0.2,0.4)
+ hr <- c(0.18,0.18)
+ out <- calc_r_window(interest = interest, rgrid = rgrid,hr = hr)
+}
 \author{
 Bonsoo Koo, Kai-Yang Goh and Nathaniel Tomasetti
 }
-\keyword{internal}

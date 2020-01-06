@@ -7,14 +7,15 @@
 calc_price_slist(data)
 }
 \arguments{
-\item{data}{a bond data}
+\item{data}{a bond data. See \code{?USbonds} for an example data structure.}
 }
 \value{
 If all the required information is present, then the
 output will be a list with length equal to the number of quotation
 days in the data. Each element of the output will be a sparseMatrix
-object with the number of rows being the number of bonds 
+object for a quotation day with the number of rows being the number of bonds 
 and the number of columns being the maximum of time-to-maturity.
+Each row is a bond with price indicated at the corresponding column (time).
 }
 \description{
 Tranforms data into a format suitable for estimation

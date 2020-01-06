@@ -2,7 +2,7 @@
 % Please edit documentation in R/preparation.R
 \name{epaker}
 \alias{epaker}
-\title{epaker kernel function}
+\title{Epaker kernel function}
 \usage{
 epaker(x)
 }

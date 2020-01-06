@@ -30,10 +30,10 @@ Total bonds equals multiplier * (periods + max_qdate). Defaults to 2}
 \item{sdev}{Standard deviation of the price errors, which is scaled by the square root of time to maturity so long term bonds have a larger error.
 Defaults to 0.1}
 
-\item{arma_terms}{List of ar and ma parameters passed to arima.sim to add error dependency. Defaults to list(ar= 0.1, ma = 0)}
+\item{arma_terms}{List of ar and ma parameters passed to \code{arima.sim} to add error dependency. Defaults to list(ar= 0.1, ma = 0). See \code{?stats::arima.sim}.}
 
 \item{yield}{Matrix of yield curves at different time to maturities from generate_yield().
-If NULL, a yield matrix is created from the default values of generate_yield() with the values of max_qDate and periods input to simulate_data()}
+If NULL, a yield matrix is created from the default values of \code{generate_yield()} with the values of \code{max_qDate} and \code{periods} input to \code{simulate_data()}.}
 }
 \value{
 Data frame with the following columns. See also \code{Details}.

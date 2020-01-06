@@ -14,8 +14,9 @@ calc_ux_window(data, xgrid, hx, units = 365)
 \item{hx}{vector of the time-to-maturity grid bandwidth}
 }
 \value{
-Matrix. The weight attached to each time grid
-for the estimation of a discount function
+Matrix with number of columns being the length of \code{xgrid} and number of rows being the number of unique qdates.
+Each column represents the weights of each qdate for that \code{xgrid}.
+Each column is a \code{xgrid} date with the weights of the qdates used in discount function estimation. qdates correspond to rows.
 }
 \description{
 Apply kernel in relation to time-to-maturity grids
@@ -32,4 +33,3 @@ out <- calc_ux_window(data = USbonds, xgrid = xgrid, hx = hx)
 \author{
 Bonsoo Koo and Kai-Yang Goh
 }
-\keyword{internal}

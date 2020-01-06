@@ -23,7 +23,7 @@ calc_hhat_num(
 )
 }
 \arguments{
-\item{data}{A data frame; bond data to estimate discount curve from.}
+\item{data}{A data frame; bond data to estimate discount curve from. See \code{?USbonds} for an example bond data structure.}
 
 \item{ugrid}{A length T numeric vector; the times at which the discount curve will be estimated.}
 
