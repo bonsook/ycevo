@@ -7,20 +7,20 @@
 interpolate_ugrid_rgrid(x, u, r, ugrid, rgrid, interp, xvals)
 }
 \arguments{
-\item{x, }{the value to be interpolated}
+\item{x}{the value to be interpolated}
 
-\item{u, }{the value to be interpolated}
+\item{u}{the value to be interpolated}
 
-\item{r, }{the value to be interpolated}
+\item{r}{the value to be interpolated}
 
-\item{ugrid, }{vector, the range of u values we have data for}
+\item{ugrid}{vector, the range of u values we have data for}
 
-\item{rgrid, }{matrix, each row corresponds to the xgrid values for a given ugrid.
+\item{rgrid}{matrix, each row corresponds to the xgrid values for a given ugrid.
 Pad end of a row with duplicates if necessary to make a matrix}
 
-\item{interp, }{three dimensional array, element i,j,k gives the dhat value for the i'th value of xvals, the j'th value of ugrid and k'th value of rgrid.}
+\item{interp}{three dimensional array, element i,j,k gives the dhat value for the i'th value of xvals, the j'th value of ugrid and k'th value of rgrid.}
 
-\item{xvals, }{vector, the unique values of x we have a dhat for, corresponds to interp rows}
+\item{xvals}{vector, the unique values of x we have a dhat for, corresponds to interp rows}
 }
 \value{
 dhat value at a given xgrid value over both ugrid and rgrid

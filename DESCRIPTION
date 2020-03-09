@@ -21,11 +21,8 @@ Authors@R:
              email = "Fin.Yang@monash.edu",
              comment = c(ORCID = "0000-0002-1232-8017")))
 Maintainer: Yangzhuoran Yang <Fin.Yang@monash.edu>
-Description: Provides a range of functions to facilitate the non-parametric
-    estimation of the discount rate, and yield curve, of 
-    the Center for Research in Security Prices 
-    (CRSP) Bond Data. 
-    The methods of this package are described in Koo, B., La Vecchia, D., & Linton, O. B. (2019)<doi:10.2139/ssrn.3341344>.
+Description: Non-parametric estimation of the discount rate and yield curve with application with the Center for Research in Security Prices (CRSP) Bond Data. 
+    The methods of this package are described in Koo, B., La Vecchia, D., & Linton, O. B. (2019) <doi:10.2139/ssrn.3341344>.
 URL: https://github.com/bonsook/ycevo
 BugReports: https://github.com/bonsook/ycevo/issues
 License: GPL-3

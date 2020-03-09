@@ -7,7 +7,7 @@
 calc_day_idx(data, ugrid, hu)
 }
 \arguments{
-\item{data}{a bond data frame}
+\item{data}{a bond data frame. See \code{?USbonds} for an example data structure.}
 
 \item{ugrid}{vector of quotation date grid}
 
@@ -17,10 +17,7 @@ calc_day_idx(data, ugrid, hu)
 Matrix. The start and end of the qdates included in the ugrid kernel windows
 }
 \description{
-Provide indices in relation to time grids
-}
-\details{
-This function provide indices for the start and end of the qdates included in the ugrid kernel windows
+This function provide indices for the start and end of the qdates included in the kernel windows for each \code{ugrid}.
 }
 \examples{
  ugrid <- c(0.2,0.4)
@@ -30,4 +27,3 @@ This function provide indices for the start and end of the qdates included in th
 \author{
 Bonsoo Koo and Kai-Yang Goh
 }
-\keyword{internal}

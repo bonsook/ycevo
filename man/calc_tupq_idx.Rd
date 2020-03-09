@@ -17,7 +17,7 @@ calc_tupq_idx(data, xgrid, hx, units = 365)
 Matrix. The first and last xgrid included in the current kernel window.
 }
 \description{
-This function provides indices for the first and last xgrid included in the current kernel window
+This function provides indices for the first and last xgrid included in the kernel window of each \code{xgrid}.
 }
 \examples{
 xgrid <- c(30, 60, 90) / 365
@@ -27,4 +27,3 @@ out <- calc_tupq_idx(data = USbonds, xgrid = xgrid, hx = hx)
 \author{
 Bonsoo Koo and Kai-Yang Goh
 }
-\keyword{internal}

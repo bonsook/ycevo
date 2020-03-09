@@ -18,7 +18,7 @@ create_xgrid_hx(
 )
 }
 \arguments{
-\item{data}{Bond dataframe}
+\item{data}{Bond dataframe. See \code{?USbonds} for an example data strcture..}
 
 \item{ugrid}{A single value for ugrid between 0 and 1}
 
@@ -40,23 +40,24 @@ create_xgrid_hx(
 Grid values without maturing bonds do not have sufficient data for stable estimates.}
 }
 \value{
-List of xgrid, hx, qgrid and hq. qgrid and hq is the same as input.
+List of \code{xgrid}, \code{hx}, \code{qgrid} and \code{hq}. \code{qgrid} and \code{hq} is the same as input. 
+For the usage of created \code{xgrid} and \code{hx}, see \code{\link{estimate_yield}}.
 }
 \description{
 Selects xgrid and hx from values of qgrid and hq with a given number of maturing bonds
 }
 \details{
-Automatically select values for sparse time to maturity xgrid and hx
+Automatically select values for sparse time to maturity \code{xgrid} and \code{hx}
 for a given dense time to maturity value of qgrid and hq and quotation date ugrid and hu.
 The length of the provided xgrid may change for different ugrid values, so it is recommended
 that the function is called separately for different values of ugrid.
 }
 \examples{
-ugrid <- 0.2
-hu <- 0.18
-qgrid <- c(30, 60, 90) / 365
-hq <- c(15, 15 , 15) / 365
-out <- create_xgrid_hx(data = USbonds, ugrid = ugrid, hu = hu, qgrid = qgrid,hq =hq, min_points = 5)
+ ugrid <- 0.2
+ hu <- 0.18
+ qgrid <- c(30, 60, 90) / 365
+ hq <- c(15, 15 , 15) / 365
+ out <- create_xgrid_hx(data = USbonds, ugrid = ugrid, hu = hu, qgrid = qgrid,hq =hq, min_points = 5)
 }
 \author{
 Nathaniel Tomasetti

@@ -3,7 +3,7 @@
 #' Internal function that estimates the discount function without taking into account
 #' cross products of coupon payments. Not to be used independently. Exported for documentation purpose.
 #' 
-#' @param data A data frame; bond data to estimate discount curve from.
+#' @param data A data frame; bond data to estimate discount curve from. See \code{?USbonds} for an example bond data structure.
 #' @param ugrid A length T numeric vector; the times at which the discount curve will be estimated.
 #' @param hu A length T numeric vector, bandwidth parameter determining the size of the window
 #' that corresponds to each time at which the discount curve is estimated,
@@ -30,7 +30,7 @@
 #' 
 #' @source Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
 #' @author Nathaniel Tomasetti
-#' @export
+#' 
 calc_dbar <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, price_slist, cf_slist, interest, units = 365) {
   if (missing(cf_slist)){
     cf_slist <- calc_cf_slist(data)
@@ -133,7 +133,7 @@ calc_dbar <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, price_slist, cf_sli
 #' Internal function that calculates coupon payment cross products. 
 #' Not to be used independently. Exported for documentation purpose.
 #' 
-#' @param data A data frame; bond data to estimate discount curve from.
+#' @param data A data frame; bond data to estimate discount curve from. See \code{?USbonds} for an example bond data structure.
 #' @param ugrid A length T numeric vector; the times at which the discount curve will be estimated.
 #' @param hu A length T numeric vector, bandwidth parameter determining the size of the window
 #' that corresponds to each time at which the discount curve is estimated,
@@ -170,7 +170,7 @@ calc_dbar <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, price_slist, cf_sli
 #' 
 #' @author Nathaniel Tomasetti
 #' @source Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
-#' @export
+#' 
 calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_slist, interest, units = 465) {
   if (missing(cf_slist)){
     cf_slist <- calc_cf_slist(data)
@@ -323,9 +323,19 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
 
 #' Estimate yield function
 #' 
-#' Estimation of discount function and transformation to yield at given dates, time to maturities, and interest rates.
+#' Non-parametric estimation of the discount function and transformation to yield at given dates, time-to-maturities, and interest rates.
 #' 
-#' @param data A data frame; bond data to estimate discount curve from.
+#' Provides a data.frame of the yield and discount rate at each combination of the provided grids. 
+#' See \code{Source} for detailed estimation method. The estimation has five major steps:
+#' \enumerate{
+#' \item Estimation of dbar, a component of the discount rate that ignores cross products.
+#' \item Estimation of hhat, the cross product component of the discount rate, using both qgrid and xgrid.
+#' \item Interpolation of hhat when the provided xgrid values are not equal to those found in qgrid.
+#' \item Solving a linear equation to result in dhat, the discount rate.
+#' \item Transformation of the discount rate into a yield.
+#' }
+#' 
+#' @param data A data frame; bond data to estimate discount curve from. See \code{?USbonds} for an example bond data structure.
 #' @param ugrid A length T numeric vector; the times at which the discount curve will be estimated.
 #' @param hu A length T numeric vector, bandwidth parameter determining the size of the window
 #' that corresponds to each time at which the discount curve is estimated,
@@ -335,6 +345,7 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
 #' Represents the qgrid of T time-to-maturities values to estimate the yield for.
 #' If this is a T x m matrix, each row represents the grid for a given ugrid value.
 #' If this is a vector or T x 1 matrix, entries represents the qgrid, which will be repeated for each ugrid.
+#' To be used for estimation of hhat. See \code{Details}.
 #' @param hq A numeric object in the same format as qgrid containing the kernel bandwidth for each qgrid value.
 #' @param xgrid (Optional) A length m numeric vector, or either a 1 x m or T x m numeric matrix.
 #' If a T x m matrix, each row represents the time-to-maturity grid for a given ugrid value, otherwise the same xgrid values are repeated for each ugrid value.
@@ -344,11 +355,20 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
 #' If omitted, xgrid is set equal to qgrid.
 #' @param hx A numeric object in the same format as xgrid containing the kernel bandwidth for each xgrid value.
 #' If xgrid is omitted, hx is set to equal hq.
-#' @param price_slist (Optional) A list of matrices, generated by calc_price_slist.
-#' @param cf_slist (Optional) A list of matrices, generated by calc_cf_slist.
+#' @param price_slist (Optional) A list of matrices, generated by \code{\link{calc_price_slist}}.
+#' @param cf_slist (Optional) A list of matrices, generated by \code{\link{calc_cf_slist}}.
 #' @param interest (Optional) A vector of daily short term interest rates
 #' @param units (Optional) number of tupq per xgrid (e.g. 365 for daily data with annual grid values). Defaults to 365
 #' @param loess (Optional) Logical. Whether the output estimated discount and yield are to be smoothed using locally estimated scatterplot smoothing (LOESS)
+#' 
+#' @return Data frame of the yield and discount rate at each combination of the provided grids.
+#' \describe{
+#'   \item{discount}{Estimated discount rate}
+#'   \item{ug}{Same as input \code{ugrid}}
+#'   \item{qg}{Same as input \code{qgrid}}
+#'   \item{yield}{Estimated yield}
+#' }
+#' 
 #' @author Nathaniel Tomasetti
 #' @examples
 #' \donttest{
@@ -374,21 +394,10 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
 #' dhat <- estimate_yield(data = USbonds, ugrid = ugrid, hu = hu, xgrid = grids$xgrid,
 #'                hx=grids$hx, qgrid = qgrid,hq= hq, price_slist=price, cf_slist = cf)
 #' }
-#' @export
-#' @details Provides a data.frame of the yield and discount rate at each combination of the provided grids. Estimation follows (CITATION), with five major steps:
-#' 1. Estimation of dbar, a component of the discount rate that ignores cross products.
-#' 2. Estimation of hhat, the cross product component of the discount rate, using both qgrid and xgrid.
-#' 3. Interpolation of hhat when the provided xgrid values are not equal to those found in qgrid.
-#' 4. Solving a linear equation to result in dhat, the discount rate.
-#' 5. Transformation of the discount rate into a yield.
-#' @return Data frame of the yield and discount rate at each combination of the provided grids.
-#' \describe{
-#'   \item{discount}{Estimated discount rate}
-#'   \item{ug}{Same as input \code{ugrid}}
-#'   \item{qg}{Same as input \code{qgrid}}
-#'   \item{yield}{Estimated yield}
-#' }
 #' 
+#' @source Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
+#' 
+#' @export
 estimate_yield <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, price_slist, cf_slist, interest, units = 365, loess = TRUE){
   if (missing(xgrid)){
     xgrid <- qgrid
@@ -677,6 +686,10 @@ estimate_yield <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, pri
 
 #' Estimate variances for each point on the discount function and yield curve
 #' 
+#' Non-parametric estimation of variances for each point on the discount function and yield curve
+#' 
+#' See \code{Source} for detailed estimation method. See vignette for examples.
+#' 
 #' @param data A data frame; bond data to estimate discount curve from.
 #' @param ugrid A numeric vector; the times at which the discount curve will be estimated.
 #' @param hu A numeric vector, bandwidth parameter determining the size of the window
@@ -687,18 +700,20 @@ estimate_yield <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, pri
 #' that corresponds to each time-to-maturity.
 #' @param perrors A dataframe with columns qdate, crspid and perror, where perror is the in-sample pricing error (residual) for the given crspid and qdate.
 #' @param dhat Dataframe obtained from estimate_dhat function
-#' @param cf_slist (Optional) A list of matrices, generated by calc_cf_slist.
+#' @param cf_slist (Optional) A list of matrices, generated by \code{\link{calc_cf_slist}}.
 #' 
-#' @return Data frame of the variance in addition to the yield and discount rate at each combination of the provided grids.
+#' @return Data frame of the estimated variance in addition to the yield and discount rate at each combination of the provided grids.
 #' \describe{
-#'   \item{dhat_var}{Same as input \code{ugrid}}
-#'   \item{yield_var}{Same as input \code{ugrid}}
+#'   \item{dhat_var}{Estimated variance of the discount rate}
+#'   \item{yield_var}{Estimated variance of the yield}
 #'   \item{discount}{Estimated discount rate}
 #'   \item{ug}{Same as input \code{ugrid}}
 #'   \item{xg}{Same as input \code{xgrid}}
 #'   \item{yield}{Estimated yield}
 #' }
 #' @author Nathaniel Tomasetti
+#' @source Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
+#' 
 #' @export
 dhat_var <- function(data, ugrid, hu, xgrid, hx, perrors, dhat, cf_slist) {
   if(missing(cf_slist)){
