@@ -15,10 +15,11 @@ calc_uu_window(data, ugrid, hu)
 }
 \value{
 Matrix with number of columns being the length of \code{ugrid} and number of rows being the number of unique qdates.
-Each column represents the weights of each qdate for that ugrid.
+Each column represents the weights of each qdate for that \code{rgrid}.
+Each column is a \code{ugrid} date with the weights of the qdates used in discount function estimation. qdates correspond to rows.
 }
 \description{
-Generate a kernel weight function in relation to time grids
+Generate kernel weights using Epaker kernal function in relation to time grids
 }
 \details{
 This function generates a weight function attached to each quotation date grid
@@ -32,4 +33,3 @@ for the estimation of a discount function
 \author{
 Bonsoo Koo and Kai-Yang Goh
 }
-\keyword{internal}

@@ -229,7 +229,7 @@ dhat <- dhat %>%
 
 
 
-Now we have a discount rate (and yield) on a three-dimensional grid of values. There are many values that appear in the data that we do not have a discount rate for, so we interpolate the results to get a discount rate on any quotation date (`qdate` / `ugrid`), time to payment (`tupq` / `xgrid`) and interest rate (`rgrid`). We expect that discount rates are non-linear over `xgrid`, so we use loess to interpolate this. The other grids have linear interpolation. The function `interpolate_dhat` does all of this for us. If you didn't include `rgrid`, you can omit the `treasury` argument, but if you did include `rgrid`, and the resulting dataframe `dhat` includes the corresponding `rg` column, you will need `treasury`.
+Now we have a discount rate (and yield) on a three-dimensional grid of values. There are many values that appear in the data that we do not have a discount rate for, so we interpolate the results to get a discount rate on any quotation date (`qdate` / `ugrid`), time to payment (`tupq` / `xgrid`) and interest rate (`rgrid`). We expect that discount rates are non-linear over `xgrid`, so we use loess to interpolate this. The other grids have linear interpolation. If you didn't include `rgrid`, you can omit the `treasury` argument, but if you did include `rgrid`, and the resulting dataframe `dhat` includes the corresponding `rg` column, you will need `treasury`.
 
 ```{r}
 smoothed <- data.frame()
