@@ -323,10 +323,10 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
 
 #' Estimate yield function
 #' 
-#' Non-parametric estimation of the discount function and transformation to yield at given dates, time-to-maturities, and interest rates.
+#' Nonparametric estimation of discount functions at given dates, time-to-maturities, and interest rates and their transformation to the yield curves.
 #' 
 #' Provides a data.frame of the yield and discount rate at each combination of the provided grids. 
-#' See \code{Source} for detailed estimation method. The estimation has five major steps:
+#' See \code{Source} for the detailed estimation method. The estimation has five major steps:
 #' \enumerate{
 #' \item Estimation of dbar, a component of the discount rate that ignores cross products.
 #' \item Estimation of hhat, the cross product component of the discount rate, using both qgrid and xgrid.
@@ -342,7 +342,7 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
 #' @param rgrid (Optional) A length K numeric vector of interest rate grid values
 #' @param hr (Optional) A length K numeric vector of interest rate grid bandwidths
 #' @param qgrid A length m numeric vector, or either a 1 x m or T x m numeric matrix.
-#' Represents the qgrid of T time-to-maturities values to estimate the yield for.
+#' Represents a vector of grids of T time-to-maturities values to estimate the yield for.
 #' If this is a T x m matrix, each row represents the grid for a given ugrid value.
 #' If this is a vector or T x 1 matrix, entries represents the qgrid, which will be repeated for each ugrid.
 #' To be used for estimation of hhat. See \code{Details}.
@@ -369,7 +369,7 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
 #'   \item{yield}{Estimated yield}
 #' }
 #' 
-#' @author Nathaniel Tomasetti
+#' @author Nathaniel Tomasetti and Bonsoo Koo
 #' @examples
 #' \donttest{
 #' ugrid <- 0.207171315
