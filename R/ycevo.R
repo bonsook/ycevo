@@ -1,13 +1,4 @@
-#' Import functions
-#' @name imports
-#' @importClassesFrom Matrix dgCMatrix
-#' @importFrom Rcpp evalCpp
-#' @importFrom Matrix colSums rowSums sparseMatrix t
-#' @importFrom dplyr filter left_join mutate select group_by lead lag
-#' @importFrom rlang !! sym
-#' @importFrom stats var
-#' @importFrom magrittr %>%
-NULL
+
 
 #' Package 'ycevo'
 #' @name ycevo
@@ -17,10 +8,17 @@ NULL
 #' Nathaniel Tomasetti <nathaniel.tomasetti@gmail.com>
 #' @description This package estimates the dynamics of the yield curve using nonparametric
 #' methods and tests for stationarity.
+#' 
+#' @importClassesFrom Matrix dgCMatrix
+#' @importFrom Rcpp evalCpp
+#' @importFrom Matrix colSums rowSums sparseMatrix t
+#' @importFrom dplyr filter left_join mutate select group_by lead lag
+#' @importFrom rlang !! sym
+#' @importFrom stats var
+#' @importFrom magrittr %>%
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib ycevo
 NULL
 
-#' @useDynLib ycevo
-#' @importFrom Rcpp sourceCpp
-NULL
 
 utils::globalVariables(c("."))

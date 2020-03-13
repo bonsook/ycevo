@@ -25,17 +25,17 @@
 "USbonds"
 
 #' Daily interest rates from 4/1/1954 to 28/12/2018
-#'
+#' 
 #' A dataset containing the daily 3 Month US Treasury Bill rate
-#'
+#' 
 #' @format A data frame with 16955 rows and 2 variables:
 #' \describe{
 #' \item{date}{vector of dates}
 #' \item{rate}{daily annualised interest rate in percentages}
 #' }
-"DTB3"
+# "DTB3"
 
 #' Results of the calculation in the vignette
 #'
 #' @format A list required to produce sample figures and table
-"vignette_data"
+# "vignette_data"
