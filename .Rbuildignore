@@ -9,3 +9,7 @@ examples_x64
 ycevo-Ex_i386.Rout
 ycevo-Ex_x64.Rout
 ^CRAN-RELEASE$
+
+reproducing-paper.Rmd
+vignette_data.rda
+DTB3.rda

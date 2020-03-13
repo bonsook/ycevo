@@ -1,36 +1,35 @@
-#' @name epaker
-#' @title Epaker kernel function
-#' @description Kernel function for grid windows
-#' @param x value to apply kernel to
-#' @author Bonsoo Koo and Kai-Yang Goh
-#' @keywords internal
+# Epaker kernel function
+#
+# Kernel function for grid windows
+#
+# @param x value to apply kernel to
+# @author Bonsoo Koo and Kai-Yang Goh
 epaker <- function(x) {
   (3/4)*(1-x^2)*(abs(x)<=1)
   # (1-x^2)*(abs(x)<=1)
 }
 
-#' Create a bond price list from the data
-#' 
-#' Tranforms data into a format suitable for estimation
-#' 
-#' This function converts and extracts bond prices over
-#' quotation days and different bonds from the raw data
-#' into a list of sparse matrices for estimation
-#' 
-#' @param data a bond data. See \code{?USbonds} for an example data structure.
-#' 
-#' @return If all the required information is present, then the
-#' output will be a list with length equal to the number of quotation
-#' days in the data. Each element of the output will be a sparseMatrix
-#' object for a quotation day with the number of rows being the number of bonds 
-#' and the number of columns being the maximum of time-to-maturity.
-#' Each row is a bond with price indicated at the corresponding column (time).
-#' @examples
-#' \donttest{
-#' price <- calc_price_slist(USbonds)
-#' }
-#' @author Bonsoo Koo and Kai-Yang Goh
-#' @export
+# Create a bond price list from the data
+# 
+# Tranforms data into a format suitable for estimation
+# 
+# This function converts and extracts bond prices over
+# quotation days and different bonds from the raw data
+# into a list of sparse matrices for estimation
+# 
+# @param data a bond data. See \code{?USbonds} for an example data structure.
+# 
+# @return If all the required information is present, then the
+# output will be a list with length equal to the number of quotation
+# days in the data. Each element of the output will be a sparseMatrix
+# object for a quotation day with the number of rows being the number of bonds 
+# and the number of columns being the maximum of time-to-maturity.
+# Each row is a bond with price indicated at the corresponding column (time).
+# @examples
+# \donttest{
+# price <- calc_price_slist(USbonds)
+# }
+# @author Bonsoo Koo and Kai-Yang Goh
 calc_price_slist <- function(data) {
   price_list <- data %>%
     mutate(mid.price = !!sym('mid.price') + !!sym('accint')) %>%
@@ -58,29 +57,28 @@ calc_price_slist <- function(data) {
 }
 
 
-#' Create a list of sparse matrices to represent cash flows
-#' 
-#' Tranforms data into a format suitable for estimation
-#' 
-#' This function converts and extracts coupon payments over
-#' quotation days and different bonds from the raw data
-#' into a list of sparse matrices for estimation
-#' 
-#' @param data data for bonds including quotation days, bond id,
-#' time until payment and payment amount.
-#' 
-#' @return If all the required information is present, then the
-#' output will be a list with length equal to the number of quotation
-#' days in the data. Each element of the output will be a sparseMatrix
-#' object for a quotation day with the number of rows being the number of bonds 
-#' and the number of columns being the maximum of time-to-maturity.
-#' Each row is a bond with cash flow indicated at the corresponding column (time).
-#' @examples
-#' \donttest{
-#' cf <- calc_cf_slist(USbonds)
-#' }
-#' @author Bonsoo Koo and Kai-Yang Goh
-#' @export
+# Create a list of sparse matrices to represent cash flows
+# 
+# Tranforms data into a format suitable for estimation
+# 
+# This function converts and extracts coupon payments over
+# quotation days and different bonds from the raw data
+# into a list of sparse matrices for estimation
+# 
+# @param data data for bonds including quotation days, bond id,
+# time until payment and payment amount.
+# 
+# @return If all the required information is present, then the
+# output will be a list with length equal to the number of quotation
+# days in the data. Each element of the output will be a sparseMatrix
+# object for a quotation day with the number of rows being the number of bonds 
+# and the number of columns being the maximum of time-to-maturity.
+# Each row is a bond with cash flow indicated at the corresponding column (time).
+# @examples
+# \donttest{
+# cf <- calc_cf_slist(USbonds)
+# }
+# @author Bonsoo Koo and Kai-Yang Goh
 calc_cf_slist <- function(data) {
 
   cf_list <- data %>%
@@ -108,27 +106,26 @@ calc_cf_slist <- function(data) {
 }
 
 
-#' Weights time grid
-#' 
-#' Generate kernel weights using Epaker kernal function in relation to time grids
-#' 
-#' This function generates a weight function attached to each quotation date grid
-#' for the estimation of a discount function
-#' 
-#' @param data a bond dataframe
-#' @param ugrid vector of the quotation date grid
-#' @param hu vector of quotation date bandwidth
-#' 
-#' @return Matrix with number of columns being the length of \code{ugrid} and number of rows being the number of unique qdates.
-#' Each column represents the weights of each qdate for that \code{rgrid}.
-#' Each column is a \code{ugrid} date with the weights of the qdates used in discount function estimation. qdates correspond to rows.
-#' 
-#' @author Bonsoo Koo and Kai-Yang Goh
-#' @examples 
-#'  ugrid <- c(0.2,0.4)
-#'  hu <- c(0.18,0.18)
-#'  out <- calc_uu_window(data = USbonds, ugrid = ugrid,hu = hu)
-#' @export
+# Weights time grid
+# 
+# Generate kernel weights using Epaker kernal function in relation to time grids
+# 
+# This function generates a weight function attached to each quotation date grid
+# for the estimation of a discount function
+# 
+# @param data a bond dataframe
+# @param ugrid vector of the quotation date grid
+# @param hu vector of quotation date bandwidth
+# 
+# @return Matrix with number of columns being the length of \code{ugrid} and number of rows being the number of unique qdates.
+# Each column represents the weights of each qdate for that \code{rgrid}.
+# Each column is a \code{ugrid} date with the weights of the qdates used in discount function estimation. qdates correspond to rows.
+# 
+# @author Bonsoo Koo and Kai-Yang Goh
+# @examples 
+#  ugrid <- c(0.2,0.4)
+#  hu <- c(0.18,0.18)
+#  out <- calc_uu_window(data = USbonds, ugrid = ugrid,hu = hu)
 calc_uu_window <- function(data, ugrid, hu) {
   #ugrid = values you want to compute dbar and hhat for
   #hu = bandwidth parameter
@@ -141,28 +138,27 @@ calc_uu_window <- function(data, ugrid, hu) {
   epaker(uu)
 }
 
-#' Weights interest rate grid
-#' 
-#' Generate a kernel weight function in relation to interest rate grids
-#' 
-#' This function generates a weight function attached to each interest rate grid
-#' for the estimation of a discount function
-#' 
-#' @param interest vector of daily interest rates
-#' @param rgrid vector of interest rate grid
-#' @param hr vector of interest rate bandwidth
-#' 
-#' @return Matrix with number of columns being the length of \code{rgrid} and number of rows being the number of unique qdates.
-#' Each column represents the weights of each qdate for that \code{rgrid}.
-#' Each column is a \code{rgrid} date with the weights of the qdates used in discount function estimation. qdates correspond to rows.
-#' 
-#' @author Bonsoo Koo, Kai-Yang Goh and Nathaniel Tomasetti
-#' @examples 
-#'  interest <- c(1.01, 1.02)
-#'  rgrid <- c(0.2,0.4)
-#'  hr <- c(0.18,0.18)
-#'  out <- calc_r_window(interest = interest, rgrid = rgrid,hr = hr)
-#' @export
+# Weights interest rate grid
+# 
+# Generate a kernel weight function in relation to interest rate grids
+# 
+# This function generates a weight function attached to each interest rate grid
+# for the estimation of a discount function
+# 
+# @param interest vector of daily interest rates
+# @param rgrid vector of interest rate grid
+# @param hr vector of interest rate bandwidth
+# 
+# @return Matrix with number of columns being the length of \code{rgrid} and number of rows being the number of unique qdates.
+# Each column represents the weights of each qdate for that \code{rgrid}.
+# Each column is a \code{rgrid} date with the weights of the qdates used in discount function estimation. qdates correspond to rows.
+# 
+# @author Bonsoo Koo, Kai-Yang Goh and Nathaniel Tomasetti
+# @examples 
+#  interest <- c(1.01, 1.02)
+#  rgrid <- c(0.2,0.4)
+#  hr <- c(0.18,0.18)
+#  out <- calc_r_window(interest = interest, rgrid = rgrid,hr = hr)
 calc_r_window <- function(interest, rgrid, hr) {
 
   r <- matrix(0, nrow = length(interest), ncol = length(rgrid))
@@ -172,22 +168,21 @@ calc_r_window <- function(interest, rgrid, hr) {
   epaker(r)
 }
 
-#' Provide indices in relation to time grids
-#' 
-#' This function provide indices for the start and end of the qdates included in the kernel windows for each \code{ugrid}.
-#' 
-#' @param data a bond data frame. See \code{?USbonds} for an example data structure.
-#' @param ugrid vector of quotation date grid
-#' @param hu vector of quotation date bandwidth
-#' 
-#' @return Matrix. The start and end of the qdates included in the ugrid kernel windows
-#' 
-#' @author Bonsoo Koo and Kai-Yang Goh
-#' @examples 
-#'  ugrid <- c(0.2,0.4)
-#'  hu <- c(0.18,0.18)
-#'  out <- calc_day_idx(data = USbonds, ugrid = ugrid, hu = hu)
-#' @export
+# Provide indices in relation to time grids
+# 
+# This function provide indices for the start and end of the qdates included in the kernel windows for each \code{ugrid}.
+# 
+# @param data a bond data frame. See \code{?USbonds} for an example data structure.
+# @param ugrid vector of quotation date grid
+# @param hu vector of quotation date bandwidth
+# 
+# @return Matrix. The start and end of the qdates included in the ugrid kernel windows
+# 
+# @author Bonsoo Koo and Kai-Yang Goh
+# @examples 
+#  ugrid <- c(0.2,0.4)
+#  hu <- c(0.18,0.18)
+#  out <- calc_day_idx(data = USbonds, ugrid = ugrid, hu = hu)
 calc_day_idx <- function(data, ugrid, hu) {
   u <- calc_uu_window(data, ugrid, hu)
   apply(u, 2, function(y) {
@@ -198,26 +193,25 @@ calc_day_idx <- function(data, ugrid, hu) {
 }
 
 
-#' Weights time to maturity grid
-#' 
-#' Apply kernel in relation to time-to-maturity grids
-#' 
-#' This function generates a weight function attached to each time grid
-#' for the estimation of a discount function
-#' 
-#' @param data a bond data frame
-#' @param xgrid vector of the time-to-maturity grid
-#' @param hx vector of the time-to-maturity grid bandwidth
-#' 
-#' @return Matrix with number of columns being the length of \code{xgrid} and number of rows being the number of unique qdates.
-#' Each column represents the weights of each qdate for that \code{xgrid}.
-#' Each column is a \code{xgrid} date with the weights of the qdates used in discount function estimation. qdates correspond to rows.
-#' @author Bonsoo Koo and Kai-Yang Goh
-#' @examples 
-#' xgrid <- c(30, 60, 90) / 365
-#' hx <- c(15, 15 , 15) / 365
-#' out <- calc_ux_window(data = USbonds, xgrid = xgrid, hx = hx)
-#' @export
+# Weights time to maturity grid
+# 
+# Apply kernel in relation to time-to-maturity grids
+# 
+# This function generates a weight function attached to each time grid
+# for the estimation of a discount function
+# 
+# @param data a bond data frame
+# @param xgrid vector of the time-to-maturity grid
+# @param hx vector of the time-to-maturity grid bandwidth
+# 
+# @return Matrix with number of columns being the length of \code{xgrid} and number of rows being the number of unique qdates.
+# Each column represents the weights of each qdate for that \code{xgrid}.
+# Each column is a \code{xgrid} date with the weights of the qdates used in discount function estimation. qdates correspond to rows.
+# @author Bonsoo Koo and Kai-Yang Goh
+# @examples 
+# xgrid <- c(30, 60, 90) / 365
+# hx <- c(15, 15 , 15) / 365
+# out <- calc_ux_window(data = USbonds, xgrid = xgrid, hx = hx)
 calc_ux_window <- function(data, xgrid, hx, units = 365) {
   #x = values you want to compute dbar and hhat for
   #h = bandwidth parameter
@@ -228,22 +222,21 @@ calc_ux_window <- function(data, xgrid, hx, units = 365) {
   epaker(ux)
 }
 
-#' Provide indices in relation to time-to-maturity grids
-#' 
-#' This function provides indices for the first and last xgrid included in the kernel window of each \code{xgrid}.
-#' 
-#' @param data Bond dataframe
-#' @param xgrid vector of the time-to-maturity grid
-#' @param hx vector of the time-to-maturity grid bandwidth
-#' 
-#' @return Matrix. The first and last xgrid included in the current kernel window.
-#' 
-#' @author Bonsoo Koo and Kai-Yang Goh
-#' @examples 
-#' xgrid <- c(30, 60, 90) / 365
-#' hx <- c(15, 15 , 15) / 365
-#' out <- calc_tupq_idx(data = USbonds, xgrid = xgrid, hx = hx)
-#' @export
+# Provide indices in relation to time-to-maturity grids
+# 
+# This function provides indices for the first and last xgrid included in the kernel window of each \code{xgrid}.
+# 
+# @param data Bond dataframe
+# @param xgrid vector of the time-to-maturity grid
+# @param hx vector of the time-to-maturity grid bandwidth
+# 
+# @return Matrix. The first and last xgrid included in the current kernel window.
+# 
+# @author Bonsoo Koo and Kai-Yang Goh
+# @examples 
+# xgrid <- c(30, 60, 90) / 365
+# hx <- c(15, 15 , 15) / 365
+# out <- calc_tupq_idx(data = USbonds, xgrid = xgrid, hx = hx)
 calc_tupq_idx <- function(data, xgrid, hx, units = 365) {
   x <- calc_ux_window(data,xgrid,hx, units)
   apply(x, 2, function(y) {
@@ -255,35 +248,34 @@ calc_tupq_idx <- function(data, xgrid, hx, units = 365) {
     t()
 }
 
-#' Automatic selection of xgrid and hx values
-#' 
-#' Selects xgrid and hx from values of qgrid and hq with a given number of maturing bonds
-#' 
-#' Automatically select values for sparse time to maturity \code{xgrid} and \code{hx}
-#' for a given dense time to maturity value of qgrid and hq and quotation date ugrid and hu.
-#' The length of the provided xgrid may change for different ugrid values, so it is recommended
-#' that the function is called separately for different values of ugrid.
-#' @param data Bond dataframe. See \code{?USbonds} for an example data strcture..
-#' @param ugrid A single value for ugrid between 0 and 1
-#' @param hu A single value for the bandwidth of the ugrid value
-#' @param qgrid vector of dense time to maturity grid
-#' @param hq vector of dense time to maturity bandwidth
-#' @param min_points Integer, minimum number of maturing bonds in a qgrid range to be included in xgrid.
-#' @param rgrid Optional, a single value for rgrid
-#' @param hr Optional, A single value for the bandwidth of the rgrid value
-#' @param interest, Optional, a vector of daily interest rates for use with rgrid. Must have a length equal to the number of unique qdates in data
-#' @param units, Optional, number of units per period. Eg 365 for daily data, 12 for monthly.
-#' Grid values without maturing bonds do not have sufficient data for stable estimates.
-#' @return List of \code{xgrid}, \code{hx}, \code{qgrid} and \code{hq}. \code{qgrid} and \code{hq} is the same as input. 
-#' For the usage of created \code{xgrid} and \code{hx}, see \code{\link{estimate_yield}}.
-#' @examples 
-#'  ugrid <- 0.2
-#'  hu <- 0.18
-#'  qgrid <- c(30, 60, 90) / 365
-#'  hq <- c(15, 15 , 15) / 365
-#'  out <- create_xgrid_hx(data = USbonds, ugrid = ugrid, hu = hu, qgrid = qgrid,hq =hq, min_points = 5)
-#' @author Nathaniel Tomasetti
-#' @export
+# Automatic selection of xgrid and hx values
+# 
+# Selects xgrid and hx from values of qgrid and hq with a given number of maturing bonds
+# 
+# Automatically select values for sparse time to maturity \code{xgrid} and \code{hx}
+# for a given dense time to maturity value of qgrid and hq and quotation date ugrid and hu.
+# The length of the provided xgrid may change for different ugrid values, so it is recommended
+# that the function is called separately for different values of ugrid.
+# @param data Bond dataframe. See \code{?USbonds} for an example data strcture..
+# @param ugrid A single value for ugrid between 0 and 1
+# @param hu A single value for the bandwidth of the ugrid value
+# @param qgrid vector of dense time to maturity grid
+# @param hq vector of dense time to maturity bandwidth
+# @param min_points Integer, minimum number of maturing bonds in a qgrid range to be included in xgrid.
+# @param rgrid Optional, a single value for rgrid
+# @param hr Optional, A single value for the bandwidth of the rgrid value
+# @param interest, Optional, a vector of daily interest rates for use with rgrid. Must have a length equal to the number of unique qdates in data
+# @param units, Optional, number of units per period. Eg 365 for daily data, 12 for monthly.
+# Grid values without maturing bonds do not have sufficient data for stable estimates.
+# @return List of \code{xgrid}, \code{hx}, \code{qgrid} and \code{hq}. \code{qgrid} and \code{hq} is the same as input. 
+# For the usage of created \code{xgrid} and \code{hx}, see \code{\link{estimate_yield}}.
+# @examples 
+#  ugrid <- 0.2
+#  hu <- 0.18
+#  qgrid <- c(30, 60, 90) / 365
+#  hq <- c(15, 15 , 15) / 365
+#  out <- create_xgrid_hx(data = USbonds, ugrid = ugrid, hu = hu, qgrid = qgrid,hq =hq, min_points = 5)
+# @author Nathaniel Tomasetti
 create_xgrid_hx <- function(data, ugrid, hu, qgrid, hq, min_points, rgrid, hr, interest, units = 365){
 
   points <- num_points_mat(data, ugrid, hu, qgrid, hq, rgrid, hr, interest, units)
@@ -314,20 +306,20 @@ create_xgrid_hx <- function(data, ugrid, hu, qgrid, hq, min_points, rgrid, hr, i
   list(xgrid = xgrid, hx = hx, qgrid = qgrid, hq = hq)
 }
 
-#' @name interpolate_discount
-#' @title Interpolates the discount rates resulting from estimate_yield
-#' @description Applies three dimensional interpolation to find discount rates suitable for provided data
-#' @details Given a bond data object and the output of estimate_yield, this function interpolates over each grid
-#' to obtain new values of the discount rate for arbitrary rgrid / ugrid and qgrid values.
-#' @author Nathaniel Tomasetti
-#' @param data Bond dataframe
-#' @param yield Output of estimate_yield
-#' @param treasury Optional, dataframe of daily treasury bill rates with date and rate columns
-#' @return Interpolated bond dataframe
-#' @importFrom rlang .data
-#' @importFrom dplyr ungroup distinct
-#' @importFrom stats loess predict
-#' 
+# @name interpolate_discount
+# @title Interpolates the discount rates resulting from estimate_yield
+# @description Applies three dimensional interpolation to find discount rates suitable for provided data
+# @details Given a bond data object and the output of estimate_yield, this function interpolates over each grid
+# to obtain new values of the discount rate for arbitrary rgrid / ugrid and qgrid values.
+# @author Nathaniel Tomasetti
+# @param data Bond dataframe
+# @param yield Output of estimate_yield
+# @param treasury Optional, dataframe of daily treasury bill rates with date and rate columns
+# @return Interpolated bond dataframe
+# @importFrom rlang .data
+# @importFrom dplyr ungroup distinct
+# @importFrom stats loess predict
+# 
 interpolate_discount <- function(data, yield, treasury){
 
   # Check dates included in data

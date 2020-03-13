@@ -21,33 +21,10 @@ var_prod_error <- function(perror, w) {
     .Call('_ycevo_var_prod_error', PACKAGE = 'ycevo', perror, w)
 }
 
-#' One dimensional interpolation over ugrid
-#'
-#' Given the inputs, this interpolates dhat at a given xgrid over the nearest ugrid values
-#' @param x the value to be interpolated
-#' @param u the value to be interpolated
-#' @param ugrid vector, the range of u values we have data for
-#' @param interp matrix, element i,j gives the dhat value of the i'th xval and j'th ugrid
-#' @param xvals vector, the unique values of xvals that are included in interp. x must appear in this vector.
-#' @return dhat at a given xgrid over the nearest ugrid values
-#' @export
 interpolate_ugrid <- function(x, u, ugrid, interp, xvals) {
     .Call('_ycevo_interpolate_ugrid', PACKAGE = 'ycevo', x, u, ugrid, interp, xvals)
 }
 
-#' Two dimensional interpolation method
-#'
-#' Given the inputs, this interpolates the dhat value at a given xgrid value over both ugrid and rgrid.
-#' @param x the value to be interpolated
-#' @param u the value to be interpolated
-#' @param r the value to be interpolated
-#' @param ugrid vector, the range of u values we have data for
-#' @param rgrid matrix, each row corresponds to the xgrid values for a given ugrid.
-#' Pad end of a row with duplicates if necessary to make a matrix
-#' @param xvals vector, the unique values of x we have a dhat for, corresponds to interp rows
-#' @param interp three dimensional array, element i,j,k gives the dhat value for the i'th value of xvals, the j'th value of ugrid and k'th value of rgrid.
-#' @return dhat value at a given xgrid value over both ugrid and rgrid
-#' @export
 interpolate_ugrid_rgrid <- function(x, u, r, ugrid, rgrid, interp, xvals) {
     .Call('_ycevo_interpolate_ugrid_rgrid', PACKAGE = 'ycevo', x, u, r, ugrid, rgrid, interp, xvals)
 }

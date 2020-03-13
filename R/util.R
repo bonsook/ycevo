@@ -1,14 +1,14 @@
-#' @title Calculates the number of payments in each qgrid
-#' @param .data A data frame; bond data to estimate discount curve from.
-#' @param ugrid A single value for ugrid between 0 and 1
-#' @param hu A single value for the bandwidth of the ugrid value
-#' @param qgrid A numeric matrix, each row represents the time-to-maturity grid
-#' for the discount function at the corresponding time.
-#' @param hq A numeric vector, bandwidth parameter determining the size of the window
-#' that corresponds to each time-to-maturity.
-#' @keywords internal
-#' @author Bonsoo Koo and Kai-Yang Goh
-#'
+# @title Calculates the number of payments in each qgrid
+# @param .data A data frame; bond data to estimate discount curve from.
+# @param ugrid A single value for ugrid between 0 and 1
+# @param hu A single value for the bandwidth of the ugrid value
+# @param qgrid A numeric matrix, each row represents the time-to-maturity grid
+# for the discount function at the corresponding time.
+# @param hq A numeric vector, bandwidth parameter determining the size of the window
+# that corresponds to each time-to-maturity.
+# @keywords internal
+# @author Bonsoo Koo and Kai-Yang Goh
+#
 num_points <- function(.data, ugrid, hu, qgrid, hq) {
   out <- matrix(0, nrow = length(ugrid), ncol = length(qgrid))
   u_idx <- calc_day_idx(.data, ugrid, hu)
@@ -22,20 +22,20 @@ num_points <- function(.data, ugrid, hu, qgrid, hq) {
   return(out)
 }
 
-#' @title Calculates number of bonds that mature in each qgrid
-#' @param data A data frame; bond data to estimate discount curve from.
-#' @param ugrid A single value for ugrid between 0 and 1
-#' @param hu A single value for the bandwidth of the ugrid value
-#' @param qgrid A numeric vector of the time-to-maturity grid
-#' for the discount function at the corresponding time.
-#' @param hq A numeric vector matching qgrid, bandwidth parameter determining the size of the window
-#' that corresponds to each time-to-maturity.
-#' @param rgrid Optional, a single value for rgrid
-#' @param hr Optional, A single value for the bandwidth of the rgrid value for use with rgrid
-#' @param interest Optional, A vector of daily interest rates for use with rgrid
-#' @keywords internal
-#' @author Bonsoo Koo, Kai-Yang Goh and Nathaniel Tomasetti
-#'
+# @title Calculates number of bonds that mature in each qgrid
+# @param data A data frame; bond data to estimate discount curve from.
+# @param ugrid A single value for ugrid between 0 and 1
+# @param hu A single value for the bandwidth of the ugrid value
+# @param qgrid A numeric vector of the time-to-maturity grid
+# for the discount function at the corresponding time.
+# @param hq A numeric vector matching qgrid, bandwidth parameter determining the size of the window
+# that corresponds to each time-to-maturity.
+# @param rgrid Optional, a single value for rgrid
+# @param hr Optional, A single value for the bandwidth of the rgrid value for use with rgrid
+# @param interest Optional, A vector of daily interest rates for use with rgrid
+# @keywords internal
+# @author Bonsoo Koo, Kai-Yang Goh and Nathaniel Tomasetti
+#
 num_points_mat <- function(data, ugrid, hu, qgrid, hq, rgrid, hr, interest, units = 365) {
   # Check dates in data matches interest rate
   dates <- unique(data$qdate)
@@ -69,44 +69,43 @@ num_points_mat <- function(data, ugrid, hu, qgrid, hq, rgrid, hr, interest, unit
   return(out)
 }
 
-#'  Generate a yield curve with cubic time evolution
-#' 
-#' @details Returns a matrix where each column corresponds to a yield curve at a different point in time.
-#' The initial curve at time to maturity zero is estimated from the following equation
-#' \deqn{Yield_{i, 0} = b_0 + b_1 * ((1 - \exp(-\tau_i / t_1)) / (\tau / t_1)) + b_2 * ((1 - \exp(-\tau_i / t_2)) / (\tau_i / t2) - \exp(-\tau_i / t_2))}
-#' where \eqn{\tau_i} is the index of the time to maturity period. This defines the yield curve for the quotation date = 0.
-#' The yield curve for quotation dates = 1, 2, ... , max_q_date multiplies this curve by the cubic equation,
-#' \deqn{Yield_{i, t} = Yield_{i, 0} * (1 + linear * t + quadratic * t^2 + cubic * t^3)}
-#' so the yield curve slowly changes over different quotation dates.
-#' 
-#' @param max_qDate An integer giving the number of quotation dates to use in the data. Defaults to 12.
-#' @param periods An integer giving the maximum number of time-to-maturity periods the yield curve is estimated for each quotation date. Defaults to 36
-#' @param b0 First term in yield curve equation, Defaults to 0. See \code{Details}.
-#' @param b1 Second term in yield curve equation, Defaults to 0.05. See \code{Details}.
-#' @param b2 Third term in yield curve equation, Defaults to 2. See \code{Details}.
-#' @param t1 Fourth term in yield curve equation, Defaults to 3. See \code{Details}.
-#' @param t2 Fifth term in yield curve equation, Defaults to 500. See \code{Details}.
-#' @param linear Linear term in yield curve evolution, Defaults to -0.55. See \code{Details}.
-#' @param quadratic Quadratic term in yield curve evolution. Defaults to 0.55. See \code{Details}.
-#' @param cubic Cubic term in yield curve evolution. Defaults to -0.55. See \code{Details}.
-#' 
-#' @return Matrix. Each column is a yield curve in a point in time (a quotation date). Each row is for a time-to-maturity. 
-#' For example, the number in the second column third row is the yield for the yield curve at the second quotation date, 
-#' for the third time-to-maturity ranking from shortest to longest. See \code{Details} for the equation to generate the yield curve.
-#' See \code{Examples} for a example with the code to visually inspect the yield curves. 
-#' @export
-#' @examples 
-#' out <- generate_yield()
-#' 
-#' # plots
-#' library(tidyverse)
-#' out <- data.frame(out)
-#' colnames(out) <- 1:12
-#' out <- mutate(out, time = 1:36)
-#' out <- pivot_longer(out, -time, names_to = "qdate", values_to = "yield")
-#' ggplot(out) + 
-#'   geom_line(aes(x=time, y=yield, color = qdate))
-#' 
+#  Generate a yield curve with cubic time evolution
+# 
+# @details Returns a matrix where each column corresponds to a yield curve at a different point in time.
+# The initial curve at time to maturity zero is estimated from the following equation
+# \deqn{Yield_{i, 0} = b_0 + b_1 * ((1 - \exp(-\tau_i / t_1)) / (\tau / t_1)) + b_2 * ((1 - \exp(-\tau_i / t_2)) / (\tau_i / t2) - \exp(-\tau_i / t_2))}
+# where \eqn{\tau_i} is the index of the time to maturity period. This defines the yield curve for the quotation date = 0.
+# The yield curve for quotation dates = 1, 2, ... , max_q_date multiplies this curve by the cubic equation,
+# \deqn{Yield_{i, t} = Yield_{i, 0} * (1 + linear * t + quadratic * t^2 + cubic * t^3)}
+# so the yield curve slowly changes over different quotation dates.
+# 
+# @param max_qDate An integer giving the number of quotation dates to use in the data. Defaults to 12.
+# @param periods An integer giving the maximum number of time-to-maturity periods the yield curve is estimated for each quotation date. Defaults to 36
+# @param b0 First term in yield curve equation, Defaults to 0. See \code{Details}.
+# @param b1 Second term in yield curve equation, Defaults to 0.05. See \code{Details}.
+# @param b2 Third term in yield curve equation, Defaults to 2. See \code{Details}.
+# @param t1 Fourth term in yield curve equation, Defaults to 3. See \code{Details}.
+# @param t2 Fifth term in yield curve equation, Defaults to 500. See \code{Details}.
+# @param linear Linear term in yield curve evolution, Defaults to -0.55. See \code{Details}.
+# @param quadratic Quadratic term in yield curve evolution. Defaults to 0.55. See \code{Details}.
+# @param cubic Cubic term in yield curve evolution. Defaults to -0.55. See \code{Details}.
+# 
+# @return Matrix. Each column is a yield curve in a point in time (a quotation date). Each row is for a time-to-maturity. 
+# For example, the number in the second column third row is the yield for the yield curve at the second quotation date, 
+# for the third time-to-maturity ranking from shortest to longest. See \code{Details} for the equation to generate the yield curve.
+# See \code{Examples} for a example with the code to visually inspect the yield curves. 
+# @examples 
+# out <- generate_yield()
+# 
+# # plots
+# library(tidyverse)
+# out <- data.frame(out)
+# colnames(out) <- 1:12
+# out <- mutate(out, time = 1:36)
+# out <- pivot_longer(out, -time, names_to = "qdate", values_to = "yield")
+# ggplot(out) + 
+#   geom_line(aes(x=time, y=yield, color = qdate))
+# 
 generate_yield <- function(max_qDate = 12, periods = 36, b0 = 0, b1 = 0.05, b2 = 2, t1 = 3, t2 = 500,
                            linear = -0.55, quadratic = 0.55, cubic = -0.55){
 
@@ -122,10 +121,11 @@ generate_yield <- function(max_qDate = 12, periods = 36, b0 = 0, b1 = 0.05, b2 =
   yield
 }
 
-#' @title Simulates fake data used in the vignette
+#' Simulates data with sample data structure from which the yield can be estimated
 #' 
+#' Simulates data with the data structure that can be used in \code{estimate_yield}
 #' 
-#' @details The discount rate for each time to maturity and quotation date is calculated as
+#' The discount rate for each time to maturity and quotation date is calculated as
 #' \deqn{Discount_{i, t} = \exp(-\tau_i * Yield_t)}
 #' After getting the discount rate for each quotation date and time to maturity, bonds are simulated and priced, where the price of Bond \eqn{j} on quotation date \eqn{t} is given by
 #' \deqn{Price_{t, j} = \sum_i payment_i Discount_{i, t}}

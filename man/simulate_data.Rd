@@ -2,7 +2,7 @@
 % Please edit documentation in R/util.R
 \name{simulate_data}
 \alias{simulate_data}
-\title{Simulates fake data used in the vignette}
+\title{Simulates data with sample data structure from which the yield can be estimated}
 \usage{
 simulate_data(
   max_qDate = 12,
@@ -48,7 +48,7 @@ Data frame with the following columns. See also \code{Details}.
 }
 }
 \description{
-Simulates fake data used in the vignette
+Simulates data with the data structure that can be used in \code{estimate_yield}
 }
 \details{
 The discount rate for each time to maturity and quotation date is calculated as
