@@ -325,85 +325,119 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
 #' 
 #' Nonparametric estimation of discount functions at given dates, time-to-maturities, and interest rates and their transformation to the yield curves.
 #' 
-#' Provides a data.frame of the yield and discount rate at each combination of the provided grids. 
-#' See \code{Source} for the detailed estimation method. The estimation has five major steps:
-#' \enumerate{
-#' \item Estimation of dbar, a component of the discount rate that ignores cross products.
-#' \item Estimation of hhat, the cross product component of the discount rate, using both qgrid and xgrid.
-#' \item Interpolation of hhat when the provided xgrid values are not equal to those found in qgrid.
-#' \item Solving a linear equation to result in dhat, the discount rate.
-#' \item Transformation of the discount rate into a yield.
-#' }
+#' Suppose that a bond \eqn{i} has a price \eqn{p_i} at time t with a set of cash payments, 
+#' say \eqn{c_1, c_2, \ldots, c_m} with a set of corresponding discount values
+#' \eqn{d_1, d_2, \ldots, d_m}. In the bond pricing literature, the market price of 
+#' a bond should reflect the discounted value of cash payments. Thus, we want to minimise
+#' \deqn{(p_i-\sum^m_{j=1}c_j\times d_j)^2.}
+#' For the estimation of \eqn{d_k(k=1, \ldots, m)}, solving the first order condition yields
+#' \deqn{(p_i-\sum^m_{j=1}c_j \times d_j)c_k = 0, }
+#' and
+#' \deqn{\hat{d}_k = \frac{p_i c_k}{c_k^2} - \frac{\sum^m_{j=1,k\neq k}c_k c_j d_j}{c_k^2}.}
+#' 
+#' There are challenges:
+#' \eqn{\hat{d}_k} depends on all the relevant disount tvalues for the cash payments of the bond.
+#' Our model contains random errors and our interest lies in expected value of \eqn{d(.)} where 
+#' the expected value of errors is zero.
+#' \eqn{d(.)} is an infinite-dimensional function not a discrete finite-dimensional vector.
+#' Generally, cash payments are made biannually, not dense at all. Moreover, cash payment schedules
+#' vary over different bonds.
+#' 
+#' For the above reasons, we instead try to pursue the minimum of the following 
+#' smoothed sample least squares objective function for any smooth function \eqn{d(.)}:
+#' \deqn{Q(d) = \sum^T_{t=1}\sum^n_{i=1}\int\{p_{it}-\sum^{m_{it}}_{j=1}c_{it}(\tau_{ij}d(s_{ij}, x)\}^2 \sum^{m_{it}}_{k=1}\{K_h(s_{ik}-\tau_{ik})ds_{ik}\}K_h(x-X_t)dx,}
+#' where, apart from the aforementioned notations,
+#' \eqn{K_h(.) = K(./h)} is the kernel function with a bandwidth parameter \eqn{h},
+#' the first kernel function is the kernel in space with bonds whose maturities \eqn{s_{ik}}
+#' are close to the sequence \eqn{\tau_{ik}}, 
+#' the second kernel function is the kernel in time with days \eqn{x} (possibly other covariates but here we simply use time),  
+#' which are close to the sequence \eqn{X_t}.
+#' This means that bonds with similar cash flows and traded in contiguous days
+#' are combined for the estimation of the discount function at a point in time and in space.
+#' 
+#' The estimator for the discount function over time to maturity and time is
+#' \deqn{\hat{d}=\arg\min_d Q(d).}
+#' This function provides a data frame of the estimated yield and discount rate at each combination of the 
+#' provided grids. The estimated yield is transformed from the estimated discount rate.
+#' 
+#' For more information on the estimation method, please refer to \code{References}.
+#' 
 #' 
 #' @param data A data frame; bond data to estimate discount curve from. See \code{?USbonds} for an example bond data structure.
-#' @param ugrid A length T numeric vector; the times at which the discount curve will be estimated.
-#' @param hu A length T numeric vector, bandwidth parameter determining the size of the window
+#' @param xgrid A length T numeric vector; the times at which the discount curve will be estimated.
+#' @param hx A length T numeric vector, bandwidth parameter determining the size of the window
 #' that corresponds to each time at which the discount curve is estimated,
 #' @param rgrid (Optional) A length K numeric vector of interest rate grid values
 #' @param hr (Optional) A length K numeric vector of interest rate grid bandwidths
-#' @param qgrid A length m numeric vector, or either a 1 x m or T x m numeric matrix.
+#' @param tau_p A length m numeric vector, or either a 1 x m or T x m numeric matrix.
 #' Represents a vector of grids of T time-to-maturities values to estimate the yield for.
-#' If this is a T x m matrix, each row represents the grid for a given ugrid value.
-#' If this is a vector or T x 1 matrix, entries represents the qgrid, which will be repeated for each ugrid.
-#' To be used for estimation of hhat. See \code{Details}.
-#' @param hq A numeric object in the same format as qgrid containing the kernel bandwidth for each qgrid value.
-#' @param xgrid (Optional) A length m numeric vector, or either a 1 x m or T x m numeric matrix.
-#' If a T x m matrix, each row represents the time-to-maturity grid for a given ugrid value, otherwise the same xgrid values are repeated for each ugrid value.
-#' If m = M, and each entry of qgrid is identical to xgrid, estimation is performed without interpolaton of the h-hat matrix.
-#' If the entries are not identical, the qgrid values must not lie outside the range given by the smallest to largest xgrid value
-#' Linear interpolation of the h-hat matrix is then performed.
-#' If omitted, xgrid is set equal to qgrid.
-#' @param hx A numeric object in the same format as xgrid containing the kernel bandwidth for each xgrid value.
-#' If xgrid is omitted, hx is set to equal hq.
-#' @param price_slist (Optional) A list of matrices, generated by \code{\link{calc_price_slist}}.
-#' @param cf_slist (Optional) A list of matrices, generated by \code{\link{calc_cf_slist}}.
+#' If this is a T x m matrix, each row represents the grid for a given xgrid value.
+#' If this is a vector or T x 1 matrix, entries represents the tau_p, which will be repeated for each xgrid. See \code{Details}.
+#' @param htp A numeric object in the same format as tau_p containing the kernel bandwidth for each tau_p value.
+#' @param tau (Optional) A length m numeric vector, or either a 1 x m or T x m numeric matrix.
+#' If a T x m matrix, each row represents the time-to-maturity grid for a given xgrid value, otherwise the same tau values are repeated for each xgrid value.
+# If m = M, and each entry of tau_p is identical to tau, estimation is performed without interpolaton of the h-hat matrix.
+#' If the entries are not identical, the tau_p values must not lie outside the range given by the smallest to largest tau value
+# Linear interpolation of the h-hat matrix is then performed.
+#' If omitted, tau is set equal to tau_p.
+#' @param ht A numeric object in the same format as tau containing the kernel bandwidth for each tau value.
+#' If tau is omitted, ht is set to equal htp.
+# @param price_slist (Optional) A list of matrices, generated by \code{\link{calc_price_slist}}.
+# @param cf_slist (Optional) A list of matrices, generated by \code{\link{calc_cf_slist}}.
 #' @param interest (Optional) A vector of daily short term interest rates
-#' @param units (Optional) number of tupq per xgrid (e.g. 365 for daily data with annual grid values). Defaults to 365
+#' @param units (Optional) number of tupq per tau (e.g. 365 for daily data with annual grid values). Defaults to 365
 #' @param loess (Optional) Logical. Whether the output estimated discount and yield are to be smoothed using locally estimated scatterplot smoothing (LOESS)
 #' 
 #' @return Data frame of the yield and discount rate at each combination of the provided grids.
 #' \describe{
 #'   \item{discount}{Estimated discount rate}
-#'   \item{ug}{Same as input \code{ugrid}}
-#'   \item{qg}{Same as input \code{qgrid}}
+#'   \item{xgrid}{Same as input \code{xgrid}}
+#'   \item{tau_p}{Same as input \code{tau_p}}
 #'   \item{yield}{Estimated yield}
 #' }
 #' 
-#' @author Nathaniel Tomasetti and Bonsoo Koo
+#' @author Nathaniel Tomasetti, Bonsoo Koo, and Yangzhuoran Yang
 #' @examples
 #' \donttest{
-#' ugrid <- 0.207171315
-#' hu <- 0.2
-#' max_tumat <- max(USbonds$tumat)
-#' qgrid <- c(seq(30, 6 * 30, 30),  # Monthly up to six months
-#'            seq(240, 2 * 365, 60),  # Two months up to two years
-#'            seq(720 + 90, 6 * 365, 90),  # Three months up to six years
-#'            seq(2160 + 120, 20 * 365, 120),  # Four months up to 20 years
-#'            #               seq(20 * 365 + 182, 30 * 365, 182)) / 365 # Six months up to 30 years
-#'            seq(20 * 365 + 182, 30.6 * 365, 182)) / 365
-#' # Cut qgrid so that there is one value greater than the maximum to maturity
-#' qgrid <- qgrid[1:min(which(qgrid >= max_tumat / 365))]
-#' 
-#' laggap <- qgrid - dplyr::lag(qgrid)
-#' leadgap <- dplyr::lead(qgrid) - qgrid
-#' hq <- vapply(1:length(qgrid), function(x) max(laggap[x], leadgap[x], na.rm = TRUE), runif(1))
-#' grids <- create_xgrid_hx(USbonds, ugrid, hu, qgrid, hq, 5)
-#' 
-#' price <- calc_price_slist(USbonds)
-#' cf <- calc_cf_slist(USbonds)
-#' dhat <- estimate_yield(data = USbonds, ugrid = ugrid, hu = hu, xgrid = grids$xgrid,
-#'                hx=grids$hx, qgrid = qgrid,hq= hq, price_slist=price, cf_slist = cf)
+# xgrid <- 0.207171315
+# hx <- 0.2
+# max_tumat <- max(USbonds$tumat)
+# tau <- c(seq(30, 6 * 30, 30),  # Monthly up to six months
+#            seq(240, 2 * 365, 60),  # Two months up to two years
+#            seq(720 + 90, 6 * 365, 90),  # Three months up to six years
+#            seq(2160 + 120, 20 * 365, 120),  # Four months up to 20 years
+#            #               seq(20 * 365 + 182, 30 * 365, 182)) / 365 # Six months up to 30 years
+#            seq(20 * 365 + 182, 30.6 * 365, 182)) / 365
+# # Cut tau so that there is one value greater than the maximum to maturity
+# tau <- tau[1:min(which(tau >= max_tumat / 365))]
+# 
+# laggap <- tau - dplyr::lag(tau)
+# leadgap <- dplyr::lead(tau) - tau
+# ht <- vapply(1:length(tau), function(x) max(laggap[x], leadgap[x], na.rm = TRUE), runif(1))
+# grids <- create_xgrid_hx(USbonds, xgrid, hx, tau, ht, 5)
+# 
+# price <- calc_price_slist(USbonds)
+# cf <- calc_cf_slist(USbonds)
+# dhat <- estimate_yield(data = USbonds, xgrid = xgrid, hx = hx, tau_p = grids$xgrid,
+#                htp=grids$hx, tau = tau,ht= ht, price_slist=price, cf_slist = cf)
+#' xgrid <- 0.2
+#' hx <- 0.2
+#' tau_p <- tau <- seq(0, 360, 30) /365
+#' htp <- ht <- rep(15, length(tau)) /365
+#' dhat <- estimate_yield(data = USbonds, xgrid = xgrid, 
+#'                hx = hx, tau_p = tau_p,
+#'                htp=htp, tau = tau,ht= ht)
 #' }
 #' 
-#' @source Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
+#' @references  Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
 #' 
 #' @export
-estimate_yield <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, price_slist, cf_slist, interest, units = 365, loess = TRUE){
-  if (missing(xgrid)){
-    xgrid <- qgrid
+estimate_yield <- function(data, xgrid, hx, rgrid, hr, tau, ht, tau_p, htp, interest, units = 365, loess = TRUE){
+  if (missing(tau)){
+    tau <- tau_p
   }
-  if(missing(hx)){
-    hx <- hq
+  if(missing(ht)){
+    ht <- htp
   }
   if(!missing(rgrid) & !missing(hr) & !missing(interest)){
     interest_grid <- TRUE
@@ -412,11 +446,11 @@ estimate_yield <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, pri
   }
   
   # Check inputs
-  if(!is.vector(ugrid)){
-    stop('ugrid must be a vector')
+  if(!is.vector(xgrid)){
+    stop('xgrid must be a vector')
   }
-  if(!is.vector(hu)){
-    stop('hu must be a vector')
+  if(!is.vector(hx)){
+    stop('hx must be a vector')
   }
   if(!is.data.frame(data)){
     stop('data must be a dataframe')
@@ -424,141 +458,143 @@ estimate_yield <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, pri
   if(!all(c('qdate', 'crspid', 'tumat', 'mid.price', 'accint', 'pdint', 'tupq') %in% colnames(data))){
     stop('data must contain columns qdate, crspid, tumat, mid.price, accint, pdint, and tupq')
   }
-  if(!is.matrix(xgrid) & !is.vector(xgrid)){
-    stop('xgrid must be a vector or a matrix')
+  if(!is.matrix(tau) & !is.vector(tau)){
+    stop('tau must be a vector or a matrix')
   }
-  if(!is.matrix(qgrid) & !is.vector(qgrid)){
-    stop('qgrid must be a vector or a matrix')
+  if(!is.matrix(tau_p) & !is.vector(tau_p)){
+    stop('tau_p must be a vector or a matrix')
   }
-  if(!is.matrix(hq) & !is.vector(hq)){
-    stop('hq must be a vector or a matrix')
-  }
-  if(!is.numeric(ugrid)){
-    stop('ugrid must be numeric')
-  }
-  if(!is.numeric(hu)){
-    stop('hu must be numeric')
+  if(!is.matrix(htp) & !is.vector(htp)){
+    stop('htp must be a vector or a matrix')
   }
   if(!is.numeric(xgrid)){
     stop('xgrid must be numeric')
   }
-  if(!is.numeric(qgrid)){
-    stop('qgrid must be numeric')
+  if(!is.numeric(hx)){
+    stop('hx must be numeric')
   }
-  if(!is.numeric(hq)){
-    stop('hq must be numeric')
+  if(!is.numeric(tau)){
+    stop('tau must be numeric')
+  }
+  if(!is.numeric(tau_p)){
+    stop('tau_p must be numeric')
+  }
+  if(!is.numeric(htp)){
+    stop('htp must be numeric')
   }
   # Check if hq matches ugrid
-  if(length(ugrid) != length(hu)){
-    stop('ugrid and hu must have the same length')
+  if(length(xgrid) != length(hx)){
+    stop('xgrid and hx must have the same length')
   }
   # Check if xgrid matches qgrid
-  if((is.matrix(xgrid) & is.matrix(qgrid)) | is.vector(xgrid) & is.vector(qgrid)){
-    if(is.matrix(xgrid)){
-      if(nrow(xgrid) != nrow(qgrid)){
-        stop('xgrid and qgrid have incompatible sizes, both matrices contain the same number of rows')
+  if((is.matrix(tau) & is.matrix(tau_p)) | is.vector(tau) & is.vector(tau_p)){
+    if(is.matrix(tau)){
+      if(nrow(tau) != nrow(tau_p)){
+        stop('tau and tau_p have incompatible sizes, both matrices contain the same number of rows')
       }
-      if(nrow(xgrid) != 1 | nrow(xgrid) != length(ugrid)){
-        stop('xgrid and qgrid must have one row, or both have a number of rows equal to the length of ugrid')
+      if(nrow(tau) != 1 | nrow(tau) != length(xgrid)){
+        stop('tau and tau_p must have one row, or both have a number of rows equal to the length of xgrid')
       }
     }
   } else {
-    stop('xgrid and qgrid have incompatible sizes, both objects must have the same class and, if a matrix, contain the same number of rows.')
+    stop('tau and tau_p have incompatible sizes, both objects must have the same class and, if a matrix, contain the same number of rows.')
   }
   # Check if hq matches qgrid
-  if(is.vector(qgrid)){
-    if(is.vector(hq)){
-      if(length(hq) != length(qgrid)){
+  if(is.vector(tau_p)){
+    if(is.vector(htp)){
+      if(length(htp) != length(tau_p)){
         stop('hq and qgrid must have the same length')
       }
     } else {
       stop('hq must be a vector of qgrid is a vector')
     }
   }
-  if(is.matrix(qgrid)){
-    if(is.vector(hq)){
-      if(length(hq) != ncol(qgrid)){
+  if(is.matrix(tau_p)){
+    if(is.vector(htp)){
+      if(length(htp) != ncol(tau_p)){
         stop('a vector hq must have a length equal to the number of columns of qgrid')
       }
     } else {
-      if(ncol(hq) != ncol(qgrid) | nrow(hq) != nrow(qgrid)){
+      if(ncol(htp) != ncol(tau_p) | nrow(htp) != nrow(tau_p)){
         stop('a matrix hq must have the same dimensions as qgrid')
       }
     }
   }
   
   # Check if hx matches xgrid
-  if(is.vector(xgrid)){
-    if(is.vector(hx)){
-      if(length(hx) != length(xgrid)){
+  if(is.vector(tau)){
+    if(is.vector(ht)){
+      if(length(ht) != length(tau)){
         stop('hx and xgrid must have the same length')
       }
     } else {
       stop('hx must be a vector of xgrid is a vector')
     }
   }
-  if(is.matrix(xgrid)){
-    if(is.vector(hx)){
-      if(length(hx) != ncol(xgrid)){
+  if(is.matrix(tau)){
+    if(is.vector(ht)){
+      if(length(ht) != ncol(tau)){
         stop('a vector hx must have a length equal to the number of columns of xgrid')
       }
     } else {
-      if(ncol(hx) != ncol(xgrid) | nrow(hx) != nrow(xgrid)){
+      if(ncol(ht) != ncol(tau) | nrow(ht) != nrow(tau)){
         stop('a matrix hx must have the same dimensions as xgrid')
       }
     }
   }
   
-  if(missing(cf_slist)){
+  cf_slist <- NULL
+  if(is.null(cf_slist)){
     cf_slist <- calc_cf_slist(data)
   }
   
-  if(missing(price_slist)) {
+  price_slist <- NULL
+  if(is.null(price_slist)) {
     price_slist <- calc_price_slist(data)
   }
   # Estimate dbar & the numerator of the h-hat matrix
   if(interest_grid){
     dbar <- calc_dbar(data = data,
-                      ugrid = ugrid,
-                      hu = hu,
+                      ugrid = xgrid,
+                      hu = hx,
                       rgrid = rgrid,
                       hr = hr,
-                      xgrid = xgrid,
-                      hx = hx,
+                      xgrid = tau,
+                      hx = ht,
                       price_slist = price_slist,
                       cf_slist = cf_slist,
                       interest = interest,
                       units = units)
     
     hhat_num <- calc_hhat_num(data = data,
-                              ugrid = ugrid,
-                              hu = hu,
+                              ugrid = xgrid,
+                              hu = hx,
                               rgrid = rgrid,
                               hr = hr,
-                              xgrid = xgrid,
-                              hx = hx,
-                              qgrid = qgrid,
-                              hq = hq,
+                              xgrid = tau,
+                              hx = ht,
+                              qgrid = tau_p,
+                              hq = htp,
                               cf_slist = cf_slist,
                               interest = interest,
                               units = units)
   } else {
     dbar <- calc_dbar(data = data,
-                      ugrid = ugrid,
-                      hu = hu,
-                      xgrid = xgrid,
-                      hx = hx,
+                      ugrid = xgrid,
+                      hu = hx,
+                      xgrid = tau,
+                      hx = ht,
                       price_slist = price_slist,
                       cf_slist = cf_slist,
                       units = units)
     
     hhat_num <- calc_hhat_num(data = data,
-                              ugrid = ugrid,
-                              hu = hu,
-                              xgrid = xgrid,
-                              hx = hx,
-                              qgrid = qgrid,
-                              hq = hq,
+                              ugrid = xgrid,
+                              hu = hx,
+                              xgrid = tau,
+                              hx = ht,
+                              qgrid = tau_p,
+                              hq = htp,
                               cf_slist = cf_slist,
                               units = units)
   }
@@ -606,28 +642,28 @@ estimate_yield <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, pri
                  nrow = length(db))
     if(any(is.na(db))){
       na <- which(is.na(db))
-      if(is.vector(xgrid) & is.vector(qgrid)){
-        xgr <- xgrid[-na]
-        qgr <- qgrid[qgrid <= max(xgr)]
-      } else if(nrow(xgrid) == 1 & nrow(qgrid) == 1){
-        xgr <- xgrid[-na]
-        qgr <- qgrid[qgrid <= max(xgr)]
+      if(is.vector(tau) & is.vector(tau_p)){
+        xgr <- tau[-na]
+        qgr <- tau_p[tau_p <= max(xgr)]
+      } else if(nrow(tau) == 1 & nrow(tau_p) == 1){
+        xgr <- tau[-na]
+        qgr <- tau_p[tau_p <= max(xgr)]
       } else {
-        xgr <- xgrid[i,-na]
-        qgr <- qgrid[i, qgrid[qgrid <= max(xgr)]]
+        xgr <- tau[i,-na]
+        qgr <- tau_p[i, tau_p[tau_p <= max(xgr)]]
       }
       db <- db[-na]
       hh <- hh[1:length(xgr), 1:length(qgr)]
     } else {
-      if(is.vector(xgrid) & is.vector(qgrid)){
-        xgr <- xgrid
-        qgr <- qgrid
-      } else if(nrow(xgrid) == 1 & nrow(qgrid) == 1){
-        xgr <- xgrid
-        qgr <- qgrid
+      if(is.vector(tau) & is.vector(tau_p)){
+        xgr <- tau
+        qgr <- tau_p
+      } else if(nrow(tau) == 1 & nrow(tau_p) == 1){
+        xgr <- tau
+        qgr <- tau_p
       } else {
-        xgr <- xgrid[i, ]
-        qgr <- qgrid[i, ]
+        xgr <- tau[i, ]
+        qgr <- tau_p[i, ]
       }
     }
     
@@ -679,6 +715,7 @@ estimate_yield <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, pri
     dhat$discount <- predict(loess_model)
   }
   dhat$yield <- -log(dhat$discount) / dhat$qg
+  colnames(dhat) <- c("discount", "xgrid", "tau_p", "yield")
   dhat
 }
 

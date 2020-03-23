@@ -1,13 +1,17 @@
 
 
-#' Package 'ycevo'
+#' Non-Parametric Estimation of the Yield Curve Evolution
+#' 
+#' Non-parametric estimation of the discount rate and yield curve.
+#' 
 #' @name ycevo
-#' @title Estimation of Yield Curve Dynamics
+#' @docType package
+#' @keywords package
+#' 
 #' @author Bonsoo Koo <bonsoo.koo@monash.edu>,
 #' Kai-Yang Goh <kai-yang.goh@monash.edu>
 #' Nathaniel Tomasetti <nathaniel.tomasetti@gmail.com>
-#' @description This package estimates the dynamics of the yield curve using nonparametric
-#' methods and tests for stationarity.
+#' Yangzhuoran Yang <fin.yang@monash.edu>
 #' 
 #' @importClassesFrom Matrix dgCMatrix
 #' @importFrom Rcpp evalCpp
