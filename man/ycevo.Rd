@@ -8,9 +8,12 @@
 Non-parametric estimation of the discount rate and yield curve.
 }
 \author{
-Bonsoo Koo <bonsoo.koo@monash.edu>,
-Kai-Yang Goh <kai-yang.goh@monash.edu>
-Nathaniel Tomasetti <nathaniel.tomasetti@gmail.com>
-Yangzhuoran Yang <fin.yang@monash.edu>
+Bonsoo Koo. \email{bonsoo.koo@monash.edu}
+
+Kai-Yang Goh. \email{kai-yang.goh@monash.edu}
+
+Nathaniel Tomasetti. \email{nathaniel.tomasetti@gmail.com}
+
+Yangzhuoran Yang. \email{fin.yang@monash.edu}
 }
 \keyword{package}
