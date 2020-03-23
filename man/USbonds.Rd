@@ -29,8 +29,7 @@ USbonds
 \description{
 A dataset containing the prices and other attributes
 of CRSP US treasury bills, notes, and bonds.
-Columns qdate, crspid, tumat, mid.price, accint, pdint and tupq are required for estimation.
-The dataset includes all the dates from 2001 to 2007, only for the purpose of providing the qdates.
-The variables for entries before 2007 are only repetitions other than qdate.
+Columns qdate, crspid, tumat, mid.price, accint, pdint and tupq are required 
+for estimation.
 }
 \keyword{datasets}
