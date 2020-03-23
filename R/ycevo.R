@@ -8,10 +8,10 @@
 #' @docType package
 #' @keywords package
 #' 
-#' @author Bonsoo Koo <bonsoo.koo@monash.edu>,
-#' Kai-Yang Goh <kai-yang.goh@monash.edu>
-#' Nathaniel Tomasetti <nathaniel.tomasetti@gmail.com>
-#' Yangzhuoran Yang <fin.yang@monash.edu>
+#' @author Bonsoo Koo. \email{bonsoo.koo@@monash.edu}
+#' @author Kai-Yang Goh. \email{kai-yang.goh@@monash.edu}
+#' @author Nathaniel Tomasetti. \email{nathaniel.tomasetti@@gmail.com}
+#' @author Yangzhuoran Yang. \email{fin.yang@@monash.edu}
 #' 
 #' @importClassesFrom Matrix dgCMatrix
 #' @importFrom Rcpp evalCpp

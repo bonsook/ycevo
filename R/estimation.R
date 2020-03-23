@@ -503,20 +503,20 @@ estimate_yield <- function(data, xgrid, hx, rgrid, hr, tau, ht, tau_p, htp, inte
   if(is.vector(tau_p)){
     if(is.vector(htp)){
       if(length(htp) != length(tau_p)){
-        stop('hq and qgrid must have the same length')
+        stop('htp and tau_p must have the same length')
       }
     } else {
-      stop('hq must be a vector of qgrid is a vector')
+      stop('htp must be a vector of qgrid is a vector')
     }
   }
   if(is.matrix(tau_p)){
     if(is.vector(htp)){
       if(length(htp) != ncol(tau_p)){
-        stop('a vector hq must have a length equal to the number of columns of qgrid')
+        stop('a vector htp must have a length equal to the number of columns of tau_p')
       }
     } else {
       if(ncol(htp) != ncol(tau_p) | nrow(htp) != nrow(tau_p)){
-        stop('a matrix hq must have the same dimensions as qgrid')
+        stop('a matrix htp must have the same dimensions as tau_p')
       }
     }
   }
@@ -525,20 +525,20 @@ estimate_yield <- function(data, xgrid, hx, rgrid, hr, tau, ht, tau_p, htp, inte
   if(is.vector(tau)){
     if(is.vector(ht)){
       if(length(ht) != length(tau)){
-        stop('hx and xgrid must have the same length')
+        stop('ht and tau must have the same length')
       }
     } else {
-      stop('hx must be a vector of xgrid is a vector')
+      stop('ht must be a vector of xgrid is a vector')
     }
   }
   if(is.matrix(tau)){
     if(is.vector(ht)){
       if(length(ht) != ncol(tau)){
-        stop('a vector hx must have a length equal to the number of columns of xgrid')
+        stop('a vector ht must have a length equal to the number of columns of tau')
       }
     } else {
       if(ncol(ht) != ncol(tau) | nrow(ht) != nrow(tau)){
-        stop('a matrix hx must have the same dimensions as xgrid')
+        stop('a matrix ht must have the same dimensions as tau')
       }
     }
   }
