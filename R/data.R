@@ -9,11 +9,11 @@
 #' \describe{
 #'   \item{qdate}{Quotation Date}
 #'   \item{crspid}{Bond Identifier}
-#'   \item{type}{1: Long Term Bonds, 2: Short Term Bonds, 4: Zero Coupon Bonds}
+#'   \item{type}{1: Treasury Bonds, 2: Treasury Notes, 4: Treasury Bills}
 #'   \item{couprt}{Coupon Rate}
 #'   \item{matdate}{Bond Maturity Date}
 #'   \item{tumat}{Days to Maturity}
-#'   \item{mid.price}{Quoted Mid-Price}
+#'   \item{mid.price}{Mid-Price, average between quoted bid and ask prices}
 #'   \item{accint}{Accumulated Interest}
 #'   \item{issuedate}{Bond Issue Date}
 #'   \item{pqdate}{Bond Payment Date}
