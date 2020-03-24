@@ -1,8 +1,8 @@
 
 
-#' Non-Parametric Estimation of the Yield Curve Evolution
+#' Nonparametric Estimation of the Yield Curve Evolution
 #' 
-#' Non-parametric estimation of the discount rate and yield curve.
+#' Nonparametric estimation of the discount rate and yield curve.
 #' 
 #' @name ycevo
 #' @docType package
