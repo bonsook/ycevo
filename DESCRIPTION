@@ -1,6 +1,6 @@
 Package: ycevo
 Type: Package
-Title: Non-Parametric Estimation of the Yield Curve Evolution
+Title: Nonparametric Estimation of the Yield Curve Evolution
 Version: 1.0.0
 Authors@R: 
     c(person(given = "Bonsoo",
@@ -21,7 +21,7 @@ Authors@R:
              email = "Fin.Yang@monash.edu",
              comment = c(ORCID = "0000-0002-1232-8017")))
 Maintainer: Yangzhuoran Yang <Fin.Yang@monash.edu>
-Description: Non-parametric estimation of the discount rate and yield curve. 
+Description: Nonparametric estimation of the discount rate and yield curve. 
     Koo, B., La Vecchia, D., & Linton, O. B. (2019) <doi:10.2139/ssrn.3341344> 
     describe the application with the Center for Research in Security Prices (CRSP) Bond Data 
     and document the methods of this package.
