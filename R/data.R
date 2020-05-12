@@ -7,19 +7,19 @@
 #' 
 #' @format A data frame 
 #' \describe{
-#'   \item{qdate}{Quotation Date}
-#'   \item{crspid}{Bond Identifier}
+#'   \item{qdate}{Quotation date}
+#'   \item{crspid}{Bond identifier}
 #'   \item{type}{1: Treasury Bonds, 2: Treasury Notes, 4: Treasury Bills}
-#'   \item{couprt}{Coupon Rate}
-#'   \item{matdate}{Bond Maturity Date}
-#'   \item{tumat}{Days to Maturity}
+#'   \item{couprt}{Coupon rate}
+#'   \item{matdate}{Bond maturity date}
+#'   \item{tumat}{Number of days to maturity from quotation date}
 #'   \item{mid.price}{Mid-Price, average between quoted bid and ask prices}
-#'   \item{accint}{Accumulated Interest}
-#'   \item{issuedate}{Bond Issue Date}
-#'   \item{pqdate}{Bond Payment Date}
-#'   \item{pdint}{Bond Payment Amount}
-#'   \item{tupq}{Days to next Bond Payment}
-#'   \item{year}{Year of the Bound Payment}
+#'   \item{accint}{The accumulated interest on payments}
+#'   \item{issuedate}{Bond issue date}
+#'   \item{pqdate}{Bond payment date}
+#'   \item{pdint}{Bond payment amount}
+#'   \item{tupq}{Time until a given payment, given in days}
+#'   \item{year}{Year of the quotation date}
 #' }
 #' @source \url{https://wrds-web.wharton.upenn.edu/}
 "USbonds"

@@ -22,14 +22,16 @@ The goal of ycevo is to provide a range of functions to facilitate the non-param
 
 If you use any data or code from the `ycevo` package in a publication, please use the following citation:  
  
-> Bonsoo Koo, Nathaniel Tomasetti, Kai-Yang Goh and Yangzhuoran Yang (2019). ycevo: Non-Parametric Estimation
-  of the Yield Curve Evolution. R package version 1.0.0. https://github.com/bonsook/ycevo. 
+> Bonsoo Koo, Nathaniel Tomasetti, Kai-Yang Goh and Yangzhuoran Yang (2020). ycevo: Non-Parametric Estimation
+  of the Yield Curve Evolution. R package version 1.0.0. https://githxb.com/bonsook/ycevo. 
 
 The package provides code used in Koo, La Vecchia, & Linton (2019). Please use the following citation if you use any result from the paper.
 
-> Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
+> B. Koo, D. La Vecchia and O. Linton, Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics (2020), https://doi.org/10.1016/j.jeconom.2020.04.014.
 
-This vignette aims to provide a simple simulation example using the ycevo package. For helps with reproducing results in Koo, La Vecchia, & Linton (2019), refer to vignette _US yield curve 2007: Reproducing Koo, La Vecchia, & Linton (2019)_.
+
+This vignette aims to provide a simple simulation example using the ycevo package. 
+<!-- For helps with reproducing results in Koo, La Vecchia, & Linton (2019), refer to vignette _US yield curve 2007: Reproducing Koo, La Vecchia, & Linton (2019)_. -->
 
 ## Simulation Example
 
@@ -43,19 +45,19 @@ library(lubridate)
 The data must be provided as a data.frame or tibble object, with one row corresponding to each payment - either the coupon or principal - for one bond on one quotation date.
 The functions require particular column names:
 
-* qdate: The quotation date, as an integer or lubridate::date object
+* _qdate_: The quotation date, as an integer or `lubridate::date` object
 
-* crspid: Some character or factor that uniquely identifies the bond
+* _crspid_: Some character or factor that uniquely identifies the bond
 
-* mid.price: The quoted price of the bond on that day
+* _mid.price_: The quoted price of the bond on that day
 
-* tupq: Time until a given payment, usually given in days
+* _tupq_: Time until a given payment, usually given in days
 
-* tumat: Time until maturity, in days (equal to tupq for zero coupon bonds)
+* _tumat_: Time until maturity, in days (equal to tupq for zero coupon bonds)
 
-* pdint: Numeric value of payment
+* _pdint_: Numeric value of payment
 
-* accint: The accumulated interest on payments
+* _accint_: The accumulated interest on payments
 
 For example, if a bond traded on 18/9/2019 has five payments remaining until maturity, it should have five rows in the data with a quotation date of 18/9/2019. Each of these five rows will have a different value of pdint and tupq, corresponding to the five payments, but will have the same value for price, accint, and tumat
 
@@ -66,7 +68,8 @@ glimpse(USbonds)
 Several columns in the data are purely descriptive.
 
 
-Alternatively we can simulate some data, with twelve quotation dates, where we want to estimate a thirty six period ahead yield curve for each of these dates. The function will first generate some yield curves for each quotation date, and simulate fake bond data with prices corresponding to these yields. We can extract the yield curves using the `generate_yield()` function.
+Alternatively we can simulate some data, with twelve quotation dates, where we want to estimate a thirty six period ahead yield curve for each of these dates. The function will first generate some yield curves for each quotation date, and simulate fake bond data with prices corresponding to these yields. 
+<!-- We can extract the yield curves using the `generate_yield()` function. -->
 ```{r}
 # Twelve quotation dates
 max_qDate <- 12
@@ -80,79 +83,76 @@ glimpse(data)
 
 We want to estimate the yield curve at various quotation dates to find how it evolves over time.
 
-First we need to define `ugrid`, the grid of quotation dates that we want to estimate the discount rate for. `ugrid` is provided as a decimal from 0 to 1. A `ugrid` of 0 indicates the first available day in the data, and a `ugrid` of 1 indicates the last available day. The first line below will create max_qDate - 2 = 10 `ugrid` values spread evenly throughout the 12 quotation dates in the data. Each `ugrid` value is associated with a bandwidth. Quotation dates within `ugrid` $\pm$ `hu` will be included in the calculations, with the epaker kernel function. 
-It works best if the intervals defined by `ugrid` $\pm$ `hu` do not include zero or one.
+First we need to define `xgrid`, the grid of quotation dates that we want to estimate the discount rate for. `xgrid` is provided as a decimal from 0 to 1. A `xgrid` of 0 indicates the first available day in the data, and a `xgrid` of 1 indicates the last available day. The first line below will create $max\_qDate - 2 = 10$ `xgrid` values spread evenly throughout the 12 quotation dates in the data. Each `xgrid` value is associated with a bandwidth. Quotation dates within `xgrid` $\pm$ `hx` will be included in the calculations, with the epaker kernel function. 
+It works best if the intervals defined by `xgrid` $\pm$ `hx` do not include zero or one.
 
 ```{r}
 # grid values
-ugrid <- (1:(max_qDate - 2))/(max_qDate - 1)
+xgrid <- (1:(max_qDate - 2))/(max_qDate - 1)
 # bandwidth for each grid value
-hu <- rep(0.5 /  max_qDate, max_qDate -2)
+hx <- rep(0.5 /  max_qDate, max_qDate -2)
 ```
 
-Next we need a grid of the time-to-payment values that we want to estimate a discount rate for! This grid is referred to as `qgrid`. Some of the functions used below have a units argument. If qgrid is in the same unit as tupq is (e.g., days), set units to 1. If tupq is in days and you want to specify qgrid in years, set units to 365. Each value of qgrid plus/minus hq defines a bin. It is okay if there is no observed payments for some of these bins (we will interpolate nearby payments) but the first and last bin needs to contain some payment. We include a few lines here to check the latest bond in the data, and truncate qgrid to this value.
+Next we need a grid of the time-to-payment values that we want to estimate a discount rate for! This grid is referred to as `tau`. `tau` is specified in years, while _tupq_ in the sample data is specified in days.
+<!-- Some of the functions used below have a units argument. If `tau` is in the same unit as _tupq_ is (e.g., days), set units to 1. If _tupq_ is in days and you want to specify `tau` in years, set units to 365. -->
+Each value of `tau` plus/minus `ht` defines a bin. It is okay if there is no observed payments for some of these bins (we will interpolate nearby payments) but the first and last bin needs to contain some payment. We include a few lines here to check the latest bond in the data, and truncate `tau` to this value. 
 
 ```{r}
-qgrid <- 1:periods
+tau <- 1:periods
 max_tumat <- max(data$tumat)
-qgrid <- qgrid[1:min(which(qgrid >= max_tumat))]
-hq <- rep(0.1, length(qgrid))
+tau <- tau[1:min(which(tau >= max_tumat))]
+tau <- tau/365# specified in years
+ht <- rep(0.1, length(tau))
 ```
 
-We also need a different grid of time-to-payment values for some cross-product terms. This is called `xgrid`, and can be automatically selected by function `create_xgrid_hx`. For now we will keep it equal to `qgrid` for simplicity. 
+<!-- We also need a different grid of time-to-payment values for some cross-product terms. This is called `xgrid`, and can be automatically selected by function `create_xgrid_hx`. For now we will keep it equal to `tau` for simplicity.  -->
 
 
-```{r}
-xgrid <- qgrid
-hx <- hq
-```
+<!-- ```{r} -->
+<!-- xgrid <- tau -->
+<!-- hx <- ht -->
+<!-- ``` -->
 
 The main function of the package is `estimate_yield`. We may run this once, with all of our grids, under certain conditions:
 
-1. `ugrid` is input as a vector
+1. `xgrid` is input as a vector.
 
-2. `qgrid` is a vector, and will be kept constant for every value of `ugrid`, OR, `qgrid` is a matrix and a different row of `qgrid` is used for each `ugrid`.
+2. `tau` is a vector, and will be kept constant for every value of `xgrid`, OR, `tau` is a matrix and a different row of `tau` is used for each `xgrid`.
 
-3. `xgrid` is a vector, and will be kept constant for every value of `ugrid`, OR, `xgrid` is a matrix and a different row of `xgrid` is used for each `ugrid`.
+3. `xgrid` is a vector, and will be kept constant for every value of `xgrid`, OR, `xgrid` is a matrix and a different row of `xgrid` is used for each `xgrid`.
 
-This provides a dataframe containing the discount rate and yield at each `ugrid` / `qgrid` combination. `estimate_yield` may take several minutes to run for real data.
+This provides a dataframe containing the discount rate and yield at each `xgrid` / `tau` combination. `estimate_yield` may take several minutes to run for real data.
 
 ```{r}
 yield <- estimate_yield(
     data = data,
-    ugrid = ugrid,
-    hu = hu,
     xgrid = xgrid,
     hx = hx,
-    qgrid = qgrid,
-    hq = hq,
-    units = 1)
+    tau = tau,
+    ht = ht)
 glimpse(yield)
 ```
 
-`ug`, `rg`, and `xg` correspond to `ugrid`, `rgrid`, and `xgrid`. If you didn't provide an `rgrid`, `hr` will not appear in the result. For each combination of these, we have the discount rate `discount` and yield `yield`.
+<!-- `ug`, `rg`, and `xg` correspond to `xgrid`, `rgrid`, and `xgrid`. If you didn't provide an `rgrid`, `hr` will not appear in the result. For each combination of these, we have the discount rate `discount` and yield `yield`. -->
 
 Lets make a few plots of the results.
 
 ```{r}
-# Yield vs Time (qgrid)
+# Yield vs Time (tau)
 yield %>%
-  mutate(ug = round(ug, 2)) %>%
-  ggplot() + geom_line(aes(qg, yield)) +
-  facet_wrap(~ug) +
-  theme_bw()
+  mutate(xgrid = round(xgrid, 2)) %>%
+  ggplot() + geom_line(aes(tau, yield)) +
+  facet_wrap(~xgrid) 
 ```
 
 ```{r}
-# Yield vs Quotation Dates (ugrid) for some time to maturities
-
-select_qgrid <- c(3, 12, 24, 36)
+# Yield vs Quotation Dates (xgrid) for some time to maturities
+select_tau <- c(3, 12, 18, 24)/365
 
 yield %>%
-  filter(qg %in% select_qgrid) %>%
-  ggplot() + geom_line(aes(ug, yield)) +
-  facet_wrap(~qg) +
-  theme_bw()
+  filter(tau %in% select_tau) %>%
+  ggplot() + geom_line(aes(xgrid, yield)) +
+  facet_wrap(~tau) 
 ```
 
 
