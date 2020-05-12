@@ -4,51 +4,28 @@
 \alias{estimate_yield}
 \title{Estimate yield function}
 \usage{
-estimate_yield(
-  data,
-  xgrid,
-  hx,
-  rgrid,
-  hr,
-  tau,
-  ht,
-  tau_p,
-  htp,
-  interest,
-  units = 365,
-  loess = TRUE
-)
+estimate_yield(data, xgrid, hx, tau, ht, rgrid, hr, interest, loess = TRUE)
 }
 \arguments{
 \item{data}{A data frame; bond data to estimate discount curve from. See \code{?USbonds} for an example bond data structure.}
 
-\item{xgrid}{A length T numeric vector; the times at which the discount curve will be estimated.}
+\item{xgrid}{Time grids at which the discount curve is evaluated.}
 
-\item{hx}{A length T numeric vector, bandwidth parameter determining the size of the window
-that corresponds to each time at which the discount curve is estimated,}
+\item{hx}{bandwidth parameter determining the size of the window 
+that corresponds to each time point (xgrid).}
 
-\item{rgrid}{(Optional) A length K numeric vector of interest rate grid values}
+\item{tau}{A numeric matrix that
+represents time-to-maturities (column) for each time point (row) at which
+the discount curve is evaluated. See \code{Details}.}
 
-\item{hr}{(Optional) A length K numeric vector of interest rate grid bandwidths}
+\item{ht}{bandwidth parameter determining the size of the window that corresponds to each time-to-maturities (tau).}
 
-\item{tau}{(Optional) A length m numeric vector, or either a 1 x m or T x m numeric matrix.
-If a T x m matrix, each row represents the time-to-maturity grid for a given xgrid value, otherwise the same tau values are repeated for each xgrid value.
-If the entries are not identical, the tau_p values must not lie outside the range given by the smallest to largest tau value
-If omitted, tau is set equal to tau_p.}
+\item{rgrid}{(Optional) Interest rate grids at which the discount curve is evaluated.}
 
-\item{ht}{A numeric object in the same format as tau containing the kernel bandwidth for each tau value.
-If tau is omitted, ht is set to equal htp.}
-
-\item{tau_p}{A length m numeric vector, or either a 1 x m or T x m numeric matrix.
-Represents a vector of grids of T time-to-maturities values to estimate the yield for.
-If this is a T x m matrix, each row represents the grid for a given xgrid value.
-If this is a vector or T x 1 matrix, entries represents the tau_p, which will be repeated for each xgrid. See \code{Details}.}
-
-\item{htp}{A numeric object in the same format as tau_p containing the kernel bandwidth for each tau_p value.}
+\item{hr}{(Optional) bandwidth parameter determining the size of the window
+that corresponds to each interest rate grid (rgrid).}
 
 \item{interest}{(Optional) A vector of daily short term interest rates}
-
-\item{units}{(Optional) number of tupq per tau (e.g. 365 for daily data with annual grid values). Defaults to 365}
 
 \item{loess}{(Optional) Logical. Whether the output estimated discount and yield are to be smoothed using locally estimated scatterplot smoothing (LOESS)}
 }
@@ -57,7 +34,7 @@ Data frame of the yield and discount rate at each combination of the provided gr
 \describe{
   \item{discount}{Estimated discount rate}
   \item{xgrid}{Same as input \code{xgrid}}
-  \item{tau_p}{Same as input \code{tau_p}}
+  \item{tau}{Same as input \code{tau}}
   \item{yield}{Estimated yield}
 }
 }
@@ -65,35 +42,24 @@ Data frame of the yield and discount rate at each combination of the provided gr
 Nonparametric estimation of discount functions at given dates, time-to-maturities, and interest rates and their transformation to the yield curves.
 }
 \details{
-Suppose that a bond \eqn{i} has a price \eqn{p_i} at time t with a set of cash payments, 
-say \eqn{c_1, c_2, \ldots, c_m} with a set of corresponding discount values
-\eqn{d_1, d_2, \ldots, d_m}. In the bond pricing literature, the market price of 
-a bond should reflect the discounted value of cash payments. Thus, we want to minimise
-\deqn{(p_i-\sum^m_{j=1}c_j\times d_j)^2.}
-For the estimation of \eqn{d_k(k=1, \ldots, m)}, solving the first order condition yields
-\deqn{(p_i-\sum^m_{j=1}c_j \times d_j)c_k = 0, }
-and
-\deqn{\hat{d}_k = \frac{p_i c_k}{c_k^2} - \frac{\sum^m_{j=1,k\neq k}c_k c_j d_j}{c_k^2}.}
+\eqn{d(\tau, X_t)} is the discount function at given covariates \eqn{X_t} (dates \code{xgrid} and 
+interest rates \code{rgrid}), and given time-to-maturities \eqn{\tau} (\code{tau}).
+\eqn{y(\tau, X_t)} is the yield curve at given covariates \eqn{X_t} (dates \code{xgrid} and 
+interest rates \code{rgrid}), and given time-to-maturities \eqn{\tau} (\code{tau}).
 
-There are challenges:
-\eqn{\hat{d}_k} depends on all the relevant disount tvalues for the cash payments of the bond.
-Our model contains random errors and our interest lies in expected value of \eqn{d(.)} where 
-the expected value of errors is zero.
-\eqn{d(.)} is an infinite-dimensional function not a discrete finite-dimensional vector.
-Generally, cash payments are made biannually, not dense at all. Moreover, cash payment schedules
-vary over different bonds.
-
-For the above reasons, we instead try to pursue the minimum of the following 
+We pursue the minimum of the following 
 smoothed sample least squares objective function for any smooth function \eqn{d(.)}:
-\deqn{Q(d) = \sum^T_{t=1}\sum^n_{i=1}\int\{p_{it}-\sum^{m_{it}}_{j=1}c_{it}(\tau_{ij}d(s_{ij}, x)\}^2 \sum^{m_{it}}_{k=1}\{K_h(s_{ik}-\tau_{ik})ds_{ik}\}K_h(x-X_t)dx,}
-where, apart from the aforementioned notations,
+\deqn{Q(d) = \sum^T_{t=1}\sum^n_{i=1}\int\{p_{it}-\sum^{m_{it}}_{j=1}c_{it}(\tau_{ij})d(s_{ij}, x)\}^2 \sum^{m_{it}}_{k=1}\{K_h(s_{ik}-\tau_{ik})ds_{ik}\}K_h(x-X_t)dx,}
+where a bond \eqn{i} has a price \eqn{p_i} at time t with a set of cash payments \eqn{c_1, c_2, \ldots, c_m} with a set of corresponding discount values
+\eqn{d_1, d_2, \ldots, d_m},
 \eqn{K_h(.) = K(./h)} is the kernel function with a bandwidth parameter \eqn{h},
 the first kernel function is the kernel in space with bonds whose maturities \eqn{s_{ik}}
 are close to the sequence \eqn{\tau_{ik}}, 
-the second kernel function is the kernel in time with days \eqn{x} (possibly other covariates but here we simply use time),  
+the second kernel function is the kernel in time and in interest rates with \eqn{x},  
 which are close to the sequence \eqn{X_t}.
-This means that bonds with similar cash flows and traded in contiguous days
-are combined for the estimation of the discount function at a point in time and in space.
+This means that bonds with similar cash flows, and traded in contiguous days, 
+where the short term interest rates in the market are similar,
+are combined for the estimation of the discount function at a point in space, in time, and in "interest rates".
 
 The estimator for the discount function over time to maturity and time is
 \deqn{\hat{d}=\arg\min_d Q(d).}
@@ -106,16 +72,15 @@ For more information on the estimation method, please refer to \code{References}
 \donttest{
 xgrid <- 0.2
 hx <- 0.2
-tau_p <- tau <- seq(0, 360, 30) /365
-htp <- ht <- rep(15, length(tau)) /365
-dhat <- estimate_yield(data = USbonds, xgrid = xgrid, 
-               hx = hx, tau_p = tau_p,
-               htp=htp, tau = tau,ht= ht)
+tau <- seq(0, 360, 30) /365
+ht <- rep(15, length(tau)) /365
+dhat <- estimate_yield(data = USbonds, xgrid = xgrid,
+                       hx = hx, tau = tau,ht= ht)
 }
 
 }
 \references{
-Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
+B. Koo, D. La Vecchia and O. Linton, Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics (2020), https://doi.org/10.1016/j.jeconom.2020.04.014.
 }
 \author{
 Nathaniel Tomasetti, Bonsoo Koo, and Yangzhuoran Yang

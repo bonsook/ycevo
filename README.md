@@ -17,16 +17,16 @@ If you use any data or code from the `ycevo` package in a publication,
 please use the following citation:
 
 > Bonsoo Koo, Nathaniel Tomasetti, Kai-Yang Goh and Yangzhuoran Yang
-> (2019). ycevo: Non-Parametric Estimation of the Yield Curve Evolution.
+> (2020). ycevo: Non-Parametric Estimation of the Yield Curve Evolution.
 > R package version 1.0.0. <https://github.com/bonsook/ycevo>.
 
 The package provides code used in Koo, La Vecchia, & Linton (2019).
 Please use the following citation if you use any result from the paper.
 
-> Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a
-> Nonparametric model for Bond Prices from Cross-section and Time series
-> Information. Available at
-SSRN3341344.
+> B. Koo, D. La Vecchia and O. Linton, Estimation of a nonparametric
+> model for bond prices from cross-section and time series information.
+> Journal of Econometrics (2020),
+> <https://doi.org/10.1016/j.jeconom.2020.04.014>.
 
 ## Installation
 
@@ -52,88 +52,67 @@ devtools::install_github("bonsook/ycevo")
 ``` r
 library(ycevo)
 library(tidyverse)
-#> -- Attaching packages ------------------------------------------------------------------------------------------------------ tidyverse 1.2.1 --
-#> v ggplot2 3.2.1     v purrr   0.3.2
-#> v tibble  2.1.3     v dplyr   0.8.3
-#> v tidyr   1.0.0     v stringr 1.4.0
-#> v readr   1.3.1     v forcats 0.4.0
-#> -- Conflicts --------------------------------------------------------------------------------------------------------- tidyverse_conflicts() --
+#> -- Attaching packages ------------------------------------- tidyverse 1.3.0 --
+#> v ggplot2 3.3.0     v purrr   0.3.4
+#> v tibble  3.0.1     v dplyr   0.8.5
+#> v tidyr   1.0.2     v stringr 1.4.0
+#> v readr   1.3.1     v forcats 0.5.0
+#> -- Conflicts ---------------------------------------- tidyverse_conflicts() --
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
-library(lubridate)# Twelve quotation dates
+library(lubridate)
 #> 
 #> Attaching package: 'lubridate'
-#> The following object is masked from 'package:base':
+#> The following objects are masked from 'package:dplyr':
 #> 
-#>     date
+#>     intersect, setdiff, union
+#> The following objects are masked from 'package:base':
+#> 
+#>     date, intersect, setdiff, union
+# Twelve quotation dates
 max_qDate <- 12
 #Estimate a 36 period ahead yield curve for each qdate
 periods <- 36
 
 set.seed(1)
 data <- simulate_data(max_qDate = max_qDate, periods = periods)
-glimpse(data)
-#> Observations: 5,616
-#> Variables: 7
-#> $ qdate     <int> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1...
-#> $ crspid    <fct> 1, 2, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9...
-#> $ mid.price <dbl> 95.80754, 91.63284, 90.45671, 89.50187, 89.50187, 93...
-#> $ tupq      <dbl> 1, 2, 3, 4, 1, 5, 2, 6, 3, 1, 7, 4, 5, 2, 8, 9, 3, 6...
-#> $ pdint     <dbl> 101, 101, 101, 101, 1, 105, 5, 101, 1, 3, 103, 3, 1,...
-#> $ tumat     <dbl> 1, 2, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9...
-#> $ accint    <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0...
+
 # grid values
-ugrid <- (1:(max_qDate - 2))/(max_qDate - 1)
+xgrid <- (1:(max_qDate - 2))/(max_qDate - 1)
 # bandwidth for each grid value
-hu <- rep(0.5 /  max_qDate, max_qDate -2)
+hx <- rep(0.5 /  max_qDate, max_qDate -2)
 
-qgrid <- 1:periods
+tau <- 1:periods
 max_tumat <- max(data$tumat)
-qgrid <- qgrid[1:min(which(qgrid >= max_tumat))]
-hq <- rep(0.1, length(qgrid))
-
-xgrid <- qgrid
-hx <- hq
+tau <- tau[1:min(which(tau >= max_tumat))]
+tau <- tau/365# specified in years
+ht <- rep(0.1, length(tau))
 
 yield <- estimate_yield(
     data = data,
-    ugrid = ugrid,
-    hu = hu,
     xgrid = xgrid,
     hx = hx,
-    qgrid = qgrid,
-    hq = hq,
-    units = 1, 
-    loess = FALSE)
-glimpse(yield)
-#> Observations: 360
-#> Variables: 4
-#> $ discount <dbl> 0.9942668, 0.9465143, 0.9297756, 0.9118482, 0.8813457...
-#> $ ug       <dbl> 0.09090909, 0.09090909, 0.09090909, 0.09090909, 0.090...
-#> $ qg       <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16...
-#> $ yield    <dbl> 0.005749703, 0.027484603, 0.024270673, 0.023070440, 0...
+    tau = tau,
+    ht = ht)
+#> Warning in log(dhat$discount): NaNs produced
 
-# Yield vs Time (qgrid)
 yield %>%
-  mutate(ug = round(ug, 2)) %>%
-  ggplot() + geom_line(aes(qg, yield)) +
-  facet_wrap(~ug) +
-  theme_bw()
+  mutate(xgrid = round(xgrid, 2)) %>%
+  ggplot() + geom_line(aes(tau, yield)) +
+  facet_wrap(~xgrid) 
 ```
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
 ``` r
 
-# Yield vs Quotation Dates (ugrid) for some time to maturities
-
-select_qgrid <- c(3, 12, 24, 36)
+# Yield vs Quotation Dates (xgrid) for some time to maturities
+select_tau <- c(3, 12, 18, 24)/365
 
 yield %>%
-  filter(qg %in% select_qgrid) %>%
-  ggplot() + geom_line(aes(ug, yield)) +
-  facet_wrap(~qg) +
-  theme_bw()
+  filter(tau %in% select_tau) %>%
+  ggplot() + geom_line(aes(xgrid, yield)) +
+  facet_wrap(~tau) 
 ```
 
 <img src="man/figures/README-unnamed-chunk-2-2.png" width="100%" />

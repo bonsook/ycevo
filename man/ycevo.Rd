@@ -3,9 +3,9 @@
 \docType{package}
 \name{ycevo}
 \alias{ycevo}
-\title{Non-Parametric Estimation of the Yield Curve Evolution}
+\title{Nonparametric Estimation of the Yield Curve Evolution}
 \description{
-Non-parametric estimation of the discount rate and yield curve.
+Nonparametric estimation of the discount rate and yield curve.
 }
 \author{
 Bonsoo Koo. \email{bonsoo.koo@monash.edu}

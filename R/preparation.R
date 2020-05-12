@@ -316,10 +316,9 @@ create_xgrid_hx <- function(data, ugrid, hu, qgrid, hq, min_points, rgrid, hr, i
 # @param yield Output of estimate_yield
 # @param treasury Optional, dataframe of daily treasury bill rates with date and rate columns
 # @return Interpolated bond dataframe
-# @importFrom rlang .data
-# @importFrom dplyr ungroup distinct
-# @importFrom stats loess predict
-# 
+#' @importFrom rlang .data
+#' @importFrom dplyr ungroup distinct
+#' @importFrom stats loess predict
 interpolate_discount <- function(data, yield, treasury){
 
   # Check dates included in data
@@ -340,7 +339,7 @@ interpolate_discount <- function(data, yield, treasury){
 
   # Find unique values of xg (time to payment) in the data. Exclude time to payments before first qgrid value as this doesn't work well with the loess interpolator
   data %>%
-    ungroup() %>%
+    dplyr::ungroup() %>%
     filter(.data$tupq > min(yield$qg) * 365) %>%
     mutate(x = as.numeric(.data$tupq) / 365) %>%
     select(.data$x) %>%

@@ -22,7 +22,7 @@ Authors@R:
              comment = c(ORCID = "0000-0002-1232-8017")))
 Maintainer: Yangzhuoran Yang <Fin.Yang@monash.edu>
 Description: Nonparametric estimation of the discount rate and yield curve. 
-    Koo, B., La Vecchia, D., & Linton, O. B. (2019) <doi:10.2139/ssrn.3341344> 
+    Koo, B., La Vecchia, D., & Linton, O. B. (2020) <doi:10.1016/j.jeconom.2020.04.014> 
     describe the application with the Center for Research in Security Prices (CRSP) Bond Data 
     and document the methods of this package.
 URL: https://github.com/bonsook/ycevo
@@ -39,7 +39,7 @@ Imports:
     rlang, 
     stats
 LinkingTo: Rcpp, RcppArmadillo
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Suggests: 
     akima,
     knitr, 
