@@ -9,7 +9,7 @@ simulate_data(
   periods = 36,
   bond_multiplier = 2,
   coupon_frequency = 3,
-  coupon_rates = 1:5,
+  coupon_rates = function() {     1:5 },
   sdev = 0.1,
   arma_terms = list(ar = 0.1, ma = 0),
   yield = NULL
@@ -25,7 +25,8 @@ Total bonds equals multiplier * (periods + max_qdate). Defaults to 2}
 
 \item{coupon_frequency}{Integer, frequency of coupon payments. Defaults to 3}
 
-\item{coupon_rates}{Vector, allowed coupon rates in percentage, each bond will have a coupon randomly drawn from this vector. Defaults to c(1, 2, 3, 4, 5)}
+\item{coupon_rates}{A function without arguments to produce a vector, allowed coupon rates in percentage, each bond will have a coupon randomly drawn from this vector. Defaults to c(1, 2, 3, 4, 5). 
+It is set to be a function so user can define different coupon rates based on maturity date of a bond \code{matDate}, an embedded integer.}
 
 \item{sdev}{Standard deviation of the price errors, which is scaled by the square root of time to maturity so long term bonds have a larger error.
 Defaults to 0.1}
