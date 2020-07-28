@@ -19,7 +19,7 @@ A data frame
   \item{pqdate}{Bond payment date}
   \item{pdint}{Bond payment amount}
   \item{tupq}{Time until a given payment, given in days}
-  \item{year}{Year of the quoation date}
+  \item{year}{Year of the quotation date}
 }
 }
 \source{
