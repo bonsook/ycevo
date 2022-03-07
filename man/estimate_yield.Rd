@@ -7,25 +7,32 @@
 estimate_yield(data, xgrid, hx, tau, ht, rgrid, hr, interest, loess = TRUE)
 }
 \arguments{
-\item{data}{A data frame; bond data to estimate discount curve from. See \code{?USbonds} for an example bond data structure.}
+\item{data}{Data frame; bond data to estimate discount curve from. See \code{?USbonds} for an example bond data structure.}
 
-\item{xgrid}{Time grids at which the discount curve is evaluated.}
+\item{xgrid}{Numeric vector of values between 0 and 1. 
+Time grids over the entire time horizon (percentile) of the data at which the discount curve is evaluated.}
 
-\item{hx}{bandwidth parameter determining the size of the window 
-that corresponds to each time point (xgrid).}
+\item{hx}{Numeric vector of values between 0 and 1. Bandwidth parameter determining the size of the window 
+that corresponds to each time point (\code{xgrid}).}
 
-\item{tau}{A numeric matrix that
-represents time-to-maturities (column) for each time point (row) at which
-the discount curve is evaluated. See \code{Details}.}
+\item{tau}{Numeric matrix that
+represents time-to-maturities (column) in years for each time point \code{xgrid} (row) at which
+the discount curve is evaluated. If there is only one time point \code{xgrid}, \code{tau} can be a numeric vector.
+ See \code{Details}.}
 
-\item{ht}{bandwidth parameter determining the size of the window that corresponds to each time-to-maturities (tau).}
+\item{ht}{Numeric matrix that
+represents bandwidth parameter determining the size of the window 
+that corresponds to each time-to-maturities (\code{tau}). 
+The same unit as \code{tau}.}
 
-\item{rgrid}{(Optional) Interest rate grids at which the discount curve is evaluated.}
+\item{rgrid}{(Optional) Numeric vector of interest rate grids in percentage at which the discount curve is evaluated, e.g. 4.03 means at interet rate of 4.03\%.}
 
-\item{hr}{(Optional) bandwidth parameter determining the size of the window
+\item{hr}{(Optional) Numeric vector of bandwidth parameter in percentage determining the size of the window
 that corresponds to each interest rate grid (rgrid).}
 
-\item{interest}{(Optional) A vector of daily short term interest rates}
+\item{interest}{(Optional) Numeric vector of daily short term interest rates. 
+The length is the same as the numebr of quotation dates included in the data, 
+i.e. one interest rate per day.}
 
 \item{loess}{(Optional) Logical. Whether the output estimated discount and yield are to be smoothed using locally estimated scatterplot smoothing (LOESS)}
 }
@@ -70,10 +77,17 @@ For more information on the estimation method, please refer to \code{References}
 }
 \examples{
 \donttest{
+# USbonds provide data in year 2007
+# Estimate the discount curve at the 20 percentile 
+# (around mid March):
 xgrid <- 0.2
 hx <- 0.2
-tau <- seq(0, 360, 30) /365
+# Setting the time-to-maturity 
+# at which the discount curve is estimated
+# Beginning from 1 month, increasing by 1 month, up to 12 months 
+tau <- seq(30, 360, 30) /365
 ht <- rep(15, length(tau)) /365
+# Estimation
 dhat <- estimate_yield(data = USbonds, xgrid = xgrid,
                        hx = hx, tau = tau,ht= ht)
 }
