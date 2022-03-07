@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 # ycevo
 
 <!-- badges: start -->
-  [![Build Status](https://travis-ci.org/bonsook/ycevo.svg?branch=master)](https://travis-ci.org/bonsook/ycevo)
+[![R-CMD-check](https://github.com/bonsook/ycevo/workflows/R-CMD-check/badge.svg)](https://github.com/bonsook/ycevo/actions)
 <!-- badges: end -->
 
 The goal of ycevo is to provide a range of functions to facilitate the non-parametric estimation of the discount rate, and yield curve, of CRSP Bond Data.
