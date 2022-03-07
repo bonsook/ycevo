@@ -39,7 +39,7 @@ Imports:
     rlang, 
     stats
 LinkingTo: Rcpp, RcppArmadillo
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.2
 Suggests: 
     akima,
     knitr, 

@@ -79,8 +79,8 @@ num_points_mat <- function(data, ugrid, hu, qgrid, hq, rgrid, hr, interest, unit
 #' \deqn{Yield_{i, t} = Yield_{i, 0} * (1 + linear * t + quadratic * t^2 + cubic * t^3)}
 #' so the yield curve slowly changes over different quotation dates.
 #' 
-#' @param max_qDate An integer giving the number of quotation dates to use in the data. Defaults to 12.
-#' @param periods An integer giving the maximum number of time-to-maturity periods the yield curve is estimated for each quotation date. Defaults to 36
+#' @param max_qDate Integer giving the number of quotation dates to use in the data. Defaults to 12.
+#' @param periods Integer giving the maximum number of time-to-maturity periods the yield curve is estimated for each quotation date. Defaults to 36
 #' @param b0 First term in yield curve equation, Defaults to 0. See \code{Details}.
 #' @param b1 Second term in yield curve equation, Defaults to 0.05. See \code{Details}.
 #' @param b2 Third term in yield curve equation, Defaults to 2. See \code{Details}.
@@ -126,24 +126,25 @@ generate_yield <- function(max_qDate = 12, periods = 36, b0 = 0, b1 = 0.05, b2 =
 #' Simulates data with the data structure that can be used in \code{estimate_yield}
 #' 
 #' The discount rate for each time to maturity and quotation date is calculated as
-#' \deqn{Discount_{i, t} = \exp(-\tau_i * Yield_t)}
+#' \deqn{Discount_{i, t} = \exp(-\tau_i * Yield_t),}
+#' where \eqn{\tau_i} is the time-to-maturity of bond \eqn{i}.
 #' After getting the discount rate for each quotation date and time to maturity, bonds are simulated and priced, where the price of Bond \eqn{j} on quotation date \eqn{t} is given by
 #' \deqn{Price_{t, j} = \sum_i payment_i Discount_{i, t}}
-#' A small error is added to each price. The resulting data may be input into estimate_yield with suitable grid values. This is shown in the vignette
+#' A small error is added to each price. The resulting data may be input into \code{\link{estimate_yield}} with suitable grid values. This is shown in the vignette.
 #' 
 #' 
-#' @param max_qDate An integer giving the number of quotation dates to use in the data. Defaults to 12.
-#' @param periods An integer giving the maximum number of time to maturity periods the yield curve is estimated for each quotation date. Defaults to 36
-#' @param bond_multiplier An integer giving the number of bonds to simulate for each day in the data.
+#' @param max_qDate Integer giving the number of quotation dates to use in the data. Defaults to 12.
+#' @param periods Integer giving the maximum number of time to maturity periods the yield curve is estimated for each quotation date. Defaults to 36
+#' @param bond_multiplier Integer giving the number of bonds to simulate for each day in the data.
 #'  Total bonds equals multiplier * (periods + max_qdate). Defaults to 2
 #' @param coupon_frequency Integer, frequency of coupon payments. Defaults to 3
-#' @param coupon_rates A function without arguments to produce a vector, allowed coupon rates in percentage, each bond will have a coupon randomly drawn from this vector. Defaults to c(1, 2, 3, 4, 5). 
+#' @param coupon_rates Function without arguments to produce a vector of allowed coupon rates in percentage, each bond will have a coupon randomly drawn from this vector. Defaults to c(1, 2, 3, 4, 5). 
 #' It is set to be a function so user can define different coupon rates based on maturity date of a bond \code{matDate}, an embedded integer.
 #' @param sdev Standard deviation of the price errors, which is scaled by the square root of time to maturity so long term bonds have a larger error.
 #' Defaults to 0.1
-#' @param arma_terms List of ar and ma parameters passed to \code{arima.sim} to add error dependency. Defaults to list(ar= 0.1, ma = 0). See \code{?stats::arima.sim}.
-#' @param yield Matrix of yield curves at different time to maturities from generate_yield().
-#' If NULL, a yield matrix is created from the default values of \code{generate_yield()} with the values of \code{max_qDate} and \code{periods} input to \code{simulate_data()}.
+#' @param arma_terms List of ar and ma parameters passed to \code{arima.sim} in simulating error to add error dependency. Defaults to list(ar= 0.1, ma = 0). See \code{?stats::arima.sim}.
+#' @param yield Matrix of yield curves at different time to maturities from \code{\link{generate_yield}}.
+#' If NULL, a yield matrix is created from the default values of \code{\link{generate_yield}} with the values of \code{max_qDate} and \code{periods} input to \code{simulate_data()}.
 #' 
 #' @return Data frame with the following columns. See also \code{Details}.
 #' \describe{
@@ -159,7 +160,13 @@ generate_yield <- function(max_qDate = 12, periods = 36, b0 = 0, b1 = 0.05, b2 =
 #' @examples
 #' data <- simulate_data()
 #' @export
-simulate_data <- function(max_qDate = 12, periods = 36, bond_multiplier = 2, coupon_frequency = 3, coupon_rates = function(){1:5}, sdev = 0.1, arma_terms = list(ar = 0.1, ma = 0),
+simulate_data <- function(max_qDate = 12, 
+                          periods = 36, 
+                          bond_multiplier = 2, 
+                          coupon_frequency = 3, 
+                          coupon_rates = function(){1:5}, 
+                          sdev = 0.1, 
+                          arma_terms = list(ar = 0.1, ma = 0),
                           yield = NULL){
 
 

@@ -18,9 +18,9 @@ generate_yield(
 )
 }
 \arguments{
-\item{max_qDate}{An integer giving the number of quotation dates to use in the data. Defaults to 12.}
+\item{max_qDate}{Integer giving the number of quotation dates to use in the data. Defaults to 12.}
 
-\item{periods}{An integer giving the maximum number of time-to-maturity periods the yield curve is estimated for each quotation date. Defaults to 36}
+\item{periods}{Integer giving the maximum number of time-to-maturity periods the yield curve is estimated for each quotation date. Defaults to 36}
 
 \item{b0}{First term in yield curve equation, Defaults to 0. See \code{Details}.}
 
