@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // calc_dbar_c
 arma::mat calc_dbar_c(int nday, int ntupq, arma::mat day_idx, arma::mat tupq_idx, arma::mat ux_window, arma::mat uu_window, Rcpp::List price_slist, Rcpp::List cf_slist);
 RcppExport SEXP _ycevo_calc_dbar_c(SEXP ndaySEXP, SEXP ntupqSEXP, SEXP day_idxSEXP, SEXP tupq_idxSEXP, SEXP ux_windowSEXP, SEXP uu_windowSEXP, SEXP price_slistSEXP, SEXP cf_slistSEXP) {

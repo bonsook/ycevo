@@ -32,7 +32,7 @@ epaker <- function(x) {
 # @author Bonsoo Koo and Kai-Yang Goh
 calc_price_slist <- function(data) {
   price_list <- data %>%
-    mutate(mid.price = !!sym('mid.price') + !!sym('accint')) %>%
+    mutate(mid.price = !!sym('mid.price') + as.numeric(as.character(accint))) %>%
     select(!!sym('qdate'), !!sym('crspid'), !!sym('tupq'), !!sym('mid.price')) %>%
     group_by(!!sym('qdate'), !!sym('crspid'))
   price_list <- split(price_list, price_list$qdate)
