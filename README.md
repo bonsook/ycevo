@@ -5,8 +5,7 @@
 
 <!-- badges: start -->
 
-[![Build
-Status](https://travis-ci.org/bonsook/ycevo.svg?branch=master)](https://travis-ci.org/bonsook/ycevo)
+[![R-CMD-check](https://github.com/bonsook/ycevo/workflows/R-CMD-check/badge.svg)](https://github.com/bonsook/ycevo/actions)
 <!-- badges: end -->
 
 The goal of ycevo is to provide a range of functions to facilitate the
@@ -31,11 +30,8 @@ Please use the following citation if you use any result from the paper.
 ## Installation
 
 <!-- You can install the released version of ycevo from [CRAN](https://CRAN.R-project.org) with: -->
-
 <!-- ``` r -->
-
 <!-- install.packages("ycevo") -->
-
 <!-- ``` -->
 
 The **stable** version on CRAN is coming soon.
@@ -52,20 +48,17 @@ devtools::install_github("bonsook/ycevo")
 ``` r
 library(ycevo)
 library(tidyverse)
-#> -- Attaching packages ------------------------------------- tidyverse 1.3.0 --
-#> v ggplot2 3.3.0     v purrr   0.3.4
-#> v tibble  3.0.1     v dplyr   0.8.5
-#> v tidyr   1.0.2     v stringr 1.4.0
-#> v readr   1.3.1     v forcats 0.5.0
-#> -- Conflicts ---------------------------------------- tidyverse_conflicts() --
+#> -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
+#> v ggplot2 3.3.5     v purrr   0.3.4
+#> v tibble  3.1.6     v dplyr   1.0.8
+#> v tidyr   1.2.0     v stringr 1.4.0
+#> v readr   2.1.2     v forcats 0.5.1
+#> -- Conflicts ------------------------------------------ tidyverse_conflicts() --
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
 library(lubridate)
 #> 
 #> Attaching package: 'lubridate'
-#> The following objects are masked from 'package:dplyr':
-#> 
-#>     intersect, setdiff, union
 #> The following objects are masked from 'package:base':
 #> 
 #>     date, intersect, setdiff, union
@@ -94,7 +87,6 @@ yield <- estimate_yield(
     hx = hx,
     tau = tau,
     ht = ht)
-#> Warning in log(dhat$discount): NaNs produced
 
 yield %>%
   mutate(xgrid = round(xgrid, 2)) %>%
@@ -105,7 +97,6 @@ yield %>%
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
 ``` r
-
 # Yield vs Quotation Dates (xgrid) for some time to maturities
 select_tau <- c(3, 12, 18, 24)/365
 
