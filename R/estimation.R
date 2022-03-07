@@ -709,7 +709,7 @@ estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid, hr, interest, loess 
     X <- diag(1, length(xgr)) + hh_interpol
     dh <- solve(X) %*% db
     if(interest_grid){
-      dhat <- rbind(dhat, data.frame(discount = dh, ug = day_grid$ug[i], rg = day_grid$rg[i], qg = xgr))
+      dhat <- rbind(dhat, data.frame(discount = dh, ug = day_grid$ug[i], rgrid = day_grid$rg[i], qg = xgr))
     } else {
       dhat <- rbind(dhat, data.frame(discount = dh, ug = day_grid$ug[i], qg = xgr))
     }
@@ -731,7 +731,10 @@ estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid, hr, interest, loess 
     dhat$discount <- do.call(base::c, lapply(loess_model, stats::predict))
   }
   dhat$yield <- -log(dhat$discount) / dhat$qg
-  colnames(dhat) <- c("discount", "xgrid", "tau", "yield")
+  dhat <- rename(dhat,
+                 xgrid = ug,
+                 tau = qg
+                 )
   return(dhat)
 }
 
