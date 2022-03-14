@@ -36,14 +36,14 @@ calc_price_slist <- function(data) {
     select(!!sym('qdate'), !!sym('crspid'), !!sym('tupq'), !!sym('mid.price')) %>%
     group_by(!!sym('qdate'), !!sym('crspid'))
   price_list <- split(price_list, price_list$qdate)
-
+  
   id <- unique(data$crspid)
   id_len <- length(id)
   tupq_len <- as.integer(max(data$tupq))
   qdate_len <- length(unique(data$qdate))
   price_slist <- vector(mode = "list", length = qdate_len)
   seq_tupq <- 1:tupq_len
-
+  
   for (i in 1:qdate_len) {
     x_list <- price_list[[i]]
     price_slist[[i]] <- sparseMatrix(i = match(x_list$crspid, id),
@@ -80,19 +80,19 @@ calc_price_slist <- function(data) {
 # }
 # @author Bonsoo Koo and Kai-Yang Goh
 calc_cf_slist <- function(data) {
-
+  
   cf_list <- data %>%
     select(!!sym('qdate'), !!sym('crspid'), !!sym('tupq'), !!sym('pdint')) %>%
     group_by(!!sym('qdate'), !!sym('crspid'))
   cf_list <- split(cf_list, cf_list$qdate)
-
-    id <- unique(data$crspid)
+  
+  id <- unique(data$crspid)
   id_len <- length(id)
   tupq_len <- as.integer(max(data$tupq))
   qdate_len <- length(unique(data$qdate))
   cf_slist <- vector(mode = "list", length = qdate_len)
   seq_tupq <- 1:tupq_len
-
+  
   for (u in 1:qdate_len) {
     x_list <- cf_list[[u]]
     cf_slist[[u]] <- sparseMatrix(i = match(x_list$crspid, id),
@@ -105,6 +105,13 @@ calc_cf_slist <- function(data) {
   return(cf_slist)
 }
 
+calc_window_epaker <- function(gamma, grid, bandwidth) {
+  uu <- mapply(function(grid, bandwidth) {(grid-gamma)/bandwidth}, 
+               grid = grid, 
+               bandwidth = bandwidth)
+  
+  epaker(uu)
+}
 
 # Weights time grid
 # 
@@ -114,8 +121,8 @@ calc_cf_slist <- function(data) {
 # for the estimation of a discount function
 # 
 # @param data a bond dataframe
-# @param ugrid vector of the quotation date grid
-# @param hu vector of quotation date bandwidth
+# @param xgrid vector of the quotation date grid
+# @param hx vector of quotation date bandwidth
 # 
 # @return Matrix with number of columns being the length of \code{ugrid} and number of rows being the number of unique qdates.
 # Each column represents the weights of each qdate for that \code{rgrid}.
@@ -123,19 +130,16 @@ calc_cf_slist <- function(data) {
 # 
 # @author Bonsoo Koo and Kai-Yang Goh
 # @examples 
-#  ugrid <- c(0.2,0.4)
-#  hu <- c(0.18,0.18)
-#  out <- calc_uu_window(data = USbonds, ugrid = ugrid,hu = hu)
-calc_uu_window <- function(data, ugrid, hu) {
+#  xgrid <- c(0.2,0.4)
+#  hx <- c(0.18,0.18)
+#  out <- calc_uu_window(data = USbonds, xgrid = xgrid,hx = hx)
+calc_uu_window <- function(data, xgrid, hx) {
   #ugrid = values you want to compute dbar and hhat for
   #hu = bandwidth parameter
   qdate_len <- length(unique(data$qdate))
   gamma <- seq(1, qdate_len, 1) / qdate_len
-  uu = matrix(0, nrow = length(gamma), ncol = length(ugrid))
-  for (i in 1:length(ugrid)) {
-    uu[,i] <- sapply(ugrid[i], function(y) (y - gamma)/hu[i])
-  }
-  epaker(uu)
+  
+  calc_window_epaker(gamma, xgrid, hx)
 }
 
 # Weights interest rate grid
@@ -160,12 +164,8 @@ calc_uu_window <- function(data, ugrid, hu) {
 #  hr <- c(0.18,0.18)
 #  out <- calc_r_window(interest = interest, rgrid = rgrid,hr = hr)
 calc_r_window <- function(interest, rgrid, hr) {
-
-  r <- matrix(0, nrow = length(interest), ncol = length(rgrid))
-  for (i in 1:length(rgrid)) {
-    r[,i] <- sapply(rgrid[i], function(y) (y - interest)/hr[i])
-  }
-  epaker(r)
+  
+  calc_window_epaker(interest, rgrid, hr)
 }
 
 # Provide indices in relation to time grids
@@ -201,44 +201,43 @@ calc_day_idx <- function(data, ugrid, hu) {
 # for the estimation of a discount function
 # 
 # @param data a bond data frame
-# @param xgrid vector of the time-to-maturity grid
-# @param hx vector of the time-to-maturity grid bandwidth
+# @param tau vector of the time-to-maturity grid
+# @param ht vector of the time-to-maturity grid bandwidth
 # 
-# @return Matrix with number of columns being the length of \code{xgrid} and number of rows being the number of unique qdates.
-# Each column represents the weights of each qdate for that \code{xgrid}.
-# Each column is a \code{xgrid} date with the weights of the qdates used in discount function estimation. qdates correspond to rows.
+# @return Matrix with number of columns being the length of \code{tau} and number of rows being the number of unique qdates.
+# Each column represents the weights of each qdate for that \code{tau}.
+# Each column is a \code{tau} date with the weights of the qdates used in discount function estimation. qdates correspond to rows.
 # @author Bonsoo Koo and Kai-Yang Goh
 # @examples 
-# xgrid <- c(30, 60, 90) / 365
-# hx <- c(15, 15 , 15) / 365
-# out <- calc_ux_window(data = USbonds, xgrid = xgrid, hx = hx)
-calc_ux_window <- function(data, xgrid, hx, units = 365) {
+# tau <- c(30, 60, 90) / 365
+# ht <- c(15, 15 , 15) / 365
+# out <- calc_ux_window(data = USbonds, tau = tau, ht = ht)
+calc_ux_window <- function(data, tau, ht, units = 365) {
   #x = values you want to compute dbar and hhat for
   #h = bandwidth parameter
   tupq_len<- as.integer(max(data$tupq))
-  tau <- seq(1, as.integer(tupq_len), 1)/ units
-  len_xgrid <- length(xgrid)
-  ux <- sapply(1:len_xgrid, function(y) (xgrid[y] - tau)/hx[y])
-  epaker(ux)
+  gamma <- seq_len(tupq_len)/ units
+  
+  calc_window_epaker(gamma, tau, ht)
 }
 
 # Provide indices in relation to time-to-maturity grids
 # 
-# This function provides indices for the first and last xgrid included in the kernel window of each \code{xgrid}.
+# This function provides indices for the first and last tau included in the kernel window of each \code{tau}.
 # 
 # @param data Bond dataframe
-# @param xgrid vector of the time-to-maturity grid
-# @param hx vector of the time-to-maturity grid bandwidth
+# @param tau vector of the time-to-maturity grid
+# @param ht vector of the time-to-maturity grid bandwidth
 # 
-# @return Matrix. The first and last xgrid included in the current kernel window.
+# @return Matrix. The first and last tau included in the current kernel window.
 # 
 # @author Bonsoo Koo and Kai-Yang Goh
 # @examples 
-# xgrid <- c(30, 60, 90) / 365
-# hx <- c(15, 15 , 15) / 365
-# out <- calc_tupq_idx(data = USbonds, xgrid = xgrid, hx = hx)
-calc_tupq_idx <- function(data, xgrid, hx, units = 365) {
-  x <- calc_ux_window(data,xgrid,hx, units)
+# tau <- c(30, 60, 90) / 365
+# ht <- c(15, 15 , 15) / 365
+# out <- calc_tupq_idx(data = USbonds, tau = tau, ht = ht)
+calc_tupq_idx <- function(data, tau, ht, units = 365) {
+  x <- calc_ux_window(data,tau,ht, units)
   apply(x, 2, function(y) {
     window_idx <- which(y > 0.01)
     lth <- length(window_idx)
@@ -248,62 +247,64 @@ calc_tupq_idx <- function(data, xgrid, hx, units = 365) {
     t()
 }
 
-# Automatic selection of xgrid and hx values
+# Automatic selection of tau and ht values
 # 
-# Selects xgrid and hx from values of qgrid and hq with a given number of maturing bonds
+# Selects tau and ht from values of tau_p and htp with a given number of maturing bonds
 # 
-# Automatically select values for sparse time to maturity \code{xgrid} and \code{hx}
-# for a given dense time to maturity value of qgrid and hq and quotation date ugrid and hu.
-# The length of the provided xgrid may change for different ugrid values, so it is recommended
-# that the function is called separately for different values of ugrid.
+# Automatically select values for sparse time to maturity \code{tau} and \code{ht}
+# for a given dense time to maturity value of tau_p and htp and quotation date xgrid and hx.
+# The length of the provided tau may change for different xgrid values, so it is recommended
+# that the function is called separately for different values of xgrid.
 # @param data Bond dataframe. See \code{?USbonds} for an example data strcture..
-# @param ugrid A single value for ugrid between 0 and 1
-# @param hu A single value for the bandwidth of the ugrid value
-# @param qgrid vector of dense time to maturity grid
-# @param hq vector of dense time to maturity bandwidth
-# @param min_points Integer, minimum number of maturing bonds in a qgrid range to be included in xgrid.
+# @param xgrid A single value for xgrid between 0 and 1
+# @param hx A single value for the bandwidth of the xgrid value
+# @param tau_p vector of dense time to maturity grid
+# @param htp vector of dense time to maturity bandwidth
+# @param min_points Integer, minimum number of maturing bonds in a tau_p range to be included in tau.
 # @param rgrid Optional, a single value for rgrid
 # @param hr Optional, A single value for the bandwidth of the rgrid value
 # @param interest, Optional, a vector of daily interest rates for use with rgrid. Must have a length equal to the number of unique qdates in data
 # @param units, Optional, number of units per period. Eg 365 for daily data, 12 for monthly.
 # Grid values without maturing bonds do not have sufficient data for stable estimates.
-# @return List of \code{xgrid}, \code{hx}, \code{qgrid} and \code{hq}. \code{qgrid} and \code{hq} is the same as input. 
-# For the usage of created \code{xgrid} and \code{hx}, see \code{\link{estimate_yield}}.
+# @return List of \code{tau}, \code{ht}, \code{tau_p} and \code{htp}. \code{tau_p} and \code{htp} is the same as input. 
+# For the usage of created \code{tau} and \code{ht}, see \code{\link{estimate_yield}}.
 # @examples 
-#  ugrid <- 0.2
-#  hu <- 0.18
-#  qgrid <- c(30, 60, 90) / 365
-#  hq <- c(15, 15 , 15) / 365
-#  out <- create_xgrid_hx(data = USbonds, ugrid = ugrid, hu = hu, qgrid = qgrid,hq =hq, min_points = 5)
+#  xgrid <- 0.2
+#  hx <- 0.18
+#  tau_p <- c(30, 60, 90) / 365
+#  htp <- c(15, 15 , 15) / 365
+#  out <- create_tau_ht(data = USbonds, xgrid = xgrid, hx = hx, tau_p = tau_p,htp =htp, min_points = 5)
 # @author Nathaniel Tomasetti
-create_xgrid_hx <- function(data, ugrid, hu, qgrid, hq, min_points, rgrid, hr, interest, units = 365){
-
-  points <- num_points_mat(data, ugrid, hu, qgrid, hq, rgrid, hr, interest, units)
-
-
+create_xgrid_hx <- function(data, xgrid, hx, tau, ht, min_points, rgrid = NULL, hr = NULL, interest = NULL, units = 365){
+  
+  tau_p <- tau
+  htp <- ht
+  points <- num_points_mat(data, xgrid, hx, tau, ht, rgrid, hr, interest, units)
+  
+  
   # Shrink window if there is not enough bonds at the end
   while(points[length(points)] < min_points){
-    points <- points[1:(length(points)-1)]
-    hq <- hq[1:length(points)]
-    qgrid <- qgrid[1:length(points)]
+    points <- points[seq_len(length(points)-1)]
+    htp <- ht[seq_along(points)]
+    tau_p <- tau[seq_along(points)]
   }
-
-  # Set hx to hq, but exclude points where there are not many bonds maturing
-  hx <- hq
-  hx[points < min_points] <- NA
-  # Find where the gaps start: the indices of elements of hx that are non na, but are followed by an na, and where the gap ends: a non-na hx that follows an na hx
-  gap_start <- which(!is.na(hx) & dplyr::lead(is.na(hx)))
-  gap_end <- which(!is.na(hx) & dplyr::lag(is.na(hx)))
+  
+  # Set ht to htp, but exclude points where there are not many bonds maturing
+  ht <- htp
+  ht[points < min_points] <- NA
+  # Find where the gaps start: the indices of elements of ht that are non na, but are followed by an na, and where the gap ends: a non-na ht that follows an na ht
+  gap_start <- which(!is.na(ht) & dplyr::lead(is.na(ht)))
+  gap_end <- which(!is.na(ht) & dplyr::lag(is.na(ht)))
   # Amount of time in each gap
-  gap_size <- qgrid[gap_end] - qgrid[gap_start]
-  # hx at the edges of missing values are extended so half the gap is covered by each end
-  hx[gap_start] <- gap_size / 2
-  hx[gap_end] <- gap_size / 2
+  gap_size <- tau_p[gap_end] - tau_p[gap_start]
+  # ht at the edges of missing values are extended so half the gap is covered by each end
+  ht[gap_start] <- gap_size / 2
+  ht[gap_end] <- gap_size / 2
   # Remove NA values
-  hx <- hx[!is.na(hx)]
-  # Set xgrid to be qgrid without the area without much data
-  xgrid <- qgrid[points >= min_points]
-  list(xgrid = xgrid, hx = hx, qgrid = qgrid, hq = hq)
+  ht <- ht[!is.na(ht)]
+  # Set tau to be tau_p without the area without much data
+  tau <- tau_p[points >= min_points]
+  list(tau = tau, ht = ht, tau_p = tau_p, htp = htp)
 }
 
 # @name interpolate_discount
@@ -320,7 +321,7 @@ create_xgrid_hx <- function(data, ugrid, hu, qgrid, hq, min_points, rgrid, hr, i
 #' @importFrom dplyr ungroup distinct
 #' @importFrom stats loess predict
 interpolate_discount <- function(data, yield, treasury){
-
+  
   # Check dates included in data
   dates <- unique(data$qdate)
   # Check if rgrid was included, add a dummy column if required
@@ -336,7 +337,7 @@ interpolate_discount <- function(data, yield, treasury){
       stop('treasury argument does not include dates appearing in data object')
     }
   }
-
+  
   # Find unique values of xg (time to payment) in the data. Exclude time to payments before first qgrid value as this doesn't work well with the loess interpolator
   data %>%
     dplyr::ungroup() %>%
@@ -346,7 +347,7 @@ interpolate_discount <- function(data, yield, treasury){
     distinct() %>%
     .$x %>%
     sort() -> long_term_x
-
+  
   # Linear interpolation for those values we excluded earlier
   data %>%
     ungroup() %>%
@@ -356,9 +357,9 @@ interpolate_discount <- function(data, yield, treasury){
     distinct() %>%
     .$x %>%
     sort() -> short_term_x
-
+  
   unique_x <- c(short_term_x, long_term_x)
-
+  
   # Extract ugrid and rgrid
   yield %>%
     select(.data$ug) %>%
@@ -370,7 +371,7 @@ interpolate_discount <- function(data, yield, treasury){
     .$rg %>%
     matrix(ncol = length(ugrid)) %>%
     t() -> rgrid
-
+  
   # Loess interpolation of each ugrid / rgrid combination for these qgrid values
   interp <- array(0, dim = c(length(unique_x), length(ugrid), ncol(rgrid)))
   for(i in 1:length(ugrid)){
@@ -378,18 +379,18 @@ interpolate_discount <- function(data, yield, treasury){
       res <- filter(yield, .data$ug == ugrid[i] & .data$rg == rgrid[i, j])
       loess_fit <- loess(discount ~ qg, data = res)
       interp[(length(short_term_x)+1):length(unique_x), i, j] <- predict(loess_fit, long_term_x)
-
-
+      
+      
       # Linear interpolation for the very small x values, where dhat = 1 at x = 0.
       min_res <- filter(res, .data$qg == min(.data$qg))
       interp[1:length(short_term_x), i, j] <- 1 + (short_term_x - 0) * (min_res$discount - 1) / (min_res$qg - 0)
-
+      
     }
   }
-
+  
   # Linear interpolation over ugrid and/or rgrid
   if(rg_included){
-
+    
     data %>%
       ungroup() %>%
       mutate(x = as.numeric(.data$tupq) / 365,
@@ -397,29 +398,29 @@ interpolate_discount <- function(data, yield, treasury){
              u = as.numeric(.data$qdateF) / length(dates)) %>%
       left_join(treasury %>% select(.data$date, .data$rate),
                 by = c('qdate'= 'date')) -> data
-
+    
     data %>%
       group_by(.data$qdate, .data$crspid, .data$matdate, .data$mid.price, .data$accint, .data$x, .data$type) %>%
       mutate(discount = as.numeric((interpolate_ugrid_rgrid(.data$x, .data$u, .data$rate, ugrid, rgrid, interp, unique_x)))) %>%
       ungroup() -> data
-
+    
   } else {
-
+    
     data %>%
       ungroup() %>%
       mutate(x = as.numeric(.data$tupq) / 365,
              qdateF = factor(.data$qdate, labels = dates),
              u = as.numeric(.data$qdateF) / length(dates)) -> data
-
+    
     data %>%
       group_by(.data$qdate, .data$crspid, .data$matdate, .data$mid.price, .data$accint, .data$x, .data$type) %>%
       mutate(discount = as.numeric((interpolate_ugrid(.data$x, .data$u, ugrid, interp[,,1], unique_x)))) %>%
       ungroup() -> data
-
+    
     data$rg <- NULL
-
+    
   }
-
+  
   data
 }
 

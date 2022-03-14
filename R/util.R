@@ -22,13 +22,13 @@ num_points <- function(.data, ugrid, hu, qgrid, hq) {
   return(out)
 }
 
-# @title Calculates number of bonds that mature in each qgrid
+# @title Calculates number of bonds that mature in each tau
 # @param data A data frame; bond data to estimate discount curve from.
-# @param ugrid A single value for ugrid between 0 and 1
-# @param hu A single value for the bandwidth of the ugrid value
-# @param qgrid A numeric vector of the time-to-maturity grid
+# @param xgrid A single value for xgrid between 0 and 1
+# @param hx A single value for the bandwidth of the xgrid value
+# @param tau A numeric vector of the time-to-maturity grid
 # for the discount function at the corresponding time.
-# @param hq A numeric vector matching qgrid, bandwidth parameter determining the size of the window
+# @param ht A numeric vector matching tau, bandwidth parameter determining the size of the window
 # that corresponds to each time-to-maturity.
 # @param rgrid Optional, a single value for rgrid
 # @param hr Optional, A single value for the bandwidth of the rgrid value for use with rgrid
@@ -36,37 +36,40 @@ num_points <- function(.data, ugrid, hu, qgrid, hq) {
 # @keywords internal
 # @author Bonsoo Koo, Kai-Yang Goh and Nathaniel Tomasetti
 #
-num_points_mat <- function(data, ugrid, hu, qgrid, hq, rgrid, hr, interest, units = 365) {
+num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, interest = NULL, units = 365) {
   # Check dates in data matches interest rate
   dates <- unique(data$qdate)
-  if(!missing(interest)){
+  if(!is.null(interest)){
     if(length(interest) != length(dates)){
       stop('Length of interest rate vector does not match number of unique qdates')
     }
   }
   # Calculate the u and r windows (if r is provided)
-
-  window <- calc_uu_window(data, ugrid, hu)
-  if(!missing(rgrid) & !missing(hr) & !missing(interest)){
+  
+  window <- calc_uu_window(data, xgrid, hx)
+  if(!is.null(rgrid) & !is.null(hr) & !is.null(interest)){
     windowR <- calc_r_window(interest, rgrid, hr)
     window <- window * windowR
   }
-
+  
   # Find subset of data with positive kernel
   kernel <- data.frame(qdate = dates, k = window)
   if("k" %in% colnames(data)) colnames(data)[colnames(data) == "k"] <- "original_k"
-  data %>%
+  data_sub <- data %>%
     left_join(kernel, by = 'qdate') %>%
-    filter(.data$k > 0) -> dataSub
-
+    filter(.data$k > 0) 
+  
   # Calculate number of maturing bonds in each x window
-  x_idx <- calc_tupq_idx(data, qgrid, hq, units)
-  out <- rep(0, length(qgrid))
-  for(j in 1:length(qgrid)) {
-    out[j] <- sum((dataSub$tupq %in% x_idx[j,1]:x_idx[j,2]) & dataSub$pdint >= 100)
-  }
-
-  return(out)
+  ### Highly rely on the notion that tupq and tau are in days
+  x_idx <- calc_tupq_idx(data, tau, ht, units)
+    sapply(seq_along(tau), 
+           function(j) sum(
+             dplyr::between(
+               as.numeric(data_sub$tupq), 
+               x_idx[j,1],
+               x_idx[j,2]) & 
+               data_sub$pdint >= 100)
+    )
 }
 
 #' Generate a yield curve with cubic time evolution
@@ -109,11 +112,11 @@ num_points_mat <- function(data, ugrid, hu, qgrid, hq, rgrid, hr, interest, unit
 #' @export
 generate_yield <- function(max_qDate = 12, periods = 36, b0 = 0, b1 = 0.05, b2 = 2, t1 = 3, t2 = 500,
                            linear = -0.55, quadratic = 0.55, cubic = -0.55){
-
+  
   tauSeq <- (1:periods)/(periods/10)
-
+  
   yieldInit <-    b0 + b1 * ((1 - exp(- tauSeq / t1)) / ( tauSeq / t1)) + b2 * ((1 - exp(- tauSeq / t2)) / (tauSeq / t2) - exp(- tauSeq / t2))
-
+  
   yield <- matrix(0, periods, max_qDate)
   for(i in 1:max_qDate){
     t <- i / max_qDate
@@ -169,68 +172,68 @@ simulate_data <- function(max_qDate = 12,
                           sdev = 0.1, 
                           arma_terms = list(ar = 0.1, ma = 0),
                           yield = NULL){
-
-
+  
+  
   tauSeq <- (1:periods)/(periods/10)
   qDates <- 1:max_qDate
-
+  
   if(is.null(yield)){
     yield <- generate_yield(max_qDate, periods)
   }
   discount <- exp(-tauSeq * yield)
-
-
- # Keep nBonds as a multiple of (periods + max_qDate)
-
+  
+  
+  # Keep nBonds as a multiple of (periods + max_qDate)
+  
   nBonds <- bond_multiplier * (periods + max_qDate)
-
+  
   ugrid <- (1:(max_qDate - 2))/(max_qDate - 1)
   hu <- rep(0.5 /  max_qDate, max_qDate -2)
-
-
+  
+  
   bondInfo <- data.frame()
   bondErrors <- data.frame()
   issues <- -c(1:coupon_frequency) + 1
   for(i in 1:nBonds){
-
+    
     # ensure a bond matures on each day
     matDate <- i %% (periods + max_qDate) + 1
-
-
-
+    
+    
+    
     issueDate <- issues[coupon_frequency + 1 -
                           ifelse(
                             matDate %% coupon_frequency == 0,
                             coupon_frequency,
                             matDate %% coupon_frequency
                           )
-                        ]
+    ]
     coupon <- sample(coupon_rates(), 1)
-
-
+    
+    
     if(coupon == 0){
       # Single payment on matdate
       payDates <- matDate
       pdint <- 100
     } else {
-
+      
       payDates <- seq(issueDate, matDate, coupon_frequency)[-1]
       pdint <- c(rep(coupon, length(payDates) - 1), coupon + 100)
     }
-
+    
     bondInfo <- rbind(bondInfo,
                       data.frame(crspid = as.character(i),
-                             matdate = matDate,
-                             pdint = pdint,
-                             pqdate = payDates))
-
+                                 matdate = matDate,
+                                 pdint = pdint,
+                                 pqdate = payDates))
+    
     bondErrors <- rbind(bondErrors,
                         data.frame(crspid = as.character(i),
-                               qdate = qDates,
-                               error = c(suppressWarnings(stats::arima.sim(arma_terms, max_qDate)))))
+                                   qdate = qDates,
+                                   error = c(suppressWarnings(stats::arima.sim(arma_terms, max_qDate)))))
   }
-
-
+  
+  
   bondData <- list()
   for(q in 1:length(qDates)){
     qdate <- qDates[q]
@@ -239,32 +242,32 @@ simulate_data <- function(max_qDate = 12,
     bondSub$tumat <- bondSub$matdate - qdate
     bondSub$tupq <- bondSub$pqdate - qdate
     bondSub <- bondSub[bondSub$tumat <= periods, ]
-
+    
     disc <- data.frame(tupq = tauSeq,
-                   d = discount[,q])
-
-      bondSub <- merge(bondSub, disc, by = 'tupq')
-      bondData[[q]] <- bondSub
-    }
+                       d = discount[,q])
+    
+    bondSub <- merge(bondSub, disc, by = 'tupq')
+    bondData[[q]] <- bondSub
+  }
   bondData <-  do.call(rbind.data.frame, bondData)
-
-
+  
+  
   bondData <- merge(bondData, bondErrors, by = c('crspid', 'qdate'))
   bondData$sdev <- sdev * sqrt(bondData$tumat)
-
+  
   prices <- lapply(with(bondData, split(bondData, paste(qdate, crspid, sdev))),
-         function(x) data.frame(crspid = x$crspid[[1]],
-                                qdate = x$qdate[[1]],
-                                mid.price = sum(x$pdint * x$d) + mean(x$sdev + x$error)))
+                   function(x) data.frame(crspid = x$crspid[[1]],
+                                          qdate = x$qdate[[1]],
+                                          mid.price = sum(x$pdint * x$d) + mean(x$sdev + x$error)))
   bondData <- merge(do.call(rbind.data.frame, prices), bondData, by = c('qdate', 'crspid'))
-
+  
   bondData$pqdate <- NULL
   bondData$d <- NULL
   bondData$error <- NULL
   bondData$sdev <- NULL
   bondData$matdate <- NULL
   bondData$accint <- 0
-
+  
   bondData[order(bondData$qdate, as.numeric(as.character(bondData$crspid))), ]
 }
 
