@@ -73,7 +73,7 @@ num_points_mat <- function(data, ugrid, hu, qgrid, hq, rgrid, hr, interest, unit
 #' 
 #' @details Returns a matrix where each column corresponds to a yield curve at a different point in time.
 #' The initial curve at time to maturity zero is estimated from the following equation
-#' \deqn{Yield_{i, 0} = b_0 + b_1 * ((1 - \exp(-\tau_i / t_1)) / (\tau / t_1)) + b_2 * ((1 - \exp(-\tau_i / t_2)) / (\tau_i / t2) - \exp(-\tau_i / t_2))}
+#' \deqn{Yield_{i, 0} = b_0 + b_1 * ((1 - \exp(-\tau_i / t_1)) / (\tau / t_1)) + b_2 * ((1 - \exp(-\tau_i / t_2)) / (\tau_i / t_2) - \exp(-\tau_i / t_2))}
 #' where \eqn{\tau_i} is the index of the time to maturity period. This defines the yield curve for the quotation date = 0.
 #' The yield curve for quotation dates = 1, 2, ... , max_q_date multiplies this curve by the cubic equation,
 #' \deqn{Yield_{i, t} = Yield_{i, 0} * (1 + linear * t + quadratic * t^2 + cubic * t^3)}
@@ -106,6 +106,7 @@ num_points_mat <- function(data, ugrid, hu, qgrid, hq, rgrid, hr, interest, unit
 #' ggplot(out) +
 #'   geom_line(aes(x=time, y=yield, color = qdate))
 #' 
+#' @export
 generate_yield <- function(max_qDate = 12, periods = 36, b0 = 0, b1 = 0.05, b2 = 2, t1 = 3, t2 = 500,
                            linear = -0.55, quadratic = 0.55, cubic = -0.55){
 
