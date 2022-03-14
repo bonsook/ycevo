@@ -41,6 +41,7 @@ Imports:
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.1.2
 Suggests: 
+    testthat (>= 3.0.0),
     akima,
     knitr, 
     lubridate, 
@@ -49,3 +50,4 @@ Suggests:
     tidyverse
 VignetteBuilder: knitr
 Language: en-AU
+Config/testthat/edition: 3
