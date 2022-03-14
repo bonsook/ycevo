@@ -740,7 +740,7 @@ estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid, hr, interest, loess 
     dhat$discount <- do.call(base::c, lapply(loess_model, stats::predict))
   }
   dhat$yield <- -log(dhat$discount) / dhat$qg
-  dhat <- rename(dhat,
+  dhat <- dplyr::rename(dhat,
                  xgrid = ug,
                  tau = qg
                  )
