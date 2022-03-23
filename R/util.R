@@ -62,14 +62,14 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
   # Calculate number of maturing bonds in each x window
   ### Highly rely on the notion that tupq and tau are in days
   x_idx <- calc_tupq_idx(data, tau, ht, units)
-    sapply(seq_along(tau), 
-           function(j) sum(
-             dplyr::between(
-               as.numeric(data_sub$tupq), 
-               x_idx[j,1],
-               x_idx[j,2]) & 
-               data_sub$pdint >= 100)
-    )
+  sapply(seq_along(tau), 
+         function(j) sum(
+           dplyr::between(
+             as.numeric(data_sub$tupq), 
+             x_idx[j,1],
+             x_idx[j,2]) & 
+             data_sub$pdint >= 100)
+  )
 }
 
 #' Generate a yield curve with cubic time evolution
@@ -77,7 +77,7 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
 #' @details Returns a matrix where each column corresponds to a yield curve at a different point in time.
 #' The initial curve at time to maturity zero is estimated from the following equation
 #' \deqn{Yield_{i, 0} = b_0 + b_1 * ((1 - \exp(-\tau_i / t_1)) / (\tau / t_1)) + b_2 * ((1 - \exp(-\tau_i / t_2)) / (\tau_i / t_2) - \exp(-\tau_i / t_2))}
-#' where \eqn{\tau_i} is the index of the time to maturity period. This defines the yield curve for the quotation date = 0.
+#' where \eqn{\tau_i} is the time to maturity period. This defines the yield curve for the quotation date = 0.
 #' The yield curve for quotation dates = 1, 2, ... , max_q_date multiplies this curve by the cubic equation,
 #' \deqn{Yield_{i, t} = Yield_{i, 0} * (1 + linear * t + quadratic * t^2 + cubic * t^3)}
 #' so the yield curve slowly changes over different quotation dates.
@@ -87,8 +87,8 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
 #' @param b0 First term in yield curve equation, Defaults to 0. See \code{Details}.
 #' @param b1 Second term in yield curve equation, Defaults to 0.05. See \code{Details}.
 #' @param b2 Third term in yield curve equation, Defaults to 2. See \code{Details}.
-#' @param t1 Fourth term in yield curve equation, Defaults to 3. See \code{Details}.
-#' @param t2 Fifth term in yield curve equation, Defaults to 500. See \code{Details}.
+#' @param t1 Fourth term in yield curve equation, Defaults to 0.75. See \code{Details}.
+#' @param t2 Fifth term in yield curve equation, Defaults to 125. See \code{Details}.
 #' @param linear Linear term in yield curve evolution, Defaults to -0.55. See \code{Details}.
 #' @param quadratic Quadratic term in yield curve evolution. Defaults to 0.55. See \code{Details}.
 #' @param cubic Cubic term in yield curve evolution. Defaults to -0.55. See \code{Details}.
@@ -110,12 +110,15 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
 #'   geom_line(aes(x=time, y=yield, color = qdate))
 #' 
 #' @export
-generate_yield <- function(max_qDate = 12, periods = 36, b0 = 0, b1 = 0.05, b2 = 2, t1 = 3, t2 = 500,
+generate_yield <- function(max_qDate = 12, periods = 36, 
+                           b0 = 0, b1 = 0.05, b2 = 2, 
+                           t1 = 0.75, t2 = 125,
                            linear = -0.55, quadratic = 0.55, cubic = -0.55){
   
   tauSeq <- (1:periods)/(periods/10)
   
-  yieldInit <-    b0 + b1 * ((1 - exp(- tauSeq / t1)) / ( tauSeq / t1)) + b2 * ((1 - exp(- tauSeq / t2)) / (tauSeq / t2) - exp(- tauSeq / t2))
+  yieldInit <- b0 + b1 * ((1 - exp(- tauSeq / t1)) / ( tauSeq / t1)) + 
+    b2 * ((1 - exp(- tauSeq / t2)) / (tauSeq / t2) - exp(- tauSeq / t2))
   
   yield <- matrix(0, periods, max_qDate)
   for(i in 1:max_qDate){
@@ -137,7 +140,7 @@ generate_yield <- function(max_qDate = 12, periods = 36, b0 = 0, b1 = 0.05, b2 =
 #' A small error is added to each price. The resulting data may be input into \code{\link{estimate_yield}} with suitable grid values. This is shown in the vignette.
 #' 
 #' 
-#' @param max_qDate Integer giving the number of quotation dates to use in the data. Defaults to 12.
+#' @param nqdate Integer giving the number of quotation dates to use in the data. Defaults to 12.
 #' @param periods Integer giving the maximum number of time to maturity periods the yield curve is estimated for each quotation date. Defaults to 36
 #' @param bond_multiplier Integer giving the number of bonds to simulate for each day in the data.
 #'  Total bonds equals multiplier * (periods + max_qdate). Defaults to 2
@@ -160,7 +163,7 @@ generate_yield <- function(max_qDate = 12, periods = 36, b0 = 0, b1 = 0.05, b2 =
 #'    \item{tumat}{Time until maturity, in days (equal to tupq for zero coupon bonds)}
 #'    \item{accint}{The accumulated interest on payments}
 #' }
-#' 
+#' @import dplyr
 #' @examples
 #' data <- simulate_data()
 #' @export
@@ -173,7 +176,8 @@ simulate_data <- function(max_qDate = 12,
                           arma_terms = list(ar = 0.1, ma = 0),
                           yield = NULL){
   
-  
+  # a time horizon of 10 years
+  # evenly distributed time to maturity
   tauSeq <- (1:periods)/(periods/10)
   qDates <- 1:max_qDate
   
@@ -186,9 +190,6 @@ simulate_data <- function(max_qDate = 12,
   # Keep nBonds as a multiple of (periods + max_qDate)
   
   nBonds <- bond_multiplier * (periods + max_qDate)
-  
-  ugrid <- (1:(max_qDate - 2))/(max_qDate - 1)
-  hu <- rep(0.5 /  max_qDate, max_qDate -2)
   
   
   bondInfo <- data.frame()
@@ -235,40 +236,43 @@ simulate_data <- function(max_qDate = 12,
   
   
   bondData <- list()
-  for(q in 1:length(qDates)){
+  for(q in seq_along(qDates)){
     qdate <- qDates[q]
-    bondSub <- bondInfo[bondInfo$pqdate > qdate, ]
-    bondSub$qdate <- qdate
-    bondSub$tumat <- bondSub$matdate - qdate
-    bondSub$tupq <- bondSub$pqdate - qdate
-    bondSub <- bondSub[bondSub$tumat <= periods, ]
     
-    disc <- data.frame(tupq = tauSeq,
+    bondSub <- bondInfo %>% 
+      filter(pqdate > .env$qdate) %>% 
+      mutate(qdate = .env$qdate, 
+             tumat = matdate - qdate, 
+             tupq = pqdate - qdate) %>% 
+      filter(tumat <= periods)
+    
+    
+    disc <- data.frame(tupq = seq_along(tauSeq),
                        d = discount[,q])
     
-    bondSub <- merge(bondSub, disc, by = 'tupq')
+    bondSub <- left_join(bondSub, disc, by = 'tupq')
     bondData[[q]] <- bondSub
   }
-  bondData <-  do.call(rbind.data.frame, bondData)
+  bondData <-  bind_rows(bondData) 
   
-  
-  bondData <- merge(bondData, bondErrors, by = c('crspid', 'qdate'))
+  bondData <- inner_join(bondData, bondErrors, by = c('crspid', 'qdate'))
   bondData$sdev <- sdev * sqrt(bondData$tumat)
   
-  prices <- lapply(with(bondData, split(bondData, paste(qdate, crspid, sdev))),
-                   function(x) data.frame(crspid = x$crspid[[1]],
-                                          qdate = x$qdate[[1]],
-                                          mid.price = sum(x$pdint * x$d) + mean(x$sdev + x$error)))
-  bondData <- merge(do.call(rbind.data.frame, prices), bondData, by = c('qdate', 'crspid'))
+  prices <- bondData %>% 
+    group_by(crspid, qdate) %>% 
+    summarise(mid.price = sum(pdint * d) + mean(sdev * error), 
+              .groups = "drop") 
   
-  bondData$pqdate <- NULL
-  bondData$d <- NULL
-  bondData$error <- NULL
-  bondData$sdev <- NULL
-  bondData$matdate <- NULL
-  bondData$accint <- 0
+  bondData <- inner_join(
+    prices, 
+    bondData, 
+    by = c('qdate', 'crspid')
+  )
   
-  bondData[order(bondData$qdate, as.numeric(as.character(bondData$crspid))), ]
+  bondData %>% 
+    mutate(accint = 0) %>% 
+    select(qdate, crspid, mid.price, tupq, pdint, tumat, accint) %>% 
+    arrange(crspid)
 }
 
 
