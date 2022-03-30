@@ -33,10 +33,12 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     dplyr, 
+    lubridate, 
     magrittr, 
     Matrix, 
     Rcpp (>= 0.12.18), 
     rlang, 
+    lifecycle,
     stats
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.1.2
@@ -44,7 +46,6 @@ Suggests:
     testthat (>= 3.0.0),
     akima,
     knitr, 
-    lubridate, 
     plotly, 
     rmarkdown, 
     tidyverse

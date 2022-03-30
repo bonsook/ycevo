@@ -132,4 +132,14 @@ test_that("Calculates number of bonds that mature in each qgrid", {
     xgrid_exp
   )
   
+  expect_equal(
+    generate_yield(), 
+    sapply(
+      seq_len(12)/12, 
+      function(time) sapply(
+        (1:36)/(36/10), 
+        function(maturity) get_yield_at(
+          time, maturity)))
+  )
+  
 })

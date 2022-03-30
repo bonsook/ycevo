@@ -126,6 +126,30 @@ generate_yield <- function(max_qDate = 12, periods = 36,
     yield[,i] <- yieldInit * (1 + cubic * t^3 + quadratic * t^2 + linear * t)
   }
   yield
+  
+  
+}
+
+get_yield_at <- function(time, maturity, 
+                         b0 = 0, b1 = 0.05, b2 = 2, 
+                         t1 = 0.75, t2 = 125,
+                         linear = -0.55, quadratic = 0.55, cubic = -0.55) {
+  
+  yieldInit <- b0 + b1 * ((1 - exp(- maturity / t1)) / ( maturity / t1)) + 
+    b2 * ((1 - exp(- maturity / t2)) / (maturity / t2) - exp(- maturity / t2))
+  
+  yieldInit * (1 + cubic * time^3 + quadratic * time^2 + linear * time)
+  
+}
+
+get_yield_at_vec <- function(time, maturity, 
+                             b0 = 0, b1 = 0.05, b2 = 2, 
+                             t1 = 0.75, t2 = 125,
+                             linear = -0.55, quadratic = 0.55, cubic = -0.55) {
+  mapply(get_yield_at, time, maturity, 
+         b0 = 0, b1 = 0.05, b2 = 2, 
+         t1 = 0.75, t2 = 125,
+         linear = -0.55, quadratic = 0.55, cubic = -0.55)
 }
 
 #' Simulates data with sample data structure from which the yield can be estimated
@@ -181,8 +205,16 @@ simulate_data <- function(max_qDate = 12,
   tauSeq <- (1:periods)/(periods/10)
   qDates <- 1:max_qDate
   
+  
+  
   if(is.null(yield)){
-    yield <- generate_yield(max_qDate, periods)
+    # yield <- generate_yield(max_qDate, periods)
+    yield <- sapply(
+      seq_len(max_qDate)/max_qDate, 
+      function(time) sapply(
+        (1:36)/365, 
+        function(maturity) get_yield_at(
+          time, maturity)))
   }
   discount <- exp(-tauSeq * yield)
   
@@ -229,9 +261,12 @@ simulate_data <- function(max_qDate = 12,
                                  pqdate = payDates))
     
     bondErrors <- rbind(bondErrors,
-                        data.frame(crspid = as.character(i),
-                                   qdate = qDates,
-                                   error = c(suppressWarnings(stats::arima.sim(arma_terms, max_qDate)))))
+                        data.frame(
+                          crspid = as.character(i),
+                          qdate = qDates,
+                          error = c(
+                            suppressWarnings(
+                              stats::arima.sim(arma_terms, max_qDate)))))
   }
   
   
