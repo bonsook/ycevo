@@ -10,8 +10,8 @@ generate_yield(
   b0 = 0,
   b1 = 0.05,
   b2 = 2,
-  t1 = 3,
-  t2 = 500,
+  t1 = 0.75,
+  t2 = 125,
   linear = -0.55,
   quadratic = 0.55,
   cubic = -0.55
@@ -28,9 +28,9 @@ generate_yield(
 
 \item{b2}{Third term in yield curve equation, Defaults to 2. See \code{Details}.}
 
-\item{t1}{Fourth term in yield curve equation, Defaults to 3. See \code{Details}.}
+\item{t1}{Fourth term in yield curve equation, Defaults to 0.75. See \code{Details}.}
 
-\item{t2}{Fifth term in yield curve equation, Defaults to 500. See \code{Details}.}
+\item{t2}{Fifth term in yield curve equation, Defaults to 125. See \code{Details}.}
 
 \item{linear}{Linear term in yield curve evolution, Defaults to -0.55. See \code{Details}.}
 
@@ -51,7 +51,7 @@ Generate a yield curve with cubic time evolution
 Returns a matrix where each column corresponds to a yield curve at a different point in time.
 The initial curve at time to maturity zero is estimated from the following equation
 \deqn{Yield_{i, 0} = b_0 + b_1 * ((1 - \exp(-\tau_i / t_1)) / (\tau / t_1)) + b_2 * ((1 - \exp(-\tau_i / t_2)) / (\tau_i / t_2) - \exp(-\tau_i / t_2))}
-where \eqn{\tau_i} is the index of the time to maturity period. This defines the yield curve for the quotation date = 0.
+where \eqn{\tau_i} is the time to maturity period. This defines the yield curve for the quotation date = 0.
 The yield curve for quotation dates = 1, 2, ... , max_q_date multiplies this curve by the cubic equation,
 \deqn{Yield_{i, t} = Yield_{i, 0} * (1 + linear * t + quadratic * t^2 + cubic * t^3)}
 so the yield curve slowly changes over different quotation dates.

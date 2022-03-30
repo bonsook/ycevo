@@ -16,8 +16,6 @@ simulate_data(
 )
 }
 \arguments{
-\item{max_qDate}{Integer giving the number of quotation dates to use in the data. Defaults to 12.}
-
 \item{periods}{Integer giving the maximum number of time to maturity periods the yield curve is estimated for each quotation date. Defaults to 36}
 
 \item{bond_multiplier}{Integer giving the number of bonds to simulate for each day in the data.
@@ -35,6 +33,8 @@ Defaults to 0.1}
 
 \item{yield}{Matrix of yield curves at different time to maturities from \code{\link{generate_yield}}.
 If NULL, a yield matrix is created from the default values of \code{\link{generate_yield}} with the values of \code{max_qDate} and \code{periods} input to \code{simulate_data()}.}
+
+\item{nqdate}{Integer giving the number of quotation dates to use in the data. Defaults to 12.}
 }
 \value{
 Data frame with the following columns. See also \code{Details}.
