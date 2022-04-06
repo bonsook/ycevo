@@ -118,7 +118,7 @@ test_that("calc_window", {
     calc_ux_window(head(USbonds, 4), 
                    c(30, 60) / 365, 
                    c(15, 30) / 365
-                   ), 
+    ), 
     structure(c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0966666666666668, 
                 0.186666666666667, 0.27, 0.346666666666667, 0.416666666666667, 
                 0.48, 0.536666666666667, 0.586666666666667, 0, 0, 0, 0, 0, 0, 
@@ -127,9 +127,50 @@ test_that("calc_window", {
   )
   expect_equal(
     calc_tupq_idx(head(USbonds, 4), 
-                   c(30, 60) / 365, 
-                   c(15, 30) / 365
-                   ), 
+                  c(30, 60) / 365, 
+                  c(15, 30) / 365
+    ), 
     structure(c(16L, NA, 23L, NA), .Dim = c(2L, 2L))
+  )
+})
+
+test_bond <- USbonds %>% 
+  filter(qdate %in% unique(qdate)[1:2]) %>%
+  group_by(qdate) %>% 
+  filter(crspid %in% unique(crspid)[1:2]) %>% 
+  ungroup()
+
+test_that("price_slist", {
+  expect_equal(
+    calc_price_slist(test_bond), 
+    list(`2007-01-02` = new(
+      "dgCMatrix", i = 0:1, 
+      p = c(0L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L), Dim = c(2L, 9L), 
+      Dimnames = list(
+        c("20070104.400000", "20070111.400000"), 
+        c("1", "2", "3", "4", "5", "6", "7", "8", "9")), x = c(99.9729165, 99.88425
+        ), factors = list()), `2007-01-03` = new(
+          "dgCMatrix", i = 0:1, p = c(0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L), Dim = c(2L, 9L), 
+          Dimnames = list(c("20070104.400000", "20070111.400000"), 
+                          c("1", "2", "3", "4", "5", "6", "7", "8", "9")), 
+          x = c(99.986528, 99.897778), factors = list()))
+  )
+})
+test_that("cf_slist", {
+  expect_equal(
+    calc_cf_slist(test_bond), 
+    list(`2007-01-02` = new(
+      "dgCMatrix", i = 0:1, 
+      p = c(0L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L), 
+      Dim = c(2L, 9L), Dimnames = list(
+        c("20070104.400000", "20070111.400000"), c("1", "2", "3", "4", "5", "6", "7", "8", "9")), 
+      x = c(100, 100), 
+      factors = list()), 
+      `2007-01-03` = new(
+        "dgCMatrix", i = 0:1, p = c(0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L), Dim = c(2L, 9L), 
+        Dimnames = list(
+          c("20070104.400000", "20070111.400000"), c("1", "2", "3", "4", "5", "6", "7", "8", "9")), 
+        x = c(100, 100), 
+        factors = list()))
   )
 })

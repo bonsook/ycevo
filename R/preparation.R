@@ -32,10 +32,9 @@ epaker <- function(x) {
 # @author Bonsoo Koo and Kai-Yang Goh
 calc_price_slist <- function(data) {
   price_list <- data %>%
-    mutate(mid.price = !!sym('mid.price') + as.numeric(as.character(accint))) %>%
-    select(!!sym('qdate'), !!sym('crspid'), !!sym('tupq'), !!sym('mid.price')) %>%
-    group_by(!!sym('qdate'), !!sym('crspid'))
-  price_list <- split(price_list, price_list$qdate)
+    mutate(mid.price = .data$mid.price + as.numeric(as.character(accint))) %>%
+    select(qdate, crspid, tupq, mid.price) 
+  price_list <- group_split(price_list, qdate)
   
   id <- unique(data$crspid)
   id_len <- length(id)
@@ -52,7 +51,7 @@ calc_price_slist <- function(data) {
                                      dims = c(id_len, tupq_len),
                                      dimnames = list(id, seq_tupq))
   }
-  names(price_slist) <- names(price_list)
+  names(price_slist) <-  unique(data$qdate)
   return(price_slist)
 }
 
@@ -79,12 +78,12 @@ calc_price_slist <- function(data) {
 # cf <- calc_cf_slist(USbonds)
 # }
 # @author Bonsoo Koo and Kai-Yang Goh
+
 calc_cf_slist <- function(data) {
   
   cf_list <- data %>%
-    select(!!sym('qdate'), !!sym('crspid'), !!sym('tupq'), !!sym('pdint')) %>%
-    group_by(!!sym('qdate'), !!sym('crspid'))
-  cf_list <- split(cf_list, cf_list$qdate)
+    select(qdate, crspid, tupq, pdint) 
+  cf_list <- group_split(cf_list, qdate)
   
   id <- unique(data$crspid)
   id_len <- length(id)
@@ -101,7 +100,7 @@ calc_cf_slist <- function(data) {
                                   dims = c(id_len, tupq_len)#)
                                   ,dimnames=list(id,seq_tupq))
   }
-  names(cf_slist) <- names(cf_list)
+  names(cf_slist) <- unique(data$qdate)
   return(cf_slist)
 }
 
