@@ -189,7 +189,7 @@ calc_r_window <- function(interest, rgrid, hr) {
 #  out <- calc_day_idx(data = USbonds, ugrid = ugrid, hu = hu)
 calc_day_idx <- function(data, ugrid, hu) {
   u <- calc_uu_window(data, ugrid, hu)
-  dim(u) <- c(length(ugrid) , 1)
+  dim(u) <- c(length(unique(data$qdate)), length(ugrid))
   apply(u, 2, function(y) {
     window_idx <- which(y != 0)
     return(c(window_idx[1], window_idx[length(window_idx)]))
