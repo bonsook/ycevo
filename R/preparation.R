@@ -34,7 +34,9 @@ calc_price_slist <- function(data) {
   price_list <- data %>%
     mutate(mid.price = .data$mid.price + as.numeric(as.character(accint))) %>%
     select(qdate, crspid, tupq, mid.price) 
-  price_list <- group_split(price_list, qdate)
+  price_list <- price_list %>% 
+    group_by(qdate) %>% 
+    group_split()
   
   id <- unique(data$crspid)
   id_len <- length(id)
@@ -83,8 +85,10 @@ calc_cf_slist <- function(data) {
   
   cf_list <- data %>%
     select(qdate, crspid, tupq, pdint) 
-  cf_list <- group_split(cf_list, qdate)
-  
+  cf_list <- cf_list %>%
+    group_by(qdate) %>%
+    group_split()
+
   id <- unique(data$crspid)
   id_len <- length(id)
   tupq_len <- as.integer(max(data$tupq))
@@ -138,7 +142,8 @@ calc_uu_window <- function(data, xgrid, hx) {
   qdate_len <- length(unique(data$qdate))
   gamma <- seq(1, qdate_len, 1) / qdate_len
   
-  calc_window_epaker(gamma, xgrid, hx)
+  calc_window_epaker(gamma, xgrid, hx) %>% 
+    as.matrix()
 }
 
 # Weights interest rate grid
@@ -184,6 +189,7 @@ calc_r_window <- function(interest, rgrid, hr) {
 #  out <- calc_day_idx(data = USbonds, ugrid = ugrid, hu = hu)
 calc_day_idx <- function(data, ugrid, hu) {
   u <- calc_uu_window(data, ugrid, hu)
+  dim(u) <- c(length(ugrid) , 1)
   apply(u, 2, function(y) {
     window_idx <- which(y != 0)
     return(c(window_idx[1], window_idx[length(window_idx)]))
