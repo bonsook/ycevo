@@ -35,22 +35,22 @@ calc_dbar <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, price_slist, cf_sli
   if (missing(cf_slist)){
     cf_slist <- calc_cf_slist(data)
   }
-
+  
   if (missing(price_slist)) {
     price_slist <- calc_price_slist(data)
   }
-
+  
   if(!missing(rgrid) & !missing(hr) & !missing(interest)){
     interest_grid <- TRUE
   } else {
     interest_grid <- FALSE
   }
-
-
+  
+  
   day_idx <- calc_day_idx(data, ugrid, hu)
   uu_window <- calc_uu_window(data,ugrid,hu)
   nday <- length(ugrid)
-
+  
   if(interest_grid){
     r_window <- calc_r_window(interest, rgrid, hr)
     day_grid <- expand.grid(ug = ugrid, rg = rgrid)
@@ -63,7 +63,7 @@ calc_dbar <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, price_slist, cf_sli
     }
     apply(joint_window, 2, function(y) {
       if(all(y == 0)){
-       day_idx <- c(0, 0)
+        day_idx <- c(0, 0)
       } else {
         window_idx <- which(y != 0)
         day_idx <- c(window_idx[1], window_idx[length(window_idx)])
@@ -79,9 +79,9 @@ calc_dbar <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, price_slist, cf_sli
       joint_window <- matrix(joint_window, ncol = 1)
       day_idx <- matrix(day_idx, nrow = 1)
     }
-
+    
   }
-
+  
   if(is.vector(xgrid)){
     tupq_idx <- calc_tupq_idx(data, xgrid, hx, units)
     ux_window <- calc_ux_window(data, xgrid, hx, units)
@@ -171,24 +171,18 @@ calc_dbar <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, price_slist, cf_sli
 # @author Nathaniel Tomasetti
 # @source Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
 # 
-calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_slist, interest, units = 365) {
-  if (missing(cf_slist)){
+calc_hhat_num <- function(data, ugrid, hu, rgrid = NULL, hr = NULL, xgrid, hx, qgrid = xgrid, hq = hx, cf_slist = NULL, interest = NULL, units = 365) {
+  if (is.null(cf_slist)){
     cf_slist <- calc_cf_slist(data)
   }
-  if (missing(qgrid)){
-    qgrid <- xgrid
-  }
-  if (missing(hq)){
-    hq <- hx
-  }
-  if(!missing(rgrid) & !missing(hr) & !missing(interest)){
+  if(!is.null(rgrid) & !is.null(hr) & !is.null(interest)){
     interest_grid <- TRUE
   } else {
     interest_grid <- FALSE
   }
-
-
-
+  
+  
+  
   # windows etc
   day_idx <- calc_day_idx(data, ugrid, hu)
   uu_window <- calc_uu_window(data,ugrid,hu)
@@ -221,10 +215,10 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
       joint_window <- matrix(joint_window, ncol = 1)
       day_idx <- matrix(day_idx, nrow = 1)
     }
-
+    
   }
-
-
+  
+  
   if(is.vector(xgrid)){
     tupq_idx_x <- calc_tupq_idx(data, xgrid, hx, units)
     ux_window <- calc_ux_window(data, xgrid, hx, units)
@@ -254,7 +248,7 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
       }
     }
   }
-
+  
   if(is.vector(qgrid)){
     tupq_idx_q <- calc_tupq_idx(data, qgrid, hq, units)
     uq_window <- calc_ux_window(data, qgrid, hq, units)
@@ -284,7 +278,7 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
       }
     }
   }
-
+  
   if(interest_grid){
     hhat <- calc_hhat_num2_c(nday, ntupq_x, ntupq_q, day_idx, tupq_idx_x, tupq_idx_q, ux_window, uq_window, joint_window, cf_slist)
     day_grid <- day_grid[rep(1:nday, each=ntupq_q*ntupq_x),]
@@ -293,8 +287,8 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
     hhat <- calc_hhat_num2_c(nday, ntupq_x, ntupq_q, day_idx, tupq_idx_x, tupq_idx_q, ux_window, uq_window, uu_window, cf_slist)
     hhat <- data.frame(hhat_numer = c(hhat), ug = rep(ugrid, rep(ntupq_q * ntupq_x, nday)))
   }
-
-   if(is.vector(xgrid)){
+  
+  if(is.vector(xgrid)){
     hhat$xg = rep(xgrid, nday*ntupq_q)
   } else if(nrow(xgrid) == 1){
     hhat$xg = rep(xgrid, nday*ntupq_q)
@@ -305,7 +299,7 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
     }
     hhat$xg = x_temp
   }
-
+  
   if(is.vector(qgrid)){
     hhat$qg = rep(qgrid, rep(ntupq_x, ntupq_q))
   } else if(nrow(qgrid) == 1){
@@ -317,7 +311,7 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
     }
     hhat$qg = q_temp
   }
-
+  
   hhat
 }
 
@@ -448,17 +442,11 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, qgrid, hq, cf_s
 #' @references B. Koo, D. La Vecchia and O. Linton, Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics (2020), https://doi.org/10.1016/j.jeconom.2020.04.014.
 #' 
 #' @export
-estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid, hr, interest, loess = TRUE){
+estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, interest = NULL, loess = TRUE){
   units <- 365
-  # if (missing(tau)){
-  #   tau <- tau_p
-  # }
-  # if(missing(ht)){
-  #   ht <- htp
-  # }
   tau_p <- tau
   htp <- ht
-  if(!missing(rgrid) & !missing(hr) & !missing(interest)){
+  if(!is.null(rgrid) & !is.null(hr) & !is.null(interest)){
     interest_grid <- TRUE
   } else {
     interest_grid <- FALSE
@@ -617,8 +605,24 @@ estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid, hr, interest, loess 
                               cf_slist = cf_slist,
                               units = units)
   }
-  # test_dbar <<- dbar
-  # test_hhat_num <<- hhat_num
+  
+  if(any(dbar$dbar_denom == 0)) {
+    problem_tau <- dbar %>% 
+      filter(dbar_denom == 0) %>% 
+      pull(xg)
+    warning("tau values at ", paste(problem_tau, collapse = ", "), " does not have enough obs to estimate yield")
+    
+    output <- estimate_yield(
+      data = bond,
+      xgrid = xgrid,
+      hx = hx,
+      tau = tau[!tau %in% problem_tau],
+      ht = ht[!tau %in% problem_tau], 
+      loess = FALSE)
+    return(output)
+  }
+  
+  
   
   # The denominator of h-hat entries are estimated as part of dbar
   if(interest_grid){
@@ -646,7 +650,6 @@ estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid, hr, interest, loess 
     hhat$rg <- 0
     dbar$rg <- 0
   }
-  # test_hhat <<- hhat
   
   # Create the dataframe that the function returns
   dhat <- data.frame()
@@ -705,7 +708,7 @@ estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid, hr, interest, loess 
         upper <- min(which(xgr > qgr[j]))
         # Error if qgrid is lower than the first xgrid, or greater than the last xgrid
         if(upper == 1 | lower == length(xgr)){
-          stop('qgrid entries must lie inside xgrid')
+          stop('tau_p entries must lie inside tau')
         }
         # Find interpolation weights as ratio between the two xgrid values lying above and below this qgrid
         dist <- xgr[upper] - xgr[lower]
@@ -720,7 +723,8 @@ estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid, hr, interest, loess 
       hh_interpol[,j] <- colSums(t(hh) * interpol_weights[j,])
     }
     
-    X <- diag(1, length(xgr)) + hh_interpol
+    # transpose?
+    X <- diag(1, length(xgr)) + t(hh_interpol)
     dh <- solve(X) %*% db
     if(interest_grid){
       dhat <- rbind(dhat, data.frame(discount = dh, ug = day_grid$ug[i], rgrid = day_grid$rg[i], qg = xgr))
@@ -729,7 +733,6 @@ estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid, hr, interest, loess 
     }
     
   }
-  # test_dhat <<- dhat
   # loess smoothing
   if(loess){
     # loess_model <- stats::loess(discount~qg, data = dhat)
@@ -741,9 +744,9 @@ estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid, hr, interest, loess 
   }
   dhat$yield <- -log(dhat$discount) / dhat$qg
   dhat <- dplyr::rename(dhat,
-                 xgrid = ug,
-                 tau = qg
-                 )
+                        xgrid = ug,
+                        tau = qg
+  )
   return(dhat)
 }
 
@@ -786,9 +789,6 @@ dhat_var <- function(data, ugrid, hu, xgrid, hx, perrors, dhat, cf_slist) {
   day_idx <- calc_day_idx(data, ugrid, hu)
   uu_window <- calc_uu_window(data,ugrid,hu)
   nday <- length(ugrid)
-  # cat(identical(day_idx, a), "\n")
-  # cat(identical(uu_window, b), "\n")
-  # cat(identical(nday, c), "\n")
   
   
   if(is.vector(xgrid)){
@@ -796,15 +796,10 @@ dhat_var <- function(data, ugrid, hu, xgrid, hx, perrors, dhat, cf_slist) {
     ux_window <- calc_ux_window(data, xgrid, hx)
     ntupq <- length(xgrid)
     
-    # cat(identical(tupq_idx, d), "\n")
-    # cat(identical(ux_window, e), "\n")
-    # cat(identical(ntupq, f), "\n")
-    # cat("111\n") ## *********************************************************************
   } else if(nrow(xgrid) == 1) {
     tupq_idx <- calc_tupq_idx(data, xgrid, hx)
     ux_window <- calc_ux_window(data, xgrid, hx)
     ntupq <- length(xgrid)
-    # cat("222\n") ## *********************************************************************
   } else {
     tupq_idx <- NULL
     ux_window <- NULL
@@ -813,16 +808,15 @@ dhat_var <- function(data, ugrid, hu, xgrid, hx, perrors, dhat, cf_slist) {
       ux_window <- cbind(ux_window, calc_ux_window(data, xgrid[i, ], hx))
     }
     ntupq <- ncol(xgrid)
-    # cat("333\n") ## *********************************************************************
   }
-
+  
   dbar_w <- calc_w_c(nday, ntupq, day_idx, tupq_idx, ux_window, uu_window, cf_slist)
-
+  
   if(!is.matrix(perrors)){
     crspID <- unique(perrors$crspid)
     qdates <- unique(perrors$qdate)
     perrorMat <- matrix(0, length(crspID), length(qdates))
-
+    
     for(i in 1:length(crspID)){
       for(j in 1:length(qdates)){
         perrors[perrors$crspid == crspID[i] & perrors$qdate == qdates[j],] -> error
@@ -839,13 +833,13 @@ dhat_var <- function(data, ugrid, hu, xgrid, hx, perrors, dhat, cf_slist) {
     }
     perrors <- perrorMat
   }
-
+  
   var_dbar <- numeric(ntupq*nday)
   for(xu in 1:(ntupq*nday)){
     var_dbar[xu] <- sum(dbar_w[,,xu]^2) * var(perrors[dbar_w[,,xu] != 0], na.rm = TRUE)
   }
-
-
+  
+  
   dbar_var <- data.frame(ug = rep(ugrid, rep(ntupq, nday)), hu = rep(hu, rep(ntupq, nday)), hx = rep(hx, nday), var = var_dbar)
   if(is.vector(xgrid)){
     dbar_var$xg = rep(xgrid, nday)
@@ -858,7 +852,7 @@ dhat_var <- function(data, ugrid, hu, xgrid, hx, perrors, dhat, cf_slist) {
     mutate(dhat_var = !!sym('var') * !!sym('hx') * !!sym('hu') * length(perrors)) %>%
     select(!!sym('ug'), !!sym('xg'), !!sym('dhat_var')) -> dbar_var
   dbar_var
-
+  
   dbar_var <- dplyr::right_join(dhat, dbar_var, by = c("ug" = "ug", "qg" = "xg"))
   dbar_var$yield_var = dbar_var$dhat_var / (dbar_var$qg * dbar_var$discount)^2
   dbar_var
