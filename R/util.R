@@ -130,6 +130,9 @@ generate_yield <- function(max_qDate = 12, periods = 36,
   
 }
 
+
+#' @param time Numeric value bewteen 0 and 1
+#' @param maturity Numeric value. Maturity in years.
 get_yield_at <- function(time, maturity, 
                          b0 = 0, b1 = 0.05, b2 = 2, 
                          t1 = 0.75, t2 = 125,
@@ -137,7 +140,6 @@ get_yield_at <- function(time, maturity,
   
   yieldInit <- b0 + b1 * ((1 - exp(- maturity / t1)) / ( maturity / t1)) + 
     b2 * ((1 - exp(- maturity / t2)) / (maturity / t2) - exp(- maturity / t2))
-  
   yieldInit * (1 + cubic * time^3 + quadratic * time^2 + linear * time)
   
 }
@@ -147,9 +149,9 @@ get_yield_at_vec <- function(time, maturity,
                              t1 = 0.75, t2 = 125,
                              linear = -0.55, quadratic = 0.55, cubic = -0.55) {
   mapply(get_yield_at, time, maturity, 
-         b0 = 0, b1 = 0.05, b2 = 2, 
-         t1 = 0.75, t2 = 125,
-         linear = -0.55, quadratic = 0.55, cubic = -0.55)
+         b0 = b0, b1 = b1, b2 = b2, 
+         t1 = t1, t2 = t2,
+         linear = linear, quadratic = quadratic, cubic = cubic)
 }
 
 #' Simulates data with sample data structure from which the yield can be estimated
@@ -309,5 +311,4 @@ simulate_data <- function(max_qDate = 12,
     select(qdate, crspid, mid.price, tupq, pdint, tumat, accint) %>% 
     arrange(crspid)
 }
-
 
