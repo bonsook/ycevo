@@ -83,8 +83,7 @@ calc_price_slist <- function(data) {
 
 calc_cf_slist <- function(data) {
   
-  cf_list <- data %>%
-    select(qdate, crspid, tupq, pdint) 
+  cf_list <- select(data, qdate, crspid, tupq, pdint) 
   cf_list <- cf_list %>%
     group_by(qdate) %>%
     group_split()

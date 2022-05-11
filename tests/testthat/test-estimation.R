@@ -1,4 +1,4 @@
-test_that("multiplication works", {
+test_that("Simplest example", {
   expect_equal(
     estimate_yield(
       structure(list(
