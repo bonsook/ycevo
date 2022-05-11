@@ -74,41 +74,51 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
 
 #' Generate a yield curve with cubic time evolution
 #' 
-#' @details Returns a matrix where each column corresponds to a yield curve at a different point in time.
+#' Generate a yield curve using the extended version of Nelson & Siegel model (Nelson, C. R., & Siegel, A. F., 1987). 
+#' This has been used in the simulation setting (Equation (30)) of Koo, B., La Vecchia, D., & Linton, O. (2021).
+#' See \code{Details} and \code{References}.
+#' 
+#' Returns a matrix where each column corresponds to a yield curve at a different point in time.
 #' The initial curve at time to maturity zero is estimated from the following equation
 #' \deqn{Yield_{i, 0} = b_0 + b_1 * ((1 - \exp(-\tau_i / t_1)) / (\tau / t_1)) + b_2 * ((1 - \exp(-\tau_i / t_2)) / (\tau_i / t_2) - \exp(-\tau_i / t_2))}
-#' where \eqn{\tau_i} is the time to maturity period. This defines the yield curve for the quotation date = 0.
+#' where \eqn{\tau_i} is the time to maturity, usually measured in years. This defines the yield curve for the quotation date = 0.
 #' The yield curve for quotation dates = 1, 2, ... , max_q_date multiplies this curve by the cubic equation,
 #' \deqn{Yield_{i, t} = Yield_{i, 0} * (1 + linear * t + quadratic * t^2 + cubic * t^3)}
 #' so the yield curve slowly changes over different quotation dates.
 #' 
 #' @param max_qDate Integer giving the number of quotation dates to use in the data. Defaults to 12.
 #' @param periods Integer giving the maximum number of time-to-maturity periods the yield curve is estimated for each quotation date. Defaults to 36
-#' @param b0 First term in yield curve equation, Defaults to 0. See \code{Details}.
-#' @param b1 Second term in yield curve equation, Defaults to 0.05. See \code{Details}.
-#' @param b2 Third term in yield curve equation, Defaults to 2. See \code{Details}.
-#' @param t1 Fourth term in yield curve equation, Defaults to 0.75. See \code{Details}.
-#' @param t2 Fifth term in yield curve equation, Defaults to 125. See \code{Details}.
+#' @param b0 Level term in yield curve equation, Defaults to 0. See \code{Details}.
+#' @param b1 Slope term in yield curve equation, Defaults to 0.05. See \code{Details}.
+#' @param b2 Curvature term in yield curve equation, Defaults to 2. See \code{Details}.
+#' @param t1 Scaling parameter in yield curve equation, Defaults to 0.75. See \code{Details}.
+#' @param t2 Scaling parameter in yield curve equation, Defaults to 125. See \code{Details}.
 #' @param linear Linear term in yield curve evolution, Defaults to -0.55. See \code{Details}.
 #' @param quadratic Quadratic term in yield curve evolution. Defaults to 0.55. See \code{Details}.
 #' @param cubic Cubic term in yield curve evolution. Defaults to -0.55. See \code{Details}.
 #' 
-#' @return Matrix. Each column is a yield curve in a point in time (a quotation date). Each row is for a time-to-maturity.
-#' For example, the number in the second column third row is the yield for the yield curve at the second quotation date,
-#' for the third time-to-maturity ranking from shortest to longest. See \code{Details} for the equation to generate the yield curve.
-#' See \code{Examples} for a example with the code to visually inspect the yield curves.
+#' @return 
+#' \describe{
+#'   \item{\code{generate_yield}}{
+#'   Numeric matrix. Each column is a yield curve in a point in time (a quotation date). Each row is for a time-to-maturity.
+#'   For example, the number in the second column third row is the yield for the yield curve at the second quotation date,
+#'   for the third time-to-maturity ranking from shortest to longest. See \code{Details} for the equation to generate the yield curve.
+#'   See \code{Examples} for a example with the code to visually inspect the yield curves.}
+#' }
 #' @examples
-#' out <- generate_yield()
+# out <- generate_yield()
+# 
+# # plots
+# library(tidyverse)
+# out <- data.frame(out)
+# colnames(out) <- 1:12
+# out <- mutate(out, time = 1:36)
+# out <- pivot_longer(out, -time, names_to = "qdate", values_to = "yield")
+# ggplot(out) +
+#   geom_line(aes(x=time, y=yield, color = qdate))
 #' 
-#' # plots
-#' library(tidyverse)
-#' out <- data.frame(out)
-#' colnames(out) <- 1:12
-#' out <- mutate(out, time = 1:36)
-#' out <- pivot_longer(out, -time, names_to = "qdate", values_to = "yield")
-#' ggplot(out) +
-#'   geom_line(aes(x=time, y=yield, color = qdate))
-#' 
+#' @references Nelson, C. R., & Siegel, A. F. (1987). Parsimonious Modeling of Yield Curves. The Journal of Business, 60(4), 473–489.
+#' @references Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562–588.
 #' @export
 generate_yield <- function(max_qDate = 12, periods = 36, 
                            b0 = 0, b1 = 0.05, b2 = 2, 
@@ -131,8 +141,13 @@ generate_yield <- function(max_qDate = 12, periods = 36,
 }
 
 
-# @param time Numeric value bewteen 0 and 1
-# @param maturity Numeric value. Maturity in years.
+#' @param time Numeric value.
+#' @param maturity Numeric value. Maturity in years.
+#' @describeIn generate_yield Return the yield at a specific point in time of a specific maturity.
+#' @return 
+#' \describe{
+#'   \item{\code{get_yield_at}}{Numeric scalar.}
+#' }
 get_yield_at <- function(time, maturity, 
                          b0 = 0, b1 = 0.05, b2 = 2, 
                          t1 = 0.75, t2 = 125,
@@ -144,6 +159,13 @@ get_yield_at <- function(time, maturity,
   
 }
 
+#' @param time Numeric value.
+#' @param maturity Numeric value. Maturity in years.
+#' @return 
+#' \describe{
+#'   \item{\code{get_yield_at_vec}}{Numeric vector.}
+#' }
+#' @describeIn generate_yield Vectorised version of \code{get_yield_at}.
 get_yield_at_vec <- function(time, maturity, 
                              b0 = 0, b1 = 0.05, b2 = 2, 
                              t1 = 0.75, t2 = 125,
