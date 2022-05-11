@@ -33,13 +33,10 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     dplyr, 
-    lubridate, 
     magrittr, 
     Matrix, 
     Rcpp (>= 0.12.18), 
     rlang, 
-    lifecycle,
-    tidyr,
     stats
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.1.2

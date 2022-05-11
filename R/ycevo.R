@@ -16,8 +16,8 @@
 #' @importClassesFrom Matrix dgCMatrix
 #' @importFrom Rcpp evalCpp
 #' @importFrom Matrix colSums rowSums sparseMatrix t
-#' @importFrom dplyr filter left_join mutate select group_by lead lag
-#' @importFrom rlang !! sym
+#' @importFrom dplyr filter left_join mutate select group_by lead lag group_split ungroup
+#' @importFrom rlang !! sym .data
 #' @importFrom stats var
 #' @importFrom magrittr %>%
 #' @importFrom Rcpp sourceCpp
