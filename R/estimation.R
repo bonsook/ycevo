@@ -442,10 +442,13 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid = NULL, hr = NULL, xgrid, hx, q
 #' @references B. Koo, D. La Vecchia and O. Linton, Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics (2020), https://doi.org/10.1016/j.jeconom.2020.04.014.
 #' 
 #' @export
-estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, interest = NULL, loess = TRUE){
+estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, interest = NULL, loess = TRUE, 
+                           tau_p = NULL, htp = NULL, price_slist = NULL, cf_slist = NULL){
   units <- 365
-  tau_p <- tau
-  htp <- ht
+  if(is.null(tau_p) || is.null(htp)){
+    tau_p <- tau
+    htp <- ht
+  }
   if(!is.null(rgrid) & !is.null(hr) & !is.null(interest)){
     interest_grid <- TRUE
   } else {
@@ -550,12 +553,12 @@ estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
     }
   }
   
-  cf_slist <- NULL
+  # cf_slist <- NULL
   if(is.null(cf_slist)){
     cf_slist <- calc_cf_slist(data)
   }
   
-  price_slist <- NULL
+  # price_slist <- NULL
   if(is.null(price_slist)) {
     price_slist <- calc_price_slist(data)
   }

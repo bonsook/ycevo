@@ -39,6 +39,7 @@ Imports:
     Rcpp (>= 0.12.18), 
     rlang, 
     lifecycle,
+    tidyr,
     stats
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.1.2
