@@ -10,7 +10,8 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>", 
+  eval  =FALSE
 )
 ```
 
@@ -102,7 +103,19 @@ tau <- 1:periods
 max_tumat <- max(data$tumat)
 tau <- tau[1:min(which(tau >= max_tumat))]
 tau <- tau/365# specified in years
+# tau <- tau/periods*10# specified in years
 ht <- rep(0.1, length(tau))
+# ht <- rep(0.5, length(tau))
+laggap <- tau - lag(tau)
+leadgap <- lead(tau) - tau
+ht <- vapply(seq_along(tau), function(x) max(laggap[x], leadgap[x], na.rm = TRUE), runif(1))
+
+# grids <- create_xgrid_hx(data, xgrid[[1]], hx[[1]], tau, ht, 5 )
+# num_points_mat(data, xgrid, hx, tau, ht )
+# ugrid <- xgrid
+# hu <- hx
+# qgrid <- tau
+# hq <- ht
 ```
 
 <!-- We also need a different grid of time-to-payment values for some cross-product terms. This is called `xgrid`, and can be automatically selected by function `create_xgrid_hx`. For now we will keep it equal to `tau` for simplicity.  -->
@@ -129,7 +142,8 @@ yield <- estimate_yield(
     xgrid = xgrid,
     hx = hx,
     tau = tau,
-    ht = ht)
+    ht = ht, 
+    loess = FALSE)
 glimpse(yield)
 ```
 
@@ -144,6 +158,23 @@ yield %>%
   ggplot() + geom_line(aes(tau, yield)) +
   facet_wrap(~xgrid) 
 ```
+
+
+```{r}
+sapply(
+      seq_len(max_qDate)/max_qDate, 
+      function(time) sapply(
+        (1:36)/365, 
+        function(maturity) get_yield_at(
+          time, maturity))) %>%
+  `colnames<-`( seq_len(max_qDate)/max_qDate) %>% 
+  as_tibble() %>% 
+  mutate(tau = (1:36)/365) %>% 
+  pivot_longer(-tau, names_to = "xgrid", values_to = "yield") %>% 
+  ggplot() + geom_line(aes(tau, yield)) +
+  facet_wrap(~xgrid) 
+```
+
 
 ```{r}
 # Yield vs Quotation Dates (xgrid) for some time to maturities
