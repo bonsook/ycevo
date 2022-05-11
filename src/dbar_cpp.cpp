@@ -105,11 +105,19 @@ arma::cube weightCF2(arma::vec qdate_idx, Rcpp::List cf_slist, arma::rowvec seq_
         
         // reweight
         double wsum = 0;
+        int counter = 0;
         for(int l = seq_tupq[0] - 1; l < std::min(ncols, seq_tupq[1]); ++l){
           if(tempMat(tempVec(k), l) > 0){
             wsum += window(l, i);
+            counter += 1;
           }
         }
+        // if there are more than 5 cash flow
+        // do not re weight
+        if(counter >= 5) {
+          wsum = 1;
+        }
+        
         
         for(int l = seq_tupq[0] - 1; l < std::min(ncols, seq_tupq[1]); ++l){
           Weights(k, l - seq_tupq[0] + 1) = tempMat(tempVec(k), l) * (window(l, i)/wsum);
