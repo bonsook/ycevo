@@ -1,10 +1,14 @@
 
 #' Estimate yield function
 #' 
+#' @md
+#' @description 
+#' `r lifecycle::badge('experimental')`
+#' 
 #' Nonparametric estimation of discount functions at given dates, time-to-maturities, 
 #' and interest rates (experienced users only) and their transformation to the yield curves.
 #' 
-#' 
+#' @details 
 #' Suppose that a bond \eqn{i} has a price \eqn{p_i} at time t with a set of cash payments, 
 #' say \eqn{c_1, c_2, \ldots, c_m} with a set of corresponding discount values
 #' \eqn{d_1, d_2, \ldots, d_m}. In the bond pricing literature, the market price of 
@@ -91,7 +95,7 @@
 #'   tau = tau
 #' )
 #' 
-#' @references Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562–588.
+#' @references Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562-588.
 #' @order 1
 #' @export
 ycevo <- function(data, 

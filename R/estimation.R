@@ -347,7 +347,7 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid = NULL, hr = NULL, xgrid, hx, q
 #'   \item{yield}{Estimated yield}
 #' }
 #' 
-#' @author Nathaniel Tomasetti, Bonsoo Koo, and Yangzhuoran Yang
+#' @author Nathaniel Tomasetti, Bonsoo Koo, and Yangzhuoran Fin Yang
 #' @describeIn ycevo Experienced users only. 
 #' Yield estimation with interest rate and manually selected bandwidth parameters.
 #' @export
