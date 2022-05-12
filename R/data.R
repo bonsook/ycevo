@@ -19,7 +19,6 @@
 #'   \item{pqdate}{Bond payment date. One entry for each payment.}
 #'   \item{pdint}{Bond payment amount}
 #'   \item{tupq}{Time until a given payment, given in days}
-#'   \item{year}{Year of the quotation date}
 #' }
 #' @source \url{https://wrds-web.wharton.upenn.edu/}
 "USbonds"

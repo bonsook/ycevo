@@ -9,23 +9,3 @@ calc_hhat_num2_c <- function(nday, ntupq_x, ntupq_q, day_idx, tupq_idx_x, tupq_i
     .Call('_ycevo_calc_hhat_num2_c', PACKAGE = 'ycevo', nday, ntupq_x, ntupq_q, day_idx, tupq_idx_x, tupq_idx_q, ux_window, uq_window, uu_window, cf_slist)
 }
 
-calc_w_c <- function(nday, ntupq, day_idx, tupq_idx, ux_window, uu_window, cf_slist) {
-    .Call('_ycevo_calc_w_c', PACKAGE = 'ycevo', nday, ntupq, day_idx, tupq_idx, ux_window, uu_window, cf_slist)
-}
-
-cov_dbar <- function(perrorMat, w) {
-    .Call('_ycevo_cov_dbar', PACKAGE = 'ycevo', perrorMat, w)
-}
-
-var_prod_error <- function(perror, w) {
-    .Call('_ycevo_var_prod_error', PACKAGE = 'ycevo', perror, w)
-}
-
-interpolate_ugrid <- function(x, u, ugrid, interp, xvals) {
-    .Call('_ycevo_interpolate_ugrid', PACKAGE = 'ycevo', x, u, ugrid, interp, xvals)
-}
-
-interpolate_ugrid_rgrid <- function(x, u, r, ugrid, rgrid, interp, xvals) {
-    .Call('_ycevo_interpolate_ugrid_rgrid', PACKAGE = 'ycevo', x, u, r, ugrid, rgrid, interp, xvals)
-}
-

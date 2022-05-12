@@ -49,88 +49,10 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// calc_w_c
-arma::cube calc_w_c(int nday, int ntupq, arma::mat day_idx, arma::mat tupq_idx, arma::mat ux_window, arma::mat uu_window, Rcpp::List cf_slist);
-RcppExport SEXP _ycevo_calc_w_c(SEXP ndaySEXP, SEXP ntupqSEXP, SEXP day_idxSEXP, SEXP tupq_idxSEXP, SEXP ux_windowSEXP, SEXP uu_windowSEXP, SEXP cf_slistSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type nday(ndaySEXP);
-    Rcpp::traits::input_parameter< int >::type ntupq(ntupqSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type day_idx(day_idxSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type tupq_idx(tupq_idxSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type ux_window(ux_windowSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type uu_window(uu_windowSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type cf_slist(cf_slistSEXP);
-    rcpp_result_gen = Rcpp::wrap(calc_w_c(nday, ntupq, day_idx, tupq_idx, ux_window, uu_window, cf_slist));
-    return rcpp_result_gen;
-END_RCPP
-}
-// cov_dbar
-arma::vec cov_dbar(arma::mat perrorMat, arma::cube w);
-RcppExport SEXP _ycevo_cov_dbar(SEXP perrorMatSEXP, SEXP wSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type perrorMat(perrorMatSEXP);
-    Rcpp::traits::input_parameter< arma::cube >::type w(wSEXP);
-    rcpp_result_gen = Rcpp::wrap(cov_dbar(perrorMat, w));
-    return rcpp_result_gen;
-END_RCPP
-}
-// var_prod_error
-arma::vec var_prod_error(arma::mat perror, arma::cube w);
-RcppExport SEXP _ycevo_var_prod_error(SEXP perrorSEXP, SEXP wSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type perror(perrorSEXP);
-    Rcpp::traits::input_parameter< arma::cube >::type w(wSEXP);
-    rcpp_result_gen = Rcpp::wrap(var_prod_error(perror, w));
-    return rcpp_result_gen;
-END_RCPP
-}
-// interpolate_ugrid
-double interpolate_ugrid(double x, double u, arma::vec ugrid, arma::mat interp, arma::vec xvals);
-RcppExport SEXP _ycevo_interpolate_ugrid(SEXP xSEXP, SEXP uSEXP, SEXP ugridSEXP, SEXP interpSEXP, SEXP xvalsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type x(xSEXP);
-    Rcpp::traits::input_parameter< double >::type u(uSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type ugrid(ugridSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type interp(interpSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type xvals(xvalsSEXP);
-    rcpp_result_gen = Rcpp::wrap(interpolate_ugrid(x, u, ugrid, interp, xvals));
-    return rcpp_result_gen;
-END_RCPP
-}
-// interpolate_ugrid_rgrid
-double interpolate_ugrid_rgrid(double x, double u, double r, arma::vec ugrid, arma::mat rgrid, arma::cube interp, arma::vec xvals);
-RcppExport SEXP _ycevo_interpolate_ugrid_rgrid(SEXP xSEXP, SEXP uSEXP, SEXP rSEXP, SEXP ugridSEXP, SEXP rgridSEXP, SEXP interpSEXP, SEXP xvalsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type x(xSEXP);
-    Rcpp::traits::input_parameter< double >::type u(uSEXP);
-    Rcpp::traits::input_parameter< double >::type r(rSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type ugrid(ugridSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type rgrid(rgridSEXP);
-    Rcpp::traits::input_parameter< arma::cube >::type interp(interpSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type xvals(xvalsSEXP);
-    rcpp_result_gen = Rcpp::wrap(interpolate_ugrid_rgrid(x, u, r, ugrid, rgrid, interp, xvals));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_ycevo_calc_dbar_c", (DL_FUNC) &_ycevo_calc_dbar_c, 8},
     {"_ycevo_calc_hhat_num2_c", (DL_FUNC) &_ycevo_calc_hhat_num2_c, 10},
-    {"_ycevo_calc_w_c", (DL_FUNC) &_ycevo_calc_w_c, 7},
-    {"_ycevo_cov_dbar", (DL_FUNC) &_ycevo_cov_dbar, 2},
-    {"_ycevo_var_prod_error", (DL_FUNC) &_ycevo_var_prod_error, 2},
-    {"_ycevo_interpolate_ugrid", (DL_FUNC) &_ycevo_interpolate_ugrid, 5},
-    {"_ycevo_interpolate_ugrid_rgrid", (DL_FUNC) &_ycevo_interpolate_ugrid_rgrid, 7},
     {NULL, NULL, 0}
 };
 

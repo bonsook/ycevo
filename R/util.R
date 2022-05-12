@@ -106,16 +106,16 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
 #'   See \code{Examples} for a example with the code to visually inspect the yield curves.}
 #' }
 #' @examples
-# out <- generate_yield()
-# 
-# # plots
-# library(tidyverse)
-# out <- data.frame(out)
-# colnames(out) <- 1:12
-# out <- mutate(out, time = 1:36)
-# out <- pivot_longer(out, -time, names_to = "qdate", values_to = "yield")
-# ggplot(out) +
-#   geom_line(aes(x=time, y=yield, color = qdate))
+#' out <- generate_yield()
+#' 
+#' # plots
+#' library(tidyverse)
+#' out <- data.frame(out)
+#' colnames(out) <- 1:12
+#' out <- mutate(out, time = 1:36)
+#' out <- pivot_longer(out, -time, names_to = "qdate", values_to = "yield")
+#' ggplot(out) +
+#'   geom_line(aes(x=time, y=yield, color = qdate))
 #' 
 #' @references Nelson, C. R., & Siegel, A. F. (1987). Parsimonious Modeling of Yield Curves. The Journal of Business, 60(4), 473–489.
 #' @references Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562–588.
