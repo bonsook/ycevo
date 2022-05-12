@@ -348,7 +348,6 @@ calc_hhat_num <- function(data, ugrid, hu, rgrid = NULL, hr = NULL, xgrid, hx, q
 #' }
 #' 
 #' @author Nathaniel Tomasetti, Bonsoo Koo, and Yangzhuoran Yang
-#' @references Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562–588.
 #' @describeIn ycevo Experienced users only. 
 #' Yield estimation with interest rate and manually selected bandwidth parameters.
 #' @export
@@ -377,8 +376,8 @@ estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
   if(!is.data.frame(data)){
     stop('data must be a dataframe')
   }
-  if(!all(c('qdate', 'crspid', 'tumat', 'mid.price', 'accint', 'pdint', 'tupq') %in% colnames(data))){
-    stop('data must contain columns qdate, crspid, tumat, mid.price, accint, pdint, and tupq')
+  if(!all(c('qdate', 'crspid', 'mid.price', 'accint', 'pdint', 'tupq') %in% colnames(data))){
+    stop('data must contain columns qdate, crspid, mid.price, accint, pdint, and tupq')
   }
   if(!is.matrix(tau) & !is.vector(tau)){
     stop('tau must be a vector or a matrix')
