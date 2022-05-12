@@ -20,6 +20,6 @@
 #'   \item{pdint}{Bond payment amount}
 #'   \item{tupq}{Time until a given payment, given in days}
 #' }
-#' @source \url{https://wrds-web.wharton.upenn.edu/}
+#' @source \url{https://wrds-www.wharton.upenn.edu/}
 "USbonds"
 

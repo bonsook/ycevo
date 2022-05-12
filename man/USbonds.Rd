@@ -22,7 +22,7 @@ A data frame
 }
 }
 \source{
-\url{https://wrds-web.wharton.upenn.edu/}
+\url{https://wrds-www.wharton.upenn.edu/}
 }
 \usage{
 USbonds

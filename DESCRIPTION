@@ -20,7 +20,7 @@ Authors@R:
              role = c("aut", "cre"),
              email = "yangyangzhuoran@gmail.com",
              comment = c(ORCID = "0000-0002-1232-8017")))
-Maintainer: Yangzhuoran Yang <Fin.Yang@monash.edu>
+Maintainer: Yangzhuoran Fin Yang <yangyangzhuoran@gmail.com>
 Description: Nonparametric estimation of the discount rate and yield curve. 
     Koo, B., La Vecchia, D., & Linton, O. B. (2021) <doi:10.1016/j.jeconom.2020.04.014> 
     describe the application with the Center for Research in Security Prices (CRSP) Bond Data 
@@ -47,6 +47,5 @@ Suggests:
     plotly, 
     rmarkdown, 
     tidyverse
-VignetteBuilder: knitr
 Language: en-AU
 Config/testthat/edition: 3
