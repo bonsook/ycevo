@@ -2,6 +2,7 @@
 
 export(estimate_yield)
 export(generate_yield)
+export(ycevo)
 importClassesFrom(Matrix,dgCMatrix)
 importFrom(Matrix,colSums)
 importFrom(Matrix,rowSums)
