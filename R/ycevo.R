@@ -79,7 +79,7 @@ ycevo <- function(data,
   ht <- find_bindwidth_from_tau(tau)
   
   estimate_yield(
-    data = bond ,
+    data = data ,
     xgrid = xgrid,
     hx = hx,
     tau = tau,

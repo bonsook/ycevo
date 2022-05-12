@@ -1,26 +1,3 @@
-# @title Calculates the number of payments in each qgrid
-# @param .data A data frame; bond data to estimate discount curve from.
-# @param ugrid A single value for ugrid between 0 and 1
-# @param hu A single value for the bandwidth of the ugrid value
-# @param qgrid A numeric matrix, each row represents the time-to-maturity grid
-# for the discount function at the corresponding time.
-# @param hq A numeric vector, bandwidth parameter determining the size of the window
-# that corresponds to each time-to-maturity.
-# @keywords internal
-# @author Bonsoo Koo and Kai-Yang Goh
-#
-num_points <- function(.data, ugrid, hu, qgrid, hq) {
-  out <- matrix(0, nrow = length(ugrid), ncol = length(qgrid))
-  u_idx <- calc_day_idx(.data, ugrid, hu)
-  x_idx <- calc_tupq_idx(.data, qgrid, hq)
-  #for(i in 1:length(ugrid)) {
-  for(j in 1:length(qgrid)) {
-    out[1, j] <- sum((.data$tupq %in% x_idx[j,1]:x_idx[j,2]))# &
-    # (US_2$pqdate-min(US_2$pqdate) %in% u_idx[i,1]:u_idx[i,2]))
-  }
-  #}
-  return(out)
-}
 
 # @title Calculates number of bonds that mature in each tau
 # @param data A data frame; bond data to estimate discount curve from.
