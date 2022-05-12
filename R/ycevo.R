@@ -20,7 +20,7 @@
 #' \deqn{\hat{d}_k = \frac{p_i c_k}{c_k^2} - \frac{\sum^m_{j=1,k\neq k}c_k c_j d_j}{c_k^2}.}
 #' 
 #' There are challenges:
-#' \eqn{\hat{d}_k} depends on all the relevant disount values for the cash payments of the bond.
+#' \eqn{\hat{d}_k} depends on all the relevant discount values for the cash payments of the bond.
 #' Our model contains random errors and our interest lies in expected value of \eqn{d(.)} where 
 #' the expected value of errors is zero.
 #' \eqn{d(.)} is an infinite-dimensional function not a discrete finite-dimensional vector.
@@ -58,7 +58,7 @@
 #' @param data Data frame; bond data to estimate discount curve from. See \code{?USbonds} for an example bond data structure.
 #' @param xgrid Numeric vector of values between 0 and 1. 
 #' Time grids over the entire time horizon (percentile) of the data at which the discount curve is evaluated.
-#' @param tau Numeric vecter that
+#' @param tau Numeric vector that
 #' represents time-to-maturities in years where discount function and yield curve will be found
 #' for each time point \code{xgrid}. 
 #'  See \code{Details}.
