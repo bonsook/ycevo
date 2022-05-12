@@ -1,60 +1,38 @@
-## Resubmission
-
-This is a resubmission. In this version I have:
-
-* Added references describing the methods in the description field of the DESCRIPTION file.
-
-* Added another vignette.
-
-* Added more documentation to explain what the functions return.
-
-In previous versions I have:
-
-* Explained acronym in the description text
-
-* Replaced \dontrun{} with \donttest{}: 
-    the examples take more than 10 sec to run 
-
-* Added examples for main functions.
-
-* Explained the results for main functions.
-
+This is the first submission of the package.
 
 ## Test environments
-* local Windows 10 install, R 3.6.2
-* Ubuntu Xenial 16.04 (on travis-ci), R 3.6.1
-* Ubuntu Xenial 16.04 (on travis-ci), R 3.6.2
-* Ubuntu Xenial 16.04 (on travis-ci), R 3.5.3
-* Ubuntu Xenial 16.04 (on travis-ci), R Under development (unstable) (2019-12-19 r77605)
+* local Windows 10 install, R 4.2.0
+* maxOS-latest (release) x86_64-apple-darwin17.0 (64-bit) (GitHub actions), R 4.2.0
+* windows-latest (release) x86_64-w64-mingw32 (64-bit) (GitHub actions), R 4.2.0
+* ubuntu-latest (devel) x86_64-pc-linux-gnu (64-bit) (GitHub actions), R Under development (unstable) (2022-05-10 r82335) 
+* ubuntu-latest (release) x86_64-pc-linux-gnu (64-bit) (GitHub actions), R 4.2.0
+* ubuntu-latest (oldrel-1) x86_64-pc-linux-gnu (64-bit) (GitHub actions), R 4.1.3
 * win-builder (devel, oldrelease and release)
-* Windows Server 2008 R2 SP1, R-devel, 32/64 bit (on Rhub)
-
-
+* Windows Server 2022, R-devel, 64 bit (on Rhub)
+* Ubuntu Linux 20.04.1 LTS, R-release, GCC (on Rhub)
+*	Fedora Linux, R-devel, clang, gfortran (on Rhub)
 
 ## R CMD check results
 There were no ERRORs, or WARNINGs.
 
-There was 2 NOTE:
+There were 2 NOTEs:
 
 * checking CRAN incoming feasibility ... NOTE
-  Maintainer: 'Yangzhuoran Yang <Fin.Yang@monash.edu>'
-  New submission
-  Possibly mis-spelled words in DESCRIPTION:
-    CRSP (27:6)
-    Koo (28:50)
-    Vecchia (28:62)
+Maintainer: ‘Yangzhuoran Fin Yang <yangyangzhuoran@gmail.com>’
+New submission
+Possibly mis-spelled words in DESCRIPTION:
+  CRSP (26:79)
+  Koo (25:5)
+  Vecchia (25:17)
 
-  CRSP is explained in the description and Koo and Vecchia are names.
+CRSP is explained in the description and Koo and Vecchia are names.
 
-* checking for non-standard things in the check directory ... NOTE
+* checking for detritus in the temp directory ... NOTE
   Found the following files/directories:
-    'examples_i386' 'examples_x64' 'ycevo-Ex_i386.Rout'
-    'ycevo-Ex_x64.Rout'
-    
-  Only appears on Windows R-devel version. 
-  Looks like the development version run examples for i386 and x64 without cleaning afterwards, 
-  which means it is onlt a problem in checking.
-  Does not affect functionality and stability of the package.
+    'lastMiKTeXException'
+
+Only appears on Windows R-devel version. 
+From [R-hub issue #503](https://github.com/r-hub/rhub/issues/503), this could be due to a bug/crash in MiKTeX and can be ignored.
 
 ## Downstream dependencies
 
