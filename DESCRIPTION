@@ -1,7 +1,7 @@
 Package: ycevo
 Type: Package
 Title: Nonparametric Estimation of the Yield Curve Evolution
-Version: 1.0.0
+Version: 0.1.0
 Authors@R: 
     c(person(given = "Bonsoo",
              family = "Koo",
@@ -18,7 +18,7 @@ Authors@R:
       person(given = "Yangzhuoran Fin",
              family = "Yang",
              role = c("aut", "cre"),
-             email = "Fin.Yang@monash.edu",
+             email = "yangyangzhuoran@gmail.com",
              comment = c(ORCID = "0000-0002-1232-8017")))
 Maintainer: Yangzhuoran Yang <Fin.Yang@monash.edu>
 Description: Nonparametric estimation of the discount rate and yield curve. 
