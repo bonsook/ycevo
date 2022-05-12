@@ -9,7 +9,7 @@
 Nonparametric estimation of the discount rate and yield curve.
 }
 \references{
-Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562–588.
+Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562-588.
 }
 \seealso{
 Useful links:

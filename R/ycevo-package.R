@@ -21,7 +21,8 @@
 #' @importFrom magrittr %>%
 #' @importFrom Rcpp sourceCpp
 #' @useDynLib ycevo
-#' @references Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562–588.
+#' @references Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562-588.
 "_PACKAGE"
+
 
 utils::globalVariables(c("."))
