@@ -15,14 +15,14 @@ Authors@R:
              family = "Goh",
              role = "aut",
              email = "kai-yang.goh@monash.edu"),
-      person(given = "Yangzhuoran",
+      person(given = "Yangzhuoran Fin",
              family = "Yang",
              role = c("aut", "cre"),
              email = "Fin.Yang@monash.edu",
              comment = c(ORCID = "0000-0002-1232-8017")))
 Maintainer: Yangzhuoran Yang <Fin.Yang@monash.edu>
 Description: Nonparametric estimation of the discount rate and yield curve. 
-    Koo, B., La Vecchia, D., & Linton, O. B. (2020) <doi:10.1016/j.jeconom.2020.04.014> 
+    Koo, B., La Vecchia, D., & Linton, O. B. (2021) <doi:10.1016/j.jeconom.2020.04.014> 
     describe the application with the Center for Research in Security Prices (CRSP) Bond Data 
     and document the methods of this package.
 URL: https://github.com/bonsook/ycevo

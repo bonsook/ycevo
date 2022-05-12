@@ -63,7 +63,7 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
 #' \deqn{Yield_{i, t} = Yield_{i, 0} * (1 + linear * t + quadratic * t^2 + cubic * t^3)}
 #' so the yield curve slowly changes over different quotation dates.
 #' 
-#' @param max_qDate Integer giving the number of quotation dates to use in the data. Defaults to 12.
+#' @param n_qdate Integer giving the number of quotation dates to use in the data. Defaults to 12.
 #' @param periods Integer giving the maximum number of time-to-maturity periods the yield curve is estimated for each quotation date. Defaults to 36
 #' @param b0 Level term in yield curve equation, Defaults to 0. See \code{Details}.
 #' @param b1 Slope term in yield curve equation, Defaults to 0.05. See \code{Details}.
@@ -97,7 +97,7 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
 #' @references Nelson, C. R., & Siegel, A. F. (1987). Parsimonious Modeling of Yield Curves. The Journal of Business, 60(4), 473–489.
 #' @references Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562–588.
 #' @export
-generate_yield <- function(max_qDate = 12, periods = 36, 
+generate_yield <- function(n_qdate = 12, periods = 36, 
                            b0 = 0, b1 = 0.05, b2 = 2, 
                            t1 = 0.75, t2 = 125,
                            linear = -0.55, quadratic = 0.55, cubic = -0.55){
@@ -107,9 +107,9 @@ generate_yield <- function(max_qDate = 12, periods = 36,
   yieldInit <- b0 + b1 * ((1 - exp(- tauSeq / t1)) / ( tauSeq / t1)) + 
     b2 * ((1 - exp(- tauSeq / t2)) / (tauSeq / t2) - exp(- tauSeq / t2))
   
-  yield <- matrix(0, periods, max_qDate)
-  for(i in 1:max_qDate){
-    t <- i / max_qDate
+  yield <- matrix(0, periods, n_qdate)
+  for(i in 1:n_qdate){
+    t <- i / n_qdate
     yield[,i] <- yieldInit * (1 + cubic * t^3 + quadratic * t^2 + linear * t)
   }
   yield
@@ -125,6 +125,7 @@ generate_yield <- function(max_qDate = 12, periods = 36,
 #' \describe{
 #'   \item{\code{get_yield_at}}{Numeric scalar.}
 #' }
+#' @export
 get_yield_at <- function(time, maturity, 
                          b0 = 0, b1 = 0.05, b2 = 2, 
                          t1 = 0.75, t2 = 125,
@@ -143,6 +144,7 @@ get_yield_at <- function(time, maturity,
 #'   \item{\code{get_yield_at_vec}}{Numeric vector.}
 #' }
 #' @describeIn generate_yield Vectorised version of \code{get_yield_at}.
+#' @export
 get_yield_at_vec <- function(time, maturity, 
                              b0 = 0, b1 = 0.05, b2 = 2, 
                              t1 = 0.75, t2 = 125,

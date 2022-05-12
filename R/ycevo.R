@@ -59,14 +59,46 @@
 #' for each time point \code{xgrid}. 
 #'  See \code{Details}.
 #' @param ... Reserved for exogenous variables.
-#' @param loess (Optional) Logical. Whether the output estimated discount and yield are to be smoothed using locally estimated scatterplot smoothing (LOESS)
+#' @param loess Logical. Whether the output estimated discount and yield are to be smoothed using locally estimated scatterplot smoothing (LOESS)
+#' @examples 
+#' # Simulate 4 bonds issued at 2020-01-01
+#' # with maturity 180, 360, 540, 720 days
+#' # Apart from the first one, 
+#' # each has coupon 2, 
+#' # of which half is paid every 180 days.
+#' # The yield curve is sumulated fron `get_yield_at_vec`
+#' # Quotation date is also at 2020-01-01
+#' exp_data <- tibble(
+#'   qdate = ymd("2020-01-01"), 
+#'   crspid = rep(1:4, 1:4), 
+#'   pdint = c(100, 1, 101, 1, 1, 101, 1, 1, 1, 101),
+#'   tupq = unlist(sapply(1:4, seq_len)) * 180, 
+#'   accint = 0
+#' ) %>% 
+#'   mutate(discount = exp(-tupq/365 * get_yield_at_vec(0, tupq/365))) %>% 
+#'   group_by(crspid) %>% 
+#'   mutate(mid.price = sum(pdint * discount)) %>% 
+#'   ungroup()
+#'   
+#' # Only one quotation date so time grid is set to 1
+#' xgrid <- 1 
+#' # Discount function is evaluated at time to maturity of each payment in the data
+#' tau <- unique(exp_data$tupq/365) 
+#' 
+#' ycevo(
+#'   exp_data, 
+#'   xgrid = xgrid,
+#'   tau = tau
+#' )
+#' 
+#' @references Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562–588.
 #' @order 1
 #' @export
 ycevo <- function(data, 
                   xgrid, 
                   tau, 
                   ...,
-                  loess = TRUE){
+                  loess = length(tau)>10){
   
   if(anyDuplicated(xgrid)){
     stop("Duplicated xgrid found.")

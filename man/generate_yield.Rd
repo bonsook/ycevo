@@ -7,7 +7,7 @@
 \title{Generate a yield curve with cubic time evolution}
 \usage{
 generate_yield(
-  max_qDate = 12,
+  n_qdate = 12,
   periods = 36,
   b0 = 0,
   b1 = 0.05,
@@ -46,7 +46,7 @@ get_yield_at_vec(
 )
 }
 \arguments{
-\item{max_qDate}{Integer giving the number of quotation dates to use in the data. Defaults to 12.}
+\item{n_qdate}{Integer giving the number of quotation dates to use in the data. Defaults to 12.}
 
 \item{periods}{Integer giving the maximum number of time-to-maturity periods the yield curve is estimated for each quotation date. Defaults to 36}
 
