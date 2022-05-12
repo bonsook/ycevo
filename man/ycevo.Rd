@@ -132,6 +132,7 @@ Yield estimation with interest rate and manually selected bandwidth parameters.
 }}
 
 \examples{
+library(dplyr)
 # Simulate 4 bonds issued at 2020-01-01
 # with maturity 180, 360, 540, 720 days
 # Apart from the first one, 
@@ -140,7 +141,7 @@ Yield estimation with interest rate and manually selected bandwidth parameters.
 # The yield curve is sumulated fron `get_yield_at_vec`
 # Quotation date is also at 2020-01-01
 exp_data <- tibble(
-  qdate = ymd("2020-01-01"), 
+  qdate = "2020-01-01", 
   crspid = rep(1:4, 1:4), 
   pdint = c(100, 1, 101, 1, 1, 101, 1, 1, 1, 101),
   tupq = unlist(sapply(1:4, seq_len)) * 180, 
