@@ -109,6 +109,16 @@ so the yield curve slowly changes over different quotation dates.
 }}
 
 \examples{
+out <- generate_yield()
+
+# plots
+library(tidyverse)
+out <- data.frame(out)
+colnames(out) <- 1:12
+out <- mutate(out, time = 1:36)
+out <- pivot_longer(out, -time, names_to = "qdate", values_to = "yield")
+ggplot(out) +
+  geom_line(aes(x=time, y=yield, color = qdate))
 
 }
 \references{
