@@ -15,3 +15,4 @@ vignette_data.rda
 DTB3.rda
 ^\.github$
 ^test_code$
+^CRAN-SUBMISSION$
