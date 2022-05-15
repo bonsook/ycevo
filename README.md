@@ -6,15 +6,19 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/bonsook/ycevo/workflows/R-CMD-check/badge.svg)](https://github.com/bonsook/ycevo/actions)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/ycevo)](https://CRAN.R-project.org/package=ycevo)
+[![license](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+<!-- [![metacran downloads](https://cranlogs.r-pkg.org/badges/ycevo)](https://cran.r-project.org/package=ycevo) -->
 <!-- badges: end -->
 
-The goal of ycevo is to the non-parametric estimation of the discount
-rate, and yield curve, of CRSP Bond Data.
+The goal of `ycevo` is to provide means for the non-parametric
+estimation of the discount rate, and yield curve, of CRSP Bond Data.
 
-If you use any data or code from the `ycevo` package in a publication,
-please use the following citation:
+If you use any data or code from the `ycevo` package CRAN release in a
+publication, please use the following citation:
 
-> Bonsoo Koo, Nathaniel Tomasetti, Kai-Yang Goh and Yangzhuoran Yang
+> Bonsoo Koo, Nathaniel Tomasetti, Kai-Yang Goh and Yangzhuoran Fin Yang
 > (2022). ycevo: Non-Parametric Estimation of the Yield Curve Evolution.
 > R package version 0.1.0. <https://github.com/bonsook/ycevo>.
 
@@ -25,16 +29,33 @@ Please use the following citation if you use any result from the paper.
 > nonparametric model for bond prices from cross-section and time series
 > information. Journal of Econometrics, 220(2), 562-588.
 
+## Development cycle
+
+The package is in active development and will experience substantial
+changes.
+
+The main functionality has been improved and adjusted in the past years.
+When we first prepared it for CRAN submission, we set the version to be
+1.0.0. Several years later when we finally have done it, we dialled it
+back to **0.1.0** in our realisation that the API is far from stable. It
+was not a good practice but it is better to do this sooner when it is
+not well publicised than to wait until more damages are made.
+
+Note this first public release is not backward compatible with any fork
+before 2022 with version 1.0.0. These forks should be “updated” to 0.1.0
+for a *correct* implementation.
+
 ## Installation
 
-<!-- You can install the released version of ycevo from [CRAN](https://CRAN.R-project.org) with: -->
-<!-- ``` r -->
-<!-- install.packages("ycevo") -->
-<!-- ``` -->
+You can install the **released** version of ycevo from
+[CRAN](https://CRAN.R-project.org) with:
 
-The **stable** version on CRAN is coming soon.
+``` r
+install.packages("ycevo")
+```
 
-The **development** version from [GitHub](https://github.com/) with:
+You can install the **development** version from
+[GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
@@ -47,8 +68,8 @@ devtools::install_github("bonsook/ycevo")
 library(ycevo)
 library(tidyverse)
 #> ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
-#> ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
-#> ✓ tibble  3.1.6     ✓ dplyr   1.0.8
+#> ✓ ggplot2 3.3.6     ✓ purrr   0.3.4
+#> ✓ tibble  3.1.7     ✓ dplyr   1.0.9
 #> ✓ tidyr   1.2.0     ✓ stringr 1.4.0
 #> ✓ readr   2.1.2     ✓ forcats 0.5.1
 #> ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
@@ -115,7 +136,6 @@ yield %>%
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
 ``` r
-
 # Plot of discount function
 yield %>%
   mutate(true_discount = exp(-tau * get_yield_at_vec(0, tau))) %>% 
