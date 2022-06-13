@@ -1,4 +1,8 @@
-This is the first submission of the package.
+This is a resubmission of the published package. 
+
+The original package was removed from CRAN due to check problems. While the "additional issues" page seems invalid, there were no check problems in any of the flavors. The current version does not have any check issue.
+
+
 
 ## Test environments
 * local Windows 10 install, R 4.2.0
