@@ -1,7 +1,7 @@
 test_that("Simplest example", {
   expect_equal(
     ycevo(
-      structure(list(
+      data=structure(list(
         mat_days = c(
           180, 360, 360, 540, 540, 540, 720,
           720, 720, 720
