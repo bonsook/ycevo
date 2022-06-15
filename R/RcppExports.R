@@ -5,7 +5,7 @@ calc_dbar_c <- function(nday, ntupq, day_idx, tupq_idx, ux_window, uu_window, pr
     .Call('_ycevo_calc_dbar_c', PACKAGE = 'ycevo', nday, ntupq, day_idx, tupq_idx, ux_window, uu_window, price_slist, cf_slist)
 }
 
-calc_hhat_num2_c <- function(nday, ntupq_x, ntupq_q, day_idx, tupq_idx_x, tupq_idx_q, ux_window, uq_window, uu_window, cf_slist, round = as.numeric( c(0, 0, 0))) {
-    .Call('_ycevo_calc_hhat_num2_c', PACKAGE = 'ycevo', nday, ntupq_x, ntupq_q, day_idx, tupq_idx_x, tupq_idx_q, ux_window, uq_window, uu_window, cf_slist, round)
+calc_hhat_num2_c <- function(nday, ntupq_x, ntupq_q, day_idx, tupq_idx_x, tupq_idx_q, ux_window, uq_window, uu_window, cf_slist) {
+    .Call('_ycevo_calc_hhat_num2_c', PACKAGE = 'ycevo', nday, ntupq_x, ntupq_q, day_idx, tupq_idx_x, tupq_idx_q, ux_window, uq_window, uu_window, cf_slist)
 }
 

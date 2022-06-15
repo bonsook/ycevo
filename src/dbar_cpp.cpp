@@ -172,8 +172,7 @@ arma::cube createSumP (arma::cube cf_temp_q, arma::rowvec seq_tupq_x){
 }
 
 double calc_hhat_once(int j, int k, arma::rowvec seq_day, arma::rowvec seq_tupq_x, arma::rowvec seq_tupq_q,
-                      Rcpp::List cf_slist, arma::mat ux_window, arma::mat uq_window, arma::colvec uu_window, 
-                      bool debug = 0){
+                      Rcpp::List cf_slist, arma::mat ux_window, arma::mat uq_window, arma::colvec uu_window){
   
   // Returns bonds that there is a cashflow in both the x window and q window -> for crossproducts?
   arma::mat crspid_idx = check_crspid_intersect(cf_slist, seq_tupq_x, seq_tupq_q, seq_day);
@@ -192,12 +191,6 @@ double calc_hhat_once(int j, int k, arma::rowvec seq_day, arma::rowvec seq_tupq_
   }
   // Otherwise grab the relevant parts of qdate
   qdate_idx = qdate_idx.head(counter);
-  if(debug) {
-    Rprintf("qdate_idx: \n");
-    qdate_idx.brief_print();
-    Rprintf("crspid_idx: \n");
-    crspid_idx.brief_print();
-  }
   if(find_maxRows(qdate_idx, crspid_idx)==0) {
     // Avoid runtime error in UBSAN check: reference binding to null pointer 
     return 0;
@@ -228,17 +221,6 @@ double calc_hhat_once(int j, int k, arma::rowvec seq_day, arma::rowvec seq_tupq_
   } else if(counter > 1){
     for(unsigned int z = 0; z < qdate_idx.n_elem; ++z){
       sumP.slice(z).cols(j_idx[0], j_idx[counter - 1]) -= cf_temp_q.slice(z).cols(p_idx[0], p_idx[counter - 1]);
-      if(debug) {
-        Rprintf("counter: %i\n", counter);
-        Rprintf("j_idx size: %i\n", j_idx.size());
-        Rprintf("p_idx size: %i\n",p_idx.size());
-        Rprintf("sumP: \n");
-        sumP.slice(z).cols(j_idx[0], j_idx[counter - 1]).brief_print();
-        Rprintf("cf_temp_q: \n");
-        cf_temp_q.slice(z).cols(p_idx[0], p_idx[counter - 1]).brief_print();
-        Rprintf("end calc_hhat_once\n");
-        
-      }
     }
   }
   // Multiplies the adjusted sum_p matrix by the actual cashflows.
@@ -247,16 +229,12 @@ double calc_hhat_once(int j, int k, arma::rowvec seq_day, arma::rowvec seq_tupq_
     double sumCrossProduct = arma::accu(sumP.slice(m) % cf_temp_x.slice(m));
     hhat_num += sumCrossProduct * uu_window(qdate_idx(m));
   }
-  if(debug) {
-    Rprintf("hhat_num: %f\n", hhat_num);
-  }
   
   return hhat_num;
 }
 
 // [[Rcpp::export]]
-arma::cube calc_hhat_num2_c(int nday, int ntupq_x, int ntupq_q, arma::mat day_idx, arma::mat tupq_idx_x, arma::mat tupq_idx_q, arma::mat ux_window, arma::mat uq_window, arma::mat uu_window, Rcpp::List cf_slist, 
-                            arma::vec round = Rcpp::NumericVector::create(0, 0, 0)) {
+arma::cube calc_hhat_num2_c(int nday, int ntupq_x, int ntupq_q, arma::mat day_idx, arma::mat tupq_idx_x, arma::mat tupq_idx_q, arma::mat ux_window, arma::mat uq_window, arma::mat uu_window, Rcpp::List cf_slist) {
   
   arma::cube hhat(ntupq_x, ntupq_q, nday, arma::fill::zeros);
   
@@ -292,15 +270,8 @@ arma::cube calc_hhat_num2_c(int nday, int ntupq_x, int ntupq_q, arma::mat day_id
           window_lower_q = ntupq_q * i;
           window_upper_q = ntupq_q * (i + 1) - 1;
         }
-        if(j == round[0] & k == round[1] & i == round[2]){
-          Rprintf("j: %i k: %i i: %i\n", j, k, i);
-        hhat(j, k, i) = calc_hhat_once(j, k, seq_day, seq_tupq_x, seq_tupq_q, cf_slist,
-             ux_window.cols(window_lower_x, window_upper_x), uq_window.cols(window_lower_q, window_upper_q), uu_window.col(i), 
-             1);
-        } else {
         hhat(j, k, i) = calc_hhat_once(j, k, seq_day, seq_tupq_x, seq_tupq_q, cf_slist,
              ux_window.cols(window_lower_x, window_upper_x), uq_window.cols(window_lower_q, window_upper_q), uu_window.col(i));
-        } 
         
       }
       
