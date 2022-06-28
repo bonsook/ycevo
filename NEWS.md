@@ -1,4 +1,4 @@
-# ycevo 0.1.1.9000
+# ycevo 0.1.2
 
 * Remove `akima` from suggests.
 
