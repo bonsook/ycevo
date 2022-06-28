@@ -1,7 +1,7 @@
 Package: ycevo
 Type: Package
 Title: Nonparametric Estimation of the Yield Curve Evolution
-Version: 0.1.2
+Version: 0.1.2.9000
 Authors@R: 
     c(person(given = "Bonsoo",
              family = "Koo",
