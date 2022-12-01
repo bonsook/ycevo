@@ -102,7 +102,9 @@
 ycevo <- function(data, 
                   xgrid, 
                   tau, 
+                  cols = NULL,
                   ...,
+                  units = 365,
                   loess = length(tau)>10){
   
   if(anyDuplicated(xgrid)){
@@ -111,8 +113,21 @@ ycevo <- function(data,
   if(anyDuplicated(tau)){
     stop("Duplicated tau found.")
   }
+  d_col <- c('qdate', 'crspid', 'mid.price', 'accint', 'pdint', 'tupq')
+  names(d_col) <- d_col
+  cols <- enexpr(cols)
+  
+  if(!is.null(cols)){
+    d_pairs <- as.list(cols)[-1]
+    stopifnot(all(names(d_pairs) %in% d_col))
+    s_col <- d_col
+    s_col[names(d_pairs)] <- map_chr(d_pairs, as.character)
+    data <- select(data, all_of(s_col))
+    colnames(data) <- names(s_col)
+  }
   
   hx <- find_bindwidth_from_xgrid(xgrid, data)
+  if(length(hx) == 1) hx <- rep(hx, length(xgrid))
   ht <- find_bindwidth_from_tau(tau)
   
   estimate_yield(
@@ -121,7 +136,8 @@ ycevo <- function(data,
     hx = hx,
     tau = tau,
     ht = ht,
-    loess = loess)
+    loess = loess, 
+    units = units)
 }
 
 find_bindwidth_from_tau <- function(tau){
