@@ -90,7 +90,7 @@ calc_cf_slist <- function(data) {
   cf_list <- cf_list %>%
     group_by(.data$qdate) %>%
     group_split()
-
+  
   id <- unique(data$crspid)
   id_len <- length(id)
   tupq_len <- as.integer(max(data$tupq))
@@ -98,13 +98,30 @@ calc_cf_slist <- function(data) {
   cf_slist <- vector(mode = "list", length = qdate_len)
   seq_tupq <- 1:tupq_len
   
+  sparse_dic <- lapply(cf_list, function(x_list){
+    out <- list(
+      i = match(x_list$crspid, id),
+      j = match(x_list$tupq, seq_tupq)
+    ) 
+    c(out,
+      list(
+        o = dense_rank(out$i),
+        p = dense_rank(out$j))
+    )} )
+  
   for (u in 1:qdate_len) {
     x_list <- cf_list[[u]]
-    cf_slist[[u]] <- sparseMatrix(i = match(x_list$crspid, id),
-                                  j = match(x_list$tupq, seq_tupq),
+    
+    cf_slist[[u]] <- sparseMatrix(i = sparse_dic[[u]]$o,
+                                  j = sparse_dic[[u]]$p,
                                   x = x_list$pdint,
-                                  dims = c(id_len, tupq_len)#)
-                                  ,dimnames=list(id,seq_tupq))
+                                  dims = c(id_len, length(sparse_dic[[u]]$i))#)
+                                  ,dimnames=list(id,sparse_dic[[u]]$j))
+    # cf_slist[[u]] <- sparseMatrix(i = match(x_list$crspid, id),
+    #                               j = match(x_list$tupq, seq_tupq),
+    #                               x = x_list$pdint,
+    #                               dims = c(id_len, tupq_len)#)
+    #                               ,dimnames=list(id,seq_tupq))
   }
   names(cf_slist) <- unique(data$qdate)
   return(cf_slist)
