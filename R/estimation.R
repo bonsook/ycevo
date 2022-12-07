@@ -32,13 +32,6 @@
 # @author Nathaniel Tomasetti
 # 
 calc_dbar <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, price_slist, cf_slist, interest, units = 365) {
-  if (missing(cf_slist)){
-    cf_slist <- calc_cf_slist(data)
-  }
-  
-  if (missing(price_slist)) {
-    price_slist <- calc_price_slist(data)
-  }
   
   if(!missing(rgrid) & !missing(hr) & !missing(interest)){
     interest_grid <- TRUE
@@ -172,9 +165,6 @@ calc_dbar <- function(data, ugrid, hu, rgrid, hr, xgrid, hx, price_slist, cf_sli
 # @source Koo, B., La Vecchia, D., & Linton, O. B. (2019). Estimation of a Nonparametric model for Bond Prices from Cross-section and Time series Information. Available at SSRN3341344.
 # 
 calc_hhat_num <- function(data, ugrid, hu, rgrid = NULL, hr = NULL, xgrid, hx, qgrid = xgrid, hq = hx, cf_slist = NULL, interest = NULL, units = 365) {
-  if (is.null(cf_slist)){
-    cf_slist <- calc_cf_slist(data)
-  }
   if(!is.null(rgrid) & !is.null(hr) & !is.null(interest)){
     interest_grid <- TRUE
   } else {
@@ -418,7 +408,6 @@ estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
   
   # browser()
   
-  # cf_slist <- NULL
   if(is.null(cfp_slist)){
     cfp_slist <- get_cfp_slist(data)
     cf_slist <- cfp_slist$cf_slist
@@ -426,10 +415,6 @@ estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
   }
   # browser()
   
-  # price_slist <- NULL
-  if(is.null(price_slist)) {
-    price_slist <- calc_price_slist(data)
-  }
   # Estimate dbar & the numerator of the h-hat matrix
   if(interest_grid){
     dbar <- calc_dbar(data = data,
@@ -613,8 +598,8 @@ estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
   }
   dhat$yield <- -log(dhat$discount) / dhat$qg
   dhat <- dplyr::rename(dhat,
-                        xgrid = .data$ug,
-                        tau = .data$qg
+                        xgrid = "ug",
+                        tau = "qg"
   )
   return(dhat)
 }
