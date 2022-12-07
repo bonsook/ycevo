@@ -98,6 +98,7 @@
 #' 
 #' @references Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562-588.
 #' @order 1
+#' @importFrom rlang enexpr
 #' @export
 ycevo <- function(data, 
                   xgrid, 
