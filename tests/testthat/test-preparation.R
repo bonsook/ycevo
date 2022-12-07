@@ -142,7 +142,7 @@ test_bond <- USbonds %>%
 
 test_that("price_slist", {
   expect_equal(
-    calc_price_slist(test_bond), 
+    get_cfp_slist(test_bond)$price_slist, 
     list(`2007-01-02` = new(
       "dgCMatrix", i = 0:1, 
       p = c(0L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L), Dim = c(2L, 9L), 
@@ -153,17 +153,12 @@ test_that("price_slist", {
           "dgCMatrix", i = 0:1, p = c(0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L), Dim = c(2L, 9L), 
           Dimnames = list(c("20070104.400000", "20070111.400000"), 
                           c("1", "2", "3", "4", "5", "6", "7", "8", "9")), 
-          x = c(99.986528, 99.897778), factors = list())) %>% 
-      lapply(function(M) {
-        col_tmp <- M@p[-1] - M@p[-length(M@p)]
-        M <- M[,col_tmp!=0]
-        M
-      })
+          x = c(99.986528, 99.897778), factors = list())) 
   )
 })
 test_that("cf_slist", {
   expect_equal(
-    calc_cf_slist(test_bond), 
+    get_cfp_slist(test_bond)$cf_slist, 
     list(`2007-01-02` = new(
       "dgCMatrix", i = 0:1, 
       p = c(0L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L), 
@@ -176,11 +171,6 @@ test_that("cf_slist", {
         Dimnames = list(
           c("20070104.400000", "20070111.400000"), c("1", "2", "3", "4", "5", "6", "7", "8", "9")), 
         x = c(100, 100), 
-        factors = list())) %>% 
-      lapply(function(M) {
-        col_tmp <- M@p[-1] - M@p[-length(M@p)]
-        M <- M[,col_tmp!=0]
-        M
-      })
+        factors = list())) 
   )
 })

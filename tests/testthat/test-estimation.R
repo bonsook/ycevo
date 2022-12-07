@@ -81,8 +81,9 @@ ux_window <- calc_ux_window(data,
                             c(0.493150684931507, 0.986301369863014, 1.47945205479452, 1.97260273972603), 
                             c(0.493150684931507, 0.493150684931507, 0.49315068493151, 0.49315068493151), 
                             365)
-price_slist <- ycevo:::calc_price_slist(data)
-cf_slist <- ycevo:::calc_cf_slist(data)
+cfp_slist <- ycevo:::get_cfp_slist(data)
+price_slist <- cfp_slist$price_slist
+cf_slist <- cfp_slist$cf_slist
 test_that("Simplest example", {
   expect_equal(
     calc_dbar_c(1L, 4L, 
