@@ -9,6 +9,60 @@ epaker <- function(x) {
   # (1-x^2)*(abs(x)<=1)
 }
 
+get_cfp_slist <- function(data){
+  cfp_list <- data %>%
+    mutate(mid.price = .data$mid.price + as.numeric(as.character(.data$accint))) %>%
+    select("qdate", "crspid", "tupq", "pdint", "mid.price") %>% 
+    group_by(.data$qdate) %>% 
+    group_split() 
+  id <- unique(data$crspid)
+  id_len <- length(id)
+  tupq_len <- as.integer(max(data$tupq))
+  qdate_len <- length(unique(data$qdate))
+  price_slist <- vector(mode = "list", length = qdate_len)
+  cf_slist <- vector(mode = "list", length = qdate_len)
+  seq_tupq <- 1:tupq_len
+  
+  
+  sparse_dic <- lapply(cfp_list, function(x_list){
+    out <- list(
+      i = fmatch(x_list$crspid, id),
+      j = fmatch(x_list$tupq, seq_tupq)
+    )
+    c(out,
+      list(
+        o = fdense_rank(out$i),
+        p = fdense_rank(out$j))
+    )})
+  
+  attr(id, ".match.hash") <- NULL 
+  attr(seq_tupq, ".match.hash") <- NULL
+  for (i in 1:qdate_len) {
+    x_list <- cfp_list[[i]]
+    price_slist[[i]] <- sparseMatrix(i = sparse_dic[[i]]$o,
+                                     j = sparse_dic[[i]]$p,
+                                     x = x_list$mid.price,
+                                     dims = c(id_len, length(sparse_dic[[i]]$i)),
+                                     dimnames=list(id,sparse_dic[[i]]$j))
+    cf_slist[[i]] <- sparseMatrix(i = sparse_dic[[i]]$o,
+                                  j = sparse_dic[[i]]$p,
+                                  x = x_list$pdint,
+                                  dims = c(id_len, length(sparse_dic[[i]]$i)),
+                                  dimnames=list(id,sparse_dic[[i]]$j))
+  }
+  names(price_slist) <-  unique(data$qdate)
+  names(cf_slist) <-  unique(data$qdate)
+  
+  
+  list(price_slist = price_slist, 
+       cf_slist = cf_slist)
+}
+calc_cf_slist <- function(data) get_cfp_slist(data)$cf_slist
+calc_price_slist <- function(data) get_cfp_slist(data)$price_slist
+
+
+fdense_rank <- function(x)  fmatch(x, sort(unique(x)))
+
 # Create a bond price list from the data
 # 
 # Tranforms data into a format suitable for estimation
@@ -32,7 +86,8 @@ epaker <- function(x) {
 # @author Bonsoo Koo and Kai-Yang Goh
 #' @importFrom dplyr group_by
 #' @importFrom dplyr group_split
-calc_price_slist <- function(data) {
+#' @importFrom fastmatch fmatch
+calc_price_slist0 <- function(data) {
   price_list <- data %>%
     mutate(mid.price = .data$mid.price + as.numeric(as.character(.data$accint))) %>%
     select(.data$qdate, .data$crspid, .data$tupq, .data$mid.price) 
@@ -47,17 +102,30 @@ calc_price_slist <- function(data) {
   price_slist <- vector(mode = "list", length = qdate_len)
   seq_tupq <- 1:tupq_len
   
-  for (i in 1:qdate_len) {
-    x_list <- price_list[[i]]
-    price_slist[[i]] <- sparseMatrix(i = match(x_list$crspid, id),
-                                     j = match(x_list$tupq, seq_tupq),
+  sparse_dic <- lapply(price_list, function(x_list){
+    out <- list(
+      i = fmatch(x_list$crspid, id),
+      j = fmatch(x_list$tupq, seq_tupq)
+    )
+    c(out,
+      list(
+        o = fdense_rank(out$i),
+        p = fdense_rank(out$j))
+    )} )
+  
+  
+  for (u in 1:qdate_len) {
+    x_list <- price_list[[u]]
+    price_slist[[u]] <- sparseMatrix(i = sparse_dic[[u]]$o,
+                                     j = sparse_dic[[u]]$p,
                                      x = x_list$mid.price,
-                                     dims = c(id_len, tupq_len),
-                                     dimnames = list(id, seq_tupq))
+                                     dims = c(id_len, length(sparse_dic[[u]]$i))#)
+                                     ,dimnames=list(id,sparse_dic[[u]]$j))
   }
   names(price_slist) <-  unique(data$qdate)
   return(price_slist)
 }
+
 
 
 # Create a list of sparse matrices to represent cash flows
@@ -84,12 +152,13 @@ calc_price_slist <- function(data) {
 # @author Bonsoo Koo and Kai-Yang Goh
 #' @importFrom dplyr group_by
 #' @importFrom dplyr group_split
-calc_cf_slist <- function(data) {
+calc_cf_slist0 <- function(data) {
   
   cf_list <- select(data, .data$qdate, .data$crspid, .data$tupq, .data$pdint) 
   cf_list <- cf_list %>%
     group_by(.data$qdate) %>%
     group_split()
+  
   
   id <- unique(data$crspid)
   id_len <- length(id)
@@ -100,13 +169,13 @@ calc_cf_slist <- function(data) {
   
   sparse_dic <- lapply(cf_list, function(x_list){
     out <- list(
-      i = match(x_list$crspid, id),
-      j = match(x_list$tupq, seq_tupq)
-    ) 
+      i = fmatch(x_list$crspid, id),
+      j = fmatch(x_list$tupq, seq_tupq)
+    )
     c(out,
       list(
-        o = dense_rank(out$i),
-        p = dense_rank(out$j))
+        o = fdense_rank(out$i),
+        p = fdense_rank(out$j))
     )} )
   
   for (u in 1:qdate_len) {
