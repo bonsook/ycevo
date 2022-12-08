@@ -23,7 +23,7 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
   }
   # Calculate the u and r windows (if r is provided)
   
-  window <- calc_uu_window(data, xgrid, hx)
+  window <- get_weights(xgrid, hx, len = length(unique(data$qdate)))
   if(!is.null(rgrid) & !is.null(hr) & !is.null(interest)){
     windowR <- calc_r_window(interest, rgrid, hr)
     window <- window * windowR
@@ -38,7 +38,10 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
   
   # Calculate number of maturing bonds in each x window
   ### Highly rely on the notion that tupq and tau are in days
-  x_idx <- calc_tupq_idx(data, tau, ht, units)
+  mat_weights_tau <- get_weights(tau, ht, 
+                           len = as.integer(max(data$tupq)),
+                           units = units)
+  x_idx <- range_idx_nonzero(mat_weights_tau, threshold = 0.01)
   sapply(seq_along(tau), 
          function(j) sum(
            dplyr::between(

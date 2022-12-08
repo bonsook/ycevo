@@ -1,19 +1,22 @@
+
 prep_windows <- function(data, xgrid, hx, rgrid, hr, 
                          tau, ht, tau_p, htp, 
                          interest, units, interest_grid){
-  # windows etc
-  day_idx <- calc_day_idx(data, xgrid, hx)
-  uu_window <- calc_uu_window(data,xgrid,hx)
+  # kernel weights on qdatetime
+  mat_weights_qdatetime <- get_weights(xgrid, hx, len = length(unique(data$qdate)))
+  day_idx <- range_idx_nonzero(mat_weights_qdatetime, threshold = 0)
   nday <- length(xgrid)
+  
+  # kernel weights on interest
   joint_window <-  NULL
   if(interest_grid){
     r_window <- calc_r_window(interest, rgrid, hr)
     day_grid <- expand.grid(ug = xgrid, rg = rgrid)
     nday <- nrow(day_grid)
-    joint_window <- matrix(0, nrow(uu_window), nday)
+    joint_window <- matrix(0, nrow(mat_weights_qdatetime), nday)
     for(j in seq_along(rgrid)){
       for(i in seq_along(xgrid)){
-        joint_window[, (j-1)*length(xgrid) + i] <- uu_window[,i] * r_window[,j]
+        joint_window[, (j-1)*length(xgrid) + i] <- mat_weights_qdatetime[,i] * r_window[,j]
       }
     }
     apply(joint_window, 2, function(y) {
@@ -37,77 +40,36 @@ prep_windows <- function(data, xgrid, hx, rgrid, hr,
     
   }
   
+  # kernel weights on time to maturity
+  mat_weights_tau <- get_weights(tau, ht, 
+                                 len = as.integer(max(data$tupq)),
+                                 units = units)
+  tupq_idx_tau <- range_idx_nonzero(mat_weights_tau, threshold = 0.01)
+  ntupq_tau <- length(tau)
   
-  if(is.vector(tau)){
-    tupq_idx_x <- calc_tupq_idx(data, tau, ht, units)
-    ux_window <- calc_ux_window(data, tau, ht, units)
-    ntupq_x <- length(tau)
-  } else if(nrow(tau) == 1){
-    tupq_idx_x <- calc_tupq_idx(data, tau, ht, units)
-    ux_window <- calc_ux_window(data, tau, ht, units)
-    ntupq_x <- length(tau)
-  } else {
-    tupq_idx_x <- NULL
-    ux_window <- NULL
-    ntupq_x <- ncol(tau)
-    for(i in 1:nrow(tau)){
-      for(i in 1:nrow(tau)){
-        if(is.vector(ht)){
-          tupq_idx_x <- cbind(tupq_idx_x, calc_tupq_idx(data, tau[i,], ht, units))
-          ux_window <- cbind(ux_window, calc_ux_window(data, tau[i, ], ht, units))
-        } else if(nrow(ht) == 1){
-          tupq_idx_x <- cbind(tupq_idx_x, calc_tupq_idx(data, tau[i,], ht, units))
-          ux_window <- cbind(ux_window, calc_ux_window(data, tau[i, ], ht, units))
-        } else if(nrow(ht) == nrow(tau)){
-          tupq_idx_x <- cbind(tupq_idx_x, calc_tupq_idx(data, tau[i,], ht[i, ], units))
-          ux_window <- cbind(ux_window, calc_ux_window(data, tau[i, ], ht[i, ], units))
-        } else {
-          stop('the dimension of ht must match the dimension of tau')
-        }
-      }
-    }
-  }
   
-  if(is.vector(tau_p)){
-    tupq_idx_q <- calc_tupq_idx(data, tau_p, htp, units)
-    uq_window <- calc_ux_window(data, tau_p, htp, units)
-    ntupq_q <- length(tau_p)
-  } else if(nrow(tau_p) == 1){
-    tupq_idx_q <- calc_tupq_idx(data, tau_p, htp, units)
-    uq_window <- calc_ux_window(data, tau_p, htp, units)
-    ntupq_q <- length(tau_p)
-  } else {
-    tupq_idx_q <- NULL
-    uq_window <- NULL
-    ntupq_q <- ncol(tau_p)
-    for(i in 1:nrow(tau_p)){
-      for(i in 1:nrow(tau_p)){
-        if(is.vector(htp)){
-          tupq_idx_q <- cbind(tupq_idx_q, calc_tupq_idx(data, tau_p[i,], htp, units))
-          uq_window <- cbind(uq_window, calc_ux_window(data, tau_p[i, ], htp, units))
-        } else if(nrow(htp) == 1){
-          tupq_idx_q <- cbind(tupq_idx_q, calc_tupq_idx(data, tau_p[i,], htp, units))
-          uq_window <- cbind(uq_window, calc_ux_window(data, tau_p[i, ], htp, units))
-        } else if(nrow(htp) == nrow(tau_p)){
-          tupq_idx_q <- cbind(tupq_idx_q, calc_tupq_idx(data, tau_p[i,], htp[i, ], units))
-          uq_window <- cbind(uq_window, calc_ux_window(data, tau_p[i, ], htp[i, ], units))
-        } else {
-          stop('the dimension of htp must match the dimension of tau_p')
-        }
-      }
-    }
-  }
+  mat_weights_tau_p <- get_weights(tau_p, htp, 
+                                   len = as.integer(max(data$tupq)),
+                                   units = units)
+  tupq_idx_tau_p <- range_idx_nonzero(mat_weights_tau_p, threshold = 0.01)
+  ntupq_tau_p <- length(tau_p)
   
-  list(day_idx = day_idx, 
-       joint_window = joint_window, 
-       nday = nday, 
-       ntupq_x = ntupq_x, 
-       ntupq_q = ntupq_q, 
-       tupq_idx_x = tupq_idx_x, 
-       tupq_idx_q = tupq_idx_q, 
-       uu_window = uu_window, 
-       ux_window = ux_window, 
-       uq_window = uq_window)
+  
+  list(
+    # qdatetime
+    mat_weights_qdatetime = mat_weights_qdatetime, 
+    day_idx = day_idx, 
+    nday = nday, 
+    # interest
+    joint_window = joint_window, 
+    # tau
+    mat_weights_tau = mat_weights_tau, 
+    tupq_idx_tau = tupq_idx_tau, 
+    ntupq_tau = ntupq_tau, 
+    mat_weights_tau_p = mat_weights_tau_p,
+    tupq_idx_tau_p = tupq_idx_tau_p, 
+    ntupq_tau_p = ntupq_tau_p
+  )
 }
 
 
@@ -151,20 +113,20 @@ calc_dbar <- function(data, xgrid,
                       price_slist, cf_slist, 
                       interest_grid, windows_ls) {
   day_idx <- windows_ls$day_idx
-  tupq_idx <- windows_ls$tupq_idx_x
-  ux_window <- windows_ls$ux_window
-  uu_window <- windows_ls$uu_window
+  tupq_idx <- windows_ls$tupq_idx_tau
+  mat_weights_tau <- windows_ls$mat_weights_tau
+  mat_weights_qdatetime <- windows_ls$mat_weights_qdatetime
   joint_window <- windows_ls$joint_window
-  ntupq <- windows_ls$ntupq_x
+  ntupq <- windows_ls$ntupq_tau
   nday <- windows_ls$nday
   
   
   if(interest_grid){
-    dbar <- calc_dbar_c(nday, ntupq, day_idx, tupq_idx, ux_window, joint_window, price_slist, cf_slist)
+    dbar <- calc_dbar_c(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, joint_window, price_slist, cf_slist)
     day_grid <- day_grid[rep(1:nday, each=ntupq),]
     dbar <- data.frame(ug = day_grid$ug, rg = day_grid$rg, dbar_numer = dbar[,1], dbar_denom = dbar[,2])
   } else {
-    dbar <- calc_dbar_c(nday, ntupq, day_idx, tupq_idx, ux_window, uu_window, price_slist, cf_slist)
+    dbar <- calc_dbar_c(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist)
     dbar <- data.frame(ug = rep(xgrid, rep(ntupq, nday)), dbar_numer = dbar[,1], dbar_denom = dbar[,2])
   }
   if(is.vector(tau)){
@@ -226,46 +188,46 @@ calc_hhat_num <- function(data, xgrid,
                           cf_slist = NULL, 
                           interest_grid, windows_ls) {
   day_idx <- windows_ls$day_idx
-  tupq_idx_x <- windows_ls$tupq_idx_x
-  tupq_idx_q <- windows_ls$tupq_idx_q
-  ux_window <- windows_ls$ux_window
-  uu_window <- windows_ls$uu_window
-  uq_window <- windows_ls$uq_window
+  tupq_idx_tau <- windows_ls$tupq_idx_tau
+  tupq_idx_tau_p <- windows_ls$tupq_idx_tau_p
+  mat_weights_tau <- windows_ls$mat_weights_tau
+  mat_weights_qdatetime <- windows_ls$mat_weights_qdatetime
+  mat_weights_tau_p <- windows_ls$mat_weights_tau_p
   joint_window <- windows_ls$joint_window
-  ntupq_x <- windows_ls$ntupq_x
-  ntupq_q <- windows_ls$ntupq_q
+  ntupq_tau <- windows_ls$ntupq_tau
+  ntupq_tau_p <- windows_ls$ntupq_tau_p
   nday <- windows_ls$nday
   
   
   if(interest_grid){
-    hhat <- calc_hhat_num2_c(nday, ntupq_x, ntupq_q, day_idx, tupq_idx_x, tupq_idx_q, ux_window, uq_window, joint_window, cf_slist)
-    day_grid <- day_grid[rep(1:nday, each=ntupq_q*ntupq_x),]
+    hhat <- calc_hhat_num2_c(nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist)
+    day_grid <- day_grid[rep(1:nday, each=ntupq_tau_p*ntupq_tau),]
     hhat <- data.frame(hhat_numer = c(hhat), ug = day_grid$ug, rg = day_grid$rg)
   } else {
-    hhat <- calc_hhat_num2_c(nday, ntupq_x, ntupq_q, day_idx, tupq_idx_x, tupq_idx_q, ux_window, uq_window, uu_window, cf_slist)
-    hhat <- data.frame(hhat_numer = c(hhat), ug = rep(xgrid, rep(ntupq_q * ntupq_x, nday)))
+    hhat <- calc_hhat_num2_c(nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist)
+    hhat <- data.frame(hhat_numer = c(hhat), ug = rep(xgrid, rep(ntupq_tau_p * ntupq_tau, nday)))
   }
   
   if(is.vector(tau)){
-    hhat$xg = rep(tau, nday*ntupq_q)
+    hhat$xg = rep(tau, nday*ntupq_tau_p)
   } else if(nrow(tau) == 1){
-    hhat$xg = rep(tau, nday*ntupq_q)
+    hhat$xg = rep(tau, nday*ntupq_tau_p)
   } else {
     x_temp = NULL
     for(i in 1:nday){
-      x_temp = c(x_temp, rep(tau[i,], ntupq_q))
+      x_temp = c(x_temp, rep(tau[i,], ntupq_tau_p))
     }
     hhat$xg = x_temp
   }
   
   if(is.vector(tau_p)){
-    hhat$qg = rep(tau_p, rep(ntupq_x, ntupq_q))
+    hhat$qg = rep(tau_p, rep(ntupq_tau, ntupq_tau_p))
   } else if(nrow(tau_p) == 1){
-    hhat$qg = rep(tau_p, rep(ntupq_x, ntupq_q))
+    hhat$qg = rep(tau_p, rep(ntupq_tau, ntupq_tau_p))
   } else {
     q_temp = NULL
     for(i in 1:nday){
-      q_temp = c(q_temp, rep(tau_p[i,], rep(ntupq_x, ntupq_q)))
+      q_temp = c(q_temp, rep(tau_p[i,], rep(ntupq_tau, ntupq_tau_p)))
     }
     hhat$qg = q_temp
   }
@@ -293,7 +255,9 @@ calc_hhat_num <- function(data, xgrid,
 #' @param interest (Optional) Numeric vector of daily short term interest rates. 
 #' The length is the same as the number of quotation dates included in the data, 
 #' i.e. one interest rate per day.
-#' @param units (Optional) number of tupq per tau (e.g. 365 for daily data with annual grid values). Defaults to 365
+#' @param unit (Optional) Smallest interval between quotation date time of class \code{Period}. 
+#' Can be created using \code{lubridate::minutes}, \code{lubridate::days}, etc.
+#' Needs to be by which 365 days (\code{lubridate::days(365)}) are divided exactly. 
 #' @param cfp_slist (Internal) Experienced users only. A list of matrices, generated by the internal function \code{get_cfp_slist}.
 #' 
 #' @return Data frame of the yield and discount rate at each combination of the provided grids.
@@ -308,12 +272,15 @@ calc_hhat_num <- function(data, xgrid,
 #' @describeIn ycevo Experienced users only. 
 #' Yield estimation with interest rate and manually selected bandwidth parameters.
 #' @export
-estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, interest = NULL, loess = TRUE, 
-                            cfp_slist = NULL,
-                           units = 365){
-  # units <- 365
+estimate_yield <- function(data, xgrid, hx, tau, ht, 
+                           rgrid = NULL, hr = NULL, 
+                           interest = NULL, loess = TRUE, 
+                           cfp_slist = NULL, unit = days(1)){
+  stopifnot(as.numeric(days(365) %% unit) == 0)
+  units <- 365
   tau_p <- NULL 
   htp <- NULL
+  
   if(is.null(tau_p) || is.null(htp)){
     tau_p <- tau
     htp <- ht
@@ -379,7 +346,6 @@ estimate_yield <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
     cf_slist <- cfp_slist$cf_slist
     price_slist <- cfp_slist$price_slist
   }
-  # browser()
   
   windows_ls <- prep_windows(data = data, 
                              xgrid = xgrid, 

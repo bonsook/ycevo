@@ -99,13 +99,14 @@
 #' @references Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562-588.
 #' @order 1
 #' @importFrom rlang enexpr
+#' @importFrom lubridate days
 #' @export
 ycevo <- function(data, 
                   xgrid, 
                   tau, 
                   cols = NULL,
                   ...,
-                  units = 365,
+                  unit = days(1),
                   loess = length(tau)>10){
   
   if(anyDuplicated(xgrid)){
@@ -138,7 +139,7 @@ ycevo <- function(data,
     tau = tau,
     ht = ht,
     loess = loess, 
-    units = units)
+    unit = unit)
 }
 
 find_bindwidth_from_tau <- function(tau){
@@ -153,7 +154,8 @@ find_bindwidth_from_tau <- function(tau){
 
 find_bindwidth_from_xgrid <- function(xgrid, data){
   hx <- 1/length(xgrid)
-  if(sum(calc_uu_window(data, xgrid, hx)) == 0) {
+  mat_weights_qdatetime <- get_weights(xgrid, hx, len = length(unique(data$qdate)))
+  if(any(colSums(mat_weights_qdatetime) == 0)) {
     recommend <- seq_along(xgrid)/length(xgrid)
     stop("Inappropriate xgrid. Recommend to choose value(s) from: ", paste(recommend, collapse = ", "))
   }
