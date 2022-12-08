@@ -50,7 +50,7 @@ get_cfp_slist <- function(data){
   
   for (i in 1:qdate_len) {
     x_list <- cfp_list[[i]]
-                                  
+    
     price_slist[[i]] <- sparseMatrix(i = match(x_list$crspid, id),
                                      j = match(x_list$tupq, seq_tupq),
                                      x = x_list$mid.price,
@@ -70,7 +70,7 @@ get_cfp_slist <- function(data){
        cf_slist = cf_slist)
 }
 
-calc_window_epaker <- function(gamma, grid, bandwidth) {
+calc_epaker_weights <- function(gamma, grid, bandwidth) {
   uu <- mapply(function(grid, bandwidth) {(grid-gamma)/bandwidth}, 
                grid = grid, 
                bandwidth = bandwidth)
@@ -78,35 +78,74 @@ calc_window_epaker <- function(gamma, grid, bandwidth) {
   epaker(uu)
 }
 
-# Weights time grid
+# Weights grid
 # 
-# Generate kernel weights using Epaker kernal function in relation to time grids
+# Generate kernel weights using Epaker kernal function for given grids
 # 
-# This function generates a weight function attached to each quotation date grid
+# This function generates a weight function attached to each grid, 
+# quotation time or time to maturity
 # for the estimation of a discount function
 # 
-# @param data a bond dataframe
-# @param xgrid vector of the quotation date grid
-# @param hx vector of quotation date bandwidth
+# @param grid vector of the  grid
+# @param bandwidth vector of quotation date bandwidth
+# @param len the length of the grid. 
+# For quotation time, this is the number of unique quotation time
+# For time to maturity, this is the maximum tupq
 # 
-# @return Matrix with number of columns being the length of \code{ugrid} and number of rows being the number of unique qdates.
-# Each column represents the weights of each qdate for that \code{rgrid}.
-# Each column is a \code{ugrid} date with the weights of the qdates used in discount function estimation. qdates correspond to rows.
+# @return Matrix with number of columns being the length of \code{grid} and 
+# number of rows being the number of unique grid.
+# Each column represents the weights on each value in the sequence of length \code{len} 
+# for that column of  \code{grid}.
 # 
-# @author Bonsoo Koo and Kai-Yang Goh
 # @examples 
+#  # quotation time
 #  xgrid <- c(0.2,0.4)
 #  hx <- c(0.18,0.18)
-#  out <- calc_uu_window(data = USbonds, xgrid = xgrid,hx = hx)
-calc_uu_window <- function(data, xgrid, hx) {
-  #ugrid = values you want to compute dbar and hhat for
-  #hu = bandwidth parameter
-  qdate_len <- length(unique(data$qdate))
-  gamma <- seq(1, qdate_len, 1) / qdate_len
-  
-  calc_window_epaker(gamma, xgrid, hx) %>% 
-    as.matrix()
+#  out <- get_weights(grid = xgrid, bandwidth = hx, len = length(unique(USbonds$qdate)))
+# tau <- c(30, 60, 90) / 365
+# ht <- c(15, 15 , 15) / 365
+# out <- get_weights(grid = tau, bandwidth = ht,
+#                    len = as.integer(max(USbonds$tupq)),
+#                    units = 365)
+# # For time to maturity, units is 365 to match a year
+get_weights <- function(grid, bandwidth, len, units = len) {
+  #xgrid = values you want to compute dbar and hhat for
+  #hx = bandwidth parameter
+  gamma <- seq_len(len) / units
+  as.matrix(calc_epaker_weights(gamma, grid, bandwidth))
 }
+
+# Range of indecies of nonzero weights
+# 
+# @param mat_weights matrix of weights (for example, from get_weights)
+# @param threshold how close to 0 is 0? This sets a threshold.
+# @return Matrix. The start and end of the index with nonzero entry of each column of the matrix
+# 
+# @examples 
+# # quotation time
+#  xgrid <- c(0.2,0.4)
+#  hx <- c(0.18,0.18)
+#  out <- range_idx_nonzero(get_weights(grid = xgrid, bandwidth = hx, 
+#                           len = length(unique(USbonds$qdate))))
+# # Time to maturity
+# tau <- c(30, 60, 90) / 365
+# ht <- c(15, 15 , 15) / 365
+# out <- range_idx_nonzero(
+#   get_weights(
+#     grid = tau, bandwidth = ht,
+#     len = as.integer(max(USbonds$tupq)),
+#     units = 365),
+#   threshold = 0.01)
+# # For time to maturity a small threshold is set.
+range_idx_nonzero <- function(mat_weights, threshold = 0) {
+  mat_notzero <- mat_weights > threshold
+  t(apply(mat_notzero, 2, function(x) {
+    idx <- which(x)
+    if(length(idx) == 0) return(c(NA, NA))
+    range(idx)
+  }))
+}
+
 
 # Weights interest rate grid
 # 
@@ -131,88 +170,11 @@ calc_uu_window <- function(data, xgrid, hx) {
 #  out <- calc_r_window(interest = interest, rgrid = rgrid,hr = hr)
 calc_r_window <- function(interest, rgrid, hr) {
   
-  calc_window_epaker(interest, rgrid, hr)
-}
-
-# Provide indices in relation to time grids
-# 
-# This function provide indices for the start and end of the qdates included in the kernel windows for each \code{ugrid}.
-# 
-# @param data a bond data frame. See \code{?USbonds} for an example data structure.
-# @param ugrid vector of quotation date grid
-# @param hu vector of quotation date bandwidth
-# 
-# @return Matrix. The start and end of the qdates included in the ugrid kernel windows
-# 
-# @author Bonsoo Koo and Kai-Yang Goh
-# @examples 
-#  ugrid <- c(0.2,0.4)
-#  hu <- c(0.18,0.18)
-#  out <- calc_day_idx(data = USbonds, ugrid = ugrid, hu = hu)
-calc_day_idx <- function(data, ugrid, hu) {
-  u <- calc_uu_window(data, ugrid, hu)
-  dim(u) <- c(length(unique(data$qdate)), length(ugrid))
-  apply(u, 2, function(y) {
-    window_idx <- which(y != 0)
-    return(c(window_idx[1], window_idx[length(window_idx)]))
-  }) %>%
-    t()
+  calc_epaker_weights(interest, rgrid, hr)
 }
 
 
-# Weights time to maturity grid
-# 
-# Apply kernel in relation to time-to-maturity grids
-# 
-# This function generates a weight function attached to each time grid
-# for the estimation of a discount function
-# 
-# @param data a bond data frame
-# @param tau vector of the time-to-maturity grid
-# @param ht vector of the time-to-maturity grid bandwidth
-# 
-# @return Matrix with number of columns being the length of \code{tau} and number of rows being the number of unique qdates.
-# Each column represents the weights of each qdate for that \code{tau}.
-# Each column is a \code{tau} date with the weights of the qdates used in discount function estimation. qdates correspond to rows.
-# @author Bonsoo Koo and Kai-Yang Goh
-# @examples 
-# tau <- c(30, 60, 90) / 365
-# ht <- c(15, 15 , 15) / 365
-# out <- calc_ux_window(data = USbonds, tau = tau, ht = ht)
-calc_ux_window <- function(data, tau, ht, units = 365) {
-  #x = values you want to compute dbar and hhat for
-  #h = bandwidth parameter
-  tupq_len<- as.integer(max(data$tupq))
-  gamma <- seq_len(tupq_len)/ units
-  
-  calc_window_epaker(gamma, tau, ht)
-}
 
-# Provide indices in relation to time-to-maturity grids
-# 
-# This function provides indices for the first and last tau included in the kernel window of each \code{tau}.
-# 
-# @param data Bond dataframe
-# @param tau vector of the time-to-maturity grid
-# @param ht vector of the time-to-maturity grid bandwidth
-# 
-# @return Matrix. The first and last tau included in the current kernel window.
-# 
-# @author Bonsoo Koo and Kai-Yang Goh
-# @examples 
-# tau <- c(30, 60, 90) / 365
-# ht <- c(15, 15 , 15) / 365
-# out <- calc_tupq_idx(data = USbonds, tau = tau, ht = ht)
-calc_tupq_idx <- function(data, tau, ht, units = 365) {
-  x <- calc_ux_window(data,tau,ht, units)
-  apply(x, 2, function(y) {
-    window_idx <- which(y > 0.01)
-    lth <- length(window_idx)
-    if(lth==0) lth <- 1
-    return(c(window_idx[1], window_idx[lth]))
-  }) %>%
-    t()
-}
 
 # Automatic selection of tau and ht values
 # 
