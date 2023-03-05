@@ -41,13 +41,14 @@ prep_windows <- function(data, xgrid, hx, rgrid, hr,
   }
   
   # kernel weights on time to maturity
+  stopifnot(is.vector(tau))
   mat_weights_tau <- get_weights(tau, ht, 
                                  len = as.integer(max(data$tupq)),
                                  units = units)
   tupq_idx_tau <- range_idx_nonzero(mat_weights_tau, threshold = 0.01)
   ntupq_tau <- length(tau)
   
-  
+  stopifnot(is.vector(tau_p))
   mat_weights_tau_p <- get_weights(tau_p, htp, 
                                    len = as.integer(max(data$tupq)),
                                    units = units)
@@ -129,13 +130,7 @@ calc_dbar <- function(data, xgrid,
     dbar <- calc_dbar_c(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist)
     dbar <- data.frame(ug = rep(xgrid, rep(ntupq, nday)), dbar_numer = dbar[,1], dbar_denom = dbar[,2])
   }
-  if(is.vector(tau)){
-    dbar$xg = rep(tau, nday)
-  } else if(nrow(tau) == 1) {
-    dbar$xg = rep(tau, nday)
-  } else {
-    dbar$xg = c(t(tau))
-  }
+  dbar$xg <- rep(tau, nday)
   dbar
 }
 
@@ -208,29 +203,8 @@ calc_hhat_num <- function(data, xgrid,
     hhat <- data.frame(hhat_numer = c(hhat), ug = rep(xgrid, rep(ntupq_tau_p * ntupq_tau, nday)))
   }
   
-  if(is.vector(tau)){
-    hhat$xg = rep(tau, nday*ntupq_tau_p)
-  } else if(nrow(tau) == 1){
-    hhat$xg = rep(tau, nday*ntupq_tau_p)
-  } else {
-    x_temp = NULL
-    for(i in 1:nday){
-      x_temp = c(x_temp, rep(tau[i,], ntupq_tau_p))
-    }
-    hhat$xg = x_temp
-  }
-  
-  if(is.vector(tau_p)){
-    hhat$qg = rep(tau_p, rep(ntupq_tau, ntupq_tau_p))
-  } else if(nrow(tau_p) == 1){
-    hhat$qg = rep(tau_p, rep(ntupq_tau, ntupq_tau_p))
-  } else {
-    q_temp = NULL
-    for(i in 1:nday){
-      q_temp = c(q_temp, rep(tau_p[i,], rep(ntupq_tau, ntupq_tau_p)))
-    }
-    hhat$qg = q_temp
-  }
+  hhat$xg <- rep(tau, nday*ntupq_tau_p)
+  hhat$qg <- rep(tau_p, rep(ntupq_tau, ntupq_tau_p))
   
   hhat
 }
