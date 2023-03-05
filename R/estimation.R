@@ -278,13 +278,9 @@ estimate_yield <- function(data, xgrid, hx, tau, ht,
                            cfp_slist = NULL, unit = days(1)){
   stopifnot(as.numeric(days(365) %% unit) == 0)
   units <- 365
-  tau_p <- NULL 
-  htp <- NULL
   
-  if(is.null(tau_p) || is.null(htp)){
-    tau_p <- tau
-    htp <- ht
-  }
+  tau_p <- tau
+  htp <- ht
   if(!is.null(rgrid) & !is.null(hr) & !is.null(interest)){
     interest_grid <- TRUE
   } else {
@@ -292,53 +288,18 @@ estimate_yield <- function(data, xgrid, hx, tau, ht,
   }
   
   # Check inputs
-  if(!is.vector(xgrid)){
-    stop('xgrid must be a vector')
-  }
-  if(!is.vector(hx)){
-    stop('hx must be a vector')
-  }
-  if(!is.data.frame(data)){
-    stop('data must be a dataframe')
-  }
-  if(!all(c('qdate', 'crspid', 'mid.price', 'accint', 'pdint', 'tupq') %in% colnames(data))){
-    stop('data must contain columns qdate, crspid, mid.price, accint, pdint, and tupq')
-  }
-  if(!is.matrix(tau) & !is.vector(tau)){
-    stop('tau must be a vector or a matrix')
-  }
-  if(!is.numeric(xgrid)){
-    stop('xgrid must be numeric')
-  }
-  if(!is.numeric(hx)){
-    stop('hx must be numeric')
-  }
-  if(!is.numeric(tau)){
-    stop('tau must be numeric')
-  }
-  if(length(xgrid) != length(hx)){
-    stop('xgrid and hx must have the same length')
-  }
-  if(is.vector(tau)){
-    if(is.vector(ht)){
-      if(length(ht) != length(tau)){
-        stop('ht and tau must have the same length')
-      }
-    } else {
-      stop('ht must be a vector of xgrid is a vector')
-    }
-  }
-  if(is.matrix(tau)){
-    if(is.vector(ht)){
-      if(length(ht) != ncol(tau)){
-        stop('a vector ht must have a length equal to the number of columns of tau')
-      }
-    } else {
-      if(ncol(ht) != ncol(tau) | nrow(ht) != nrow(tau)){
-        stop('a matrix ht must have the same dimensions as tau')
-      }
-    }
-  }
+  stopifnot(is.vector(xgrid))
+  stopifnot(is.numeric(xgrid))
+  stopifnot(is.vector(hx))
+  stopifnot(is.numeric(hx))
+  stopifnot(is.data.frame(data))
+  stopifnot(is.vector(tau))
+  stopifnot(is.numeric(tau))
+  stopifnot(is.vector(ht))
+  stopifnot(is.numeric(ht))
+  stopifnot(length(xgrid) == length(hx))
+  stopifnot(length(tau) == length(ht))
+  stopifnot(all(c('qdate', 'crspid', 'mid.price', 'accint', 'pdint', 'tupq') %in% colnames(data)))
   
   
   if(is.null(cfp_slist)){
