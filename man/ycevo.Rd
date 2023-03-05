@@ -5,7 +5,15 @@
 \alias{estimate_yield}
 \title{Estimate yield function}
 \usage{
-ycevo(data, xgrid, tau, ..., loess = length(tau) > 10)
+ycevo(
+  data,
+  xgrid,
+  tau,
+  cols = NULL,
+  ...,
+  unit = days(1),
+  loess = length(tau) > 10
+)
 
 estimate_yield(
   data,
@@ -18,7 +26,7 @@ estimate_yield(
   interest = NULL,
   loess = TRUE,
   cfp_slist = NULL,
-  units = 365
+  unit = days(1)
 )
 }
 \arguments{
@@ -31,10 +39,6 @@ Time grids over the entire time horizon (percentile) of the data at which the di
 represents time-to-maturities in years where discount function and yield curve will be found
 for each time point \code{xgrid}.
 See \code{Details}.}
-
-\item{...}{Reserved for exogenous variables.}
-
-\item{loess}{Logical. Whether the output estimated discount and yield are to be smoothed using locally estimated scatterplot smoothing (LOESS)}
 
 \item{hx}{Numeric vector of values between 0 and 1. Bandwidth parameter determining the size of the window 
 that corresponds to each time point (\code{xgrid}).
@@ -50,6 +54,14 @@ The same unit as \code{tau}.
 See \code{Details}.
 The selection of bandwidth parameter is crucial in non-parametric estimation.
 If not sure, please use \code{ycevo} to allow the function choose it for you.}
+
+\item{...}{Reserved for exogenous variables.}
+
+\item{unit}{(Optional) Smallest interval between quotation date time of class \code{Period}. 
+Can be created using \code{lubridate::minutes}, \code{lubridate::days}, etc.
+Needs to be by which 365 days (\code{lubridate::days(365)}) are divided exactly.}
+
+\item{loess}{Logical. Whether the output estimated discount and yield are to be smoothed using locally estimated scatterplot smoothing (LOESS)}
 
 \item{rgrid}{(Optional) Numeric vector of interest rate grids in percentage at which the discount curve is evaluated, e.g. 4.03 means at interest rate of 4.03\%.}
 
@@ -125,10 +137,10 @@ For more information on the estimation method, please refer to \code{References}
 }
 \section{Functions}{
 \itemize{
-\item \code{estimate_yield}: Experienced users only. 
+\item \code{estimate_yield()}: Experienced users only. 
 Yield estimation with interest rate and manually selected bandwidth parameters.
-}}
 
+}}
 \examples{
 library(dplyr)
 # Simulate 4 bonds issued at 2020-01-01
