@@ -10,6 +10,8 @@ ycevo(
   xgrid,
   tau,
   cols = NULL,
+  hx = NULL,
+  ht = NULL,
   ...,
   unit = days(1),
   loess = length(tau) > 10

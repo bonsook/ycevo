@@ -105,6 +105,8 @@ ycevo <- function(data,
                   xgrid, 
                   tau, 
                   cols = NULL,
+                  hx = NULL,
+                  ht = NULL,
                   ...,
                   unit = days(1),
                   loess = length(tau)>10){
@@ -128,9 +130,11 @@ ycevo <- function(data,
     colnames(data) <- names(s_col)
   }
   
-  hx <- find_bindwidth_from_xgrid(xgrid, data)
+  if(is.null(hx))
+    hx <- find_bindwidth_from_xgrid(xgrid, data)
   if(length(hx) == 1) hx <- rep(hx, length(xgrid))
-  ht <- find_bindwidth_from_tau(tau)
+  if(is.null(ht))
+    ht <- find_bindwidth_from_tau(tau)
   
   estimate_yield(
     data = data ,
@@ -148,7 +152,7 @@ find_bindwidth_from_tau <- function(tau){
   vapply(
     1:length(tau), 
     function(x) max(laggap[x], leadgap[x], na.rm = TRUE), 
-    1)
+    numeric(1L))
 }
 
 
