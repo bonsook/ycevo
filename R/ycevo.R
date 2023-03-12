@@ -125,7 +125,7 @@ ycevo <- function(data,
     d_pairs <- as.list(cols)[-1]
     stopifnot(all(names(d_pairs) %in% d_col))
     s_col <- d_col
-    s_col[names(d_pairs)] <- map_chr(d_pairs, as.character)
+    s_col[names(d_pairs)] <- vapply(d_pairs, as.character, character(1))
     data <- select(data, all_of(s_col))
     colnames(data) <- names(s_col)
   }

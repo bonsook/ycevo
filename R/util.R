@@ -89,11 +89,11 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
 #' out <- generate_yield()
 #' 
 #' # plots
-#' library(tidyverse)
+#' library(ggplot2)
 #' out <- data.frame(out)
 #' colnames(out) <- 1:12
-#' out <- mutate(out, time = 1:36)
-#' out <- pivot_longer(out, -time, names_to = "qdate", values_to = "yield")
+#' out <- dplyr::mutate(out, time = 1:36)
+#' out <- tidyr::pivot_longer(out, -time, names_to = "qdate", values_to = "yield")
 #' ggplot(out) +
 #'   geom_line(aes(x=time, y=yield, color = qdate))
 #' 
