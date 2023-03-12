@@ -13,7 +13,6 @@ ycevo(
   hx = NULL,
   ht = NULL,
   ...,
-  unit = days(1),
   loess = length(tau) > 10
 )
 
@@ -27,8 +26,7 @@ estimate_yield(
   hr = NULL,
   interest = NULL,
   loess = TRUE,
-  cfp_slist = NULL,
-  unit = days(1)
+  cfp_slist = NULL
 )
 }
 \arguments{
@@ -58,10 +56,6 @@ The selection of bandwidth parameter is crucial in non-parametric estimation.
 If not sure, please use \code{ycevo} to allow the function choose it for you.}
 
 \item{...}{Reserved for exogenous variables.}
-
-\item{unit}{(Optional) Smallest interval between quotation date time of class \code{Period}. 
-Can be created using \code{lubridate::minutes}, \code{lubridate::days}, etc.
-Needs to be by which 365 days (\code{lubridate::days(365)}) are divided exactly.}
 
 \item{loess}{Logical. Whether the output estimated discount and yield are to be smoothed using locally estimated scatterplot smoothing (LOESS)}
 
