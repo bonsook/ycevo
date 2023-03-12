@@ -43,7 +43,9 @@ LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.2.3
 Suggests: 
     testthat (>= 3.0.0),
-    knitr, 
-    rmarkdown
+    knitr,
+    rmarkdown,
+    ggplot2,
+    tidyr
 Language: en-AU
 Config/testthat/edition: 3

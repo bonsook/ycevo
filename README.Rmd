@@ -60,7 +60,9 @@ devtools::install_github("bonsook/ycevo")
 
 ```{r}
 library(ycevo)
-library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
 library(lubridate)
 
 # Simulate 4 bonds issued at 2020-01-01
