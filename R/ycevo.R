@@ -108,7 +108,6 @@ ycevo <- function(data,
                   hx = NULL,
                   ht = NULL,
                   ...,
-                  unit = days(1),
                   loess = length(tau)>10){
   
   if(anyDuplicated(xgrid)){
@@ -142,8 +141,7 @@ ycevo <- function(data,
     hx = hx,
     tau = tau,
     ht = ht,
-    loess = loess, 
-    unit = unit)
+    loess = loess)
 }
 
 find_bindwidth_from_tau <- function(tau){
