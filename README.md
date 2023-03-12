@@ -5,7 +5,7 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/bonsook/ycevo/workflows/R-CMD-check/badge.svg)](https://github.com/bonsook/ycevo/actions)
+[![R-CMD-check](https://github.com/bonsook/ycevo/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bonsook/ycevo/actions/workflows/R-CMD-check.yaml)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/ycevo)](https://CRAN.R-project.org/package=ycevo)
 [![license](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
@@ -67,17 +67,18 @@ devtools::install_github("bonsook/ycevo")
 ``` r
 library(ycevo)
 library(tidyverse)
-#> ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
-#> ✓ ggplot2 3.3.6     ✓ purrr   0.3.4
-#> ✓ tibble  3.1.7     ✓ dplyr   1.0.9
-#> ✓ tidyr   1.2.0     ✓ stringr 1.4.0
-#> ✓ readr   2.1.2     ✓ forcats 0.5.1
+#> ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+#> ✔ ggplot2 3.4.0      ✔ purrr   1.0.1 
+#> ✔ tibble  3.1.8      ✔ dplyr   1.0.10
+#> ✔ tidyr   1.3.0      ✔ stringr 1.5.0 
+#> ✔ readr   2.1.3      ✔ forcats 0.5.2 
 #> ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-#> x dplyr::filter() masks stats::filter()
-#> x dplyr::lag()    masks stats::lag()
+#> ✖ dplyr::filter() masks stats::filter()
+#> ✖ dplyr::lag()    masks stats::lag()
 library(lubridate)
 #> 
 #> Attaching package: 'lubridate'
+#> 
 #> The following objects are masked from 'package:base':
 #> 
 #>     date, intersect, setdiff, union
@@ -136,6 +137,7 @@ yield %>%
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
 ``` r
+
 # Plot of discount function
 yield %>%
   mutate(true_discount = exp(-tau * get_yield_at_vec(0, tau))) %>% 
