@@ -32,11 +32,12 @@ Depends: R (>= 3.5.0)
 Encoding: UTF-8
 LazyData: true
 Imports: 
-    dplyr, 
-    magrittr, 
-    Matrix, 
-    Rcpp (>= 0.12.18), 
-    rlang, 
+    dplyr,
+    lubridate,
+    magrittr,
+    Matrix,
+    Rcpp (>= 0.12.18),
+    rlang,
     stats
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.2.3
