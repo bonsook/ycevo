@@ -5,7 +5,7 @@
 #include <Rcpp.h>
 
 // [[Rcpp::export]]
-arma::mat calc_dbar_c(int nday, int ntupq, arma::mat day_idx, arma::mat tupq_idx, arma::mat ux_window, arma::mat uu_window,
+arma::mat calc_dbar_c(int nday, int ntupq, arma::mat day_idx, arma::mat tupq_idx, arma::mat mat_weights_tau, arma::mat mat_weights_qdatetime,
                       Rcpp::List price_slist, Rcpp::List cf_slist){
   arma::mat dbar(nday * ntupq, 2);
   
@@ -40,8 +40,8 @@ arma::mat calc_dbar_c(int nday, int ntupq, arma::mat day_idx, arma::mat tupq_idx
           // For each element in the window of the current element of xgrid: j=1 to m_it in the paper
           // The kernel for the rest is 0
           for(int n = seq_tupq[0] - 1; n < std::min(seq_tupq[1], ncols); ++n) {
-            num(k - seq_day[0] + 1) += price_temp(m, n) * cf_temp(m, n) * ux_window(n, windowOffset + j) * uu_window(k, i);
-            den(k - seq_day[0] + 1) += pow(cf_temp(m, n), 2) * ux_window(n, windowOffset + j) * uu_window(k, i);
+            num(k - seq_day[0] + 1) += price_temp(m, n) * cf_temp(m, n) * mat_weights_tau(n, windowOffset + j) * mat_weights_qdatetime(k, i);
+            den(k - seq_day[0] + 1) += pow(cf_temp(m, n), 2) * mat_weights_tau(n, windowOffset + j) * mat_weights_qdatetime(k, i);
           }
         }
       }
@@ -172,7 +172,7 @@ arma::cube createSumP (arma::cube cf_temp_q, arma::rowvec seq_tupq_x){
 }
 
 double calc_hhat_once(int j, int k, arma::rowvec seq_day, arma::rowvec seq_tupq_x, arma::rowvec seq_tupq_q,
-                      Rcpp::List cf_slist, arma::mat ux_window, arma::mat uq_window, arma::colvec uu_window){
+                      Rcpp::List cf_slist, arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, arma::colvec mat_weights_qdatetime){
   
   // Returns bonds that there is a cashflow in both the x window and q window -> for crossproducts?
   arma::mat crspid_idx = check_crspid_intersect(cf_slist, seq_tupq_x, seq_tupq_q, seq_day);
@@ -197,8 +197,8 @@ double calc_hhat_once(int j, int k, arma::rowvec seq_day, arma::rowvec seq_tupq_
   }
   
   // Weights x and q cash flows by the window function
-  arma::cube cf_temp_x = weightCF(qdate_idx, cf_slist, seq_tupq_x, crspid_idx, ux_window, j);
-  arma::cube cf_temp_q = weightCF2(qdate_idx, cf_slist, seq_tupq_q, crspid_idx, uq_window, k);
+  arma::cube cf_temp_x = weightCF(qdate_idx, cf_slist, seq_tupq_x, crspid_idx, mat_weights_tau, j);
+  arma::cube cf_temp_q = weightCF2(qdate_idx, cf_slist, seq_tupq_q, crspid_idx, mat_weights_tau_p, k);
   // Creates cf_temp_q sized matrices where each element is the sum of that row of cf_temp_q
   arma::cube sumP = createSumP (cf_temp_q, seq_tupq_x);
   // Checks intersections of x and q.
@@ -227,51 +227,51 @@ double calc_hhat_once(int j, int k, arma::rowvec seq_day, arma::rowvec seq_tupq_
   double hhat_num = 0;
   for(unsigned int m = 0; m < sumP.n_slices; ++m){
     double sumCrossProduct = arma::accu(sumP.slice(m) % cf_temp_x.slice(m));
-    hhat_num += sumCrossProduct * uu_window(qdate_idx(m));
+    hhat_num += sumCrossProduct * mat_weights_qdatetime(qdate_idx(m));
   }
   
   return hhat_num;
 }
 
 // [[Rcpp::export]]
-arma::cube calc_hhat_num2_c(int nday, int ntupq_x, int ntupq_q, arma::mat day_idx, arma::mat tupq_idx_x, arma::mat tupq_idx_q, arma::mat ux_window, arma::mat uq_window, arma::mat uu_window, Rcpp::List cf_slist) {
+arma::cube calc_hhat_num2_c(int nday, int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, arma::mat mat_weights_qdatetime, Rcpp::List cf_slist) {
   
-  arma::cube hhat(ntupq_x, ntupq_q, nday, arma::fill::zeros);
+  arma::cube hhat(ntupq_tau, ntupq_tau_p, nday, arma::fill::zeros);
   
   // For each element in ugrid time
   for (int i = 0; i < nday; ++i) {
     arma::rowvec seq_day = day_idx.row(i);
     
     // For each element in xgrid tau
-    for (int j = 0; j < ntupq_x; ++j) {
+    for (int j = 0; j < ntupq_tau; ++j) {
       arma::rowvec seq_tupq_x(2);
       int window_lower_x, window_upper_x;
-      if(tupq_idx_x.n_cols == 2){
-        seq_tupq_x = tupq_idx_x.row(j);
+      if(tupq_idx_tau.n_cols == 2){
+        seq_tupq_x = tupq_idx_tau.row(j);
         window_lower_x = 0;
-        window_upper_x = ntupq_x - 1;
+        window_upper_x = ntupq_tau - 1;
       } else {
-        seq_tupq_x = tupq_idx_x(j, arma::span(2*i, 2*i+1));
-        window_lower_x = ntupq_x * i;
-        window_upper_x = ntupq_x * (i + 1) - 1;
+        seq_tupq_x = tupq_idx_tau(j, arma::span(2*i, 2*i+1));
+        window_lower_x = ntupq_tau * i;
+        window_upper_x = ntupq_tau * (i + 1) - 1;
       }
       
       // For each element in qgrid tau_p
-      for (int k = 0; k < ntupq_q; ++k) {
+      for (int k = 0; k < ntupq_tau_p; ++k) {
         Rcpp::checkUserInterrupt();
         arma::rowvec seq_tupq_q(2);
         int window_lower_q, window_upper_q;
-        if(tupq_idx_q.n_cols == 2){
-          seq_tupq_q = tupq_idx_q.row(k);
+        if(tupq_idx_tau_p.n_cols == 2){
+          seq_tupq_q = tupq_idx_tau_p.row(k);
           window_lower_q = 0;
-          window_upper_q = ntupq_q - 1;
+          window_upper_q = ntupq_tau_p - 1;
         } else {
-          seq_tupq_q = tupq_idx_q(k, arma::span(2*i, 2*i+1));
-          window_lower_q = ntupq_q * i;
-          window_upper_q = ntupq_q * (i + 1) - 1;
+          seq_tupq_q = tupq_idx_tau_p(k, arma::span(2*i, 2*i+1));
+          window_lower_q = ntupq_tau_p * i;
+          window_upper_q = ntupq_tau_p * (i + 1) - 1;
         }
         hhat(j, k, i) = calc_hhat_once(j, k, seq_day, seq_tupq_x, seq_tupq_q, cf_slist,
-             ux_window.cols(window_lower_x, window_upper_x), uq_window.cols(window_lower_q, window_upper_q), uu_window.col(i));
+             mat_weights_tau.cols(window_lower_x, window_upper_x), mat_weights_tau_p.cols(window_lower_q, window_upper_q), mat_weights_qdatetime.col(i));
         
       }
       

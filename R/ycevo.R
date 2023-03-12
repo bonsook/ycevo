@@ -98,11 +98,17 @@
 #' 
 #' @references Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562-588.
 #' @order 1
+#' @importFrom rlang enexpr
+#' @importFrom lubridate days
 #' @export
 ycevo <- function(data, 
                   xgrid, 
                   tau, 
+                  cols = NULL,
+                  hx = NULL,
+                  ht = NULL,
                   ...,
+                  unit = days(1),
                   loess = length(tau)>10){
   
   if(anyDuplicated(xgrid)){
@@ -111,9 +117,24 @@ ycevo <- function(data,
   if(anyDuplicated(tau)){
     stop("Duplicated tau found.")
   }
+  d_col <- c('qdate', 'crspid', 'mid.price', 'accint', 'pdint', 'tupq')
+  names(d_col) <- d_col
+  cols <- enexpr(cols)
   
-  hx <- find_bindwidth_from_xgrid(xgrid, data)
-  ht <- find_bindwidth_from_tau(tau)
+  if(!is.null(cols)){
+    d_pairs <- as.list(cols)[-1]
+    stopifnot(all(names(d_pairs) %in% d_col))
+    s_col <- d_col
+    s_col[names(d_pairs)] <- map_chr(d_pairs, as.character)
+    data <- select(data, all_of(s_col))
+    colnames(data) <- names(s_col)
+  }
+  
+  if(is.null(hx))
+    hx <- find_bindwidth_from_xgrid(xgrid, data)
+  if(length(hx) == 1) hx <- rep(hx, length(xgrid))
+  if(is.null(ht))
+    ht <- find_bindwidth_from_tau(tau)
   
   estimate_yield(
     data = data ,
@@ -121,7 +142,8 @@ ycevo <- function(data,
     hx = hx,
     tau = tau,
     ht = ht,
-    loess = loess)
+    loess = loess, 
+    unit = unit)
 }
 
 find_bindwidth_from_tau <- function(tau){
@@ -130,13 +152,14 @@ find_bindwidth_from_tau <- function(tau){
   vapply(
     1:length(tau), 
     function(x) max(laggap[x], leadgap[x], na.rm = TRUE), 
-    1)
+    numeric(1L))
 }
 
 
 find_bindwidth_from_xgrid <- function(xgrid, data){
   hx <- 1/length(xgrid)
-  if(sum(calc_uu_window(data, xgrid, hx)) == 0) {
+  mat_weights_qdatetime <- get_weights(xgrid, hx, len = length(unique(data$qdate)))
+  if(any(colSums(mat_weights_qdatetime) == 0)) {
     recommend <- seq_along(xgrid)/length(xgrid)
     stop("Inappropriate xgrid. Recommend to choose value(s) from: ", paste(recommend, collapse = ", "))
   }

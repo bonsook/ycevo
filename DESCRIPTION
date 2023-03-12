@@ -39,12 +39,10 @@ Imports:
     rlang, 
     stats
 LinkingTo: Rcpp, RcppArmadillo
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Suggests: 
     testthat (>= 3.0.0),
     knitr, 
-    plotly, 
-    rmarkdown, 
-    tidyverse
+    rmarkdown
 Language: en-AU
 Config/testthat/edition: 3

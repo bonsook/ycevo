@@ -103,11 +103,11 @@ so the yield curve slowly changes over different quotation dates.
 }
 \section{Functions}{
 \itemize{
-\item \code{get_yield_at}: Return the yield at a specific point in time of a specific maturity.
+\item \code{get_yield_at()}: Return the yield at a specific point in time of a specific maturity.
 
-\item \code{get_yield_at_vec}: Vectorised version of \code{get_yield_at}.
+\item \code{get_yield_at_vec()}: Vectorised version of \code{get_yield_at}.
+
 }}
-
 \examples{
 out <- generate_yield()
 
