@@ -75,20 +75,22 @@ data <- structure(list(mat_days = c(180, 360, 360, 540, 540, 540, 720,
                                      97.4841167765584, 97.4841167765584, 97.4841167765584)), class = c("tbl_df", 
                                                                                                        "tbl", "data.frame"), row.names = c(NA, -10L))
 
-uu_window <- calc_uu_window(data,1,1)
+mat_weights_qdatetime <- get_weights(1,1, length(unique(data$qdate)))
 tupq_idx <- structure(c(2L, 182L, 362L, 542L, 358L, 538L, 718L, 720L), dim = c(4L, 2L))
-ux_window <- calc_ux_window(data, 
-                            c(0.493150684931507, 0.986301369863014, 1.47945205479452, 1.97260273972603), 
-                            c(0.493150684931507, 0.493150684931507, 0.49315068493151, 0.49315068493151), 
-                            365)
-price_slist <- ycevo:::calc_price_slist(data)
-cf_slist <- ycevo:::calc_cf_slist(data)
+mat_weights_tau <- get_weights(
+  c(0.493150684931507, 0.986301369863014, 1.47945205479452, 1.97260273972603), 
+  c(0.493150684931507, 0.493150684931507, 0.49315068493151, 0.49315068493151), 
+  len = as.integer(max(data$tupq)),
+  units = 365)
+cfp_slist <- ycevo:::get_cfp_slist(data)
+price_slist <- cfp_slist$price_slist
+cf_slist <- cfp_slist$cf_slist
 test_that("Simplest example", {
   expect_equal(
     calc_dbar_c(1L, 4L, 
                 structure(c(1L, 1L), dim = 1:2), 
                 tupq_idx, 
-                ux_window, uu_window, price_slist, cf_slist),
+                mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
     structure(c(5678.94832046269, 5705.41441494833, 5625.45900788638, 
                 5538.31638436822, 5626.6875, 5739.1875, 5738.625, 5738.0625), dim = c(4L, 2L)))
 })

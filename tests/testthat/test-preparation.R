@@ -1,12 +1,12 @@
 test_that("calc_window", {
   expect_equal(
-    calc_window_epaker(seq(0, 1, 0.1), c(0.2, 0.4), c(0.2, 0.4)), 
+    calc_epaker_weights(seq(0, 1, 0.1), c(0.2, 0.4), c(0.2, 0.4)), 
     structure(c(0, 0.5625, 0.75, 0.5625, 0, 0, 0, 0, 0, 0, 0, 0, 
                 0.328125, 0.5625, 0.703125, 0.75, 0.703125, 0.5625, 0.328125, 
                 0, 0, 0), .Dim = c(11L, 2L))
   )
   expect_equal(
-    calc_uu_window(USbonds, 0.029, 0.029), 
+    get_weights(0.029, 0.029, length(unique(USbonds$qdate))), 
     structure(c(0.19191700352566, 0.355523488755751, 0.490819455690274, 
                 0.597804904329227, 0.676479834672613, 0.726844246720429, 0.748898140472677, 
                 0.742641515929357, 0.708074373090467, 0.645196711956009, 0.554008532525983, 
@@ -114,10 +114,13 @@ test_that("calc_window", {
     ), .Dim = c(251L, 1L))
   )
   
+  # calc_ux_window
+  # calculate weights on time to maturity
   expect_equal(
-    calc_ux_window(head(USbonds, 4), 
-                   c(30, 60) / 365, 
-                   c(15, 30) / 365
+    get_weights(c(30, 60) / 365, 
+                   c(15, 30) / 365, 
+                len = as.integer(max(head(USbonds, 4)$tupq)), 
+                units = 365
     ), 
     structure(c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0966666666666668, 
                 0.186666666666667, 0.27, 0.346666666666667, 0.416666666666667, 
@@ -125,11 +128,13 @@ test_that("calc_window", {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), .Dim = c(23L, 
                                                                              2L))
   )
+  # calculate the nonzero index on weights on time to maturity
   expect_equal(
-    calc_tupq_idx(head(USbonds, 4), 
-                  c(30, 60) / 365, 
-                  c(15, 30) / 365
-    ), 
+    range_idx_nonzero(get_weights(grid = c(30, 60) / 365, 
+                bandwidth = c(15, 30) / 365, 
+                len = as.integer(max(head(USbonds, 4)$tupq)),
+                units = 365), 
+     threshold = 0.01),
     structure(c(16L, NA, 23L, NA), .Dim = c(2L, 2L))
   )
 })
@@ -142,7 +147,7 @@ test_bond <- USbonds %>%
 
 test_that("price_slist", {
   expect_equal(
-    calc_price_slist(test_bond), 
+    get_cfp_slist(test_bond)$price_slist, 
     list(`2007-01-02` = new(
       "dgCMatrix", i = 0:1, 
       p = c(0L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L), Dim = c(2L, 9L), 
@@ -153,12 +158,12 @@ test_that("price_slist", {
           "dgCMatrix", i = 0:1, p = c(0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L), Dim = c(2L, 9L), 
           Dimnames = list(c("20070104.400000", "20070111.400000"), 
                           c("1", "2", "3", "4", "5", "6", "7", "8", "9")), 
-          x = c(99.986528, 99.897778), factors = list()))
+          x = c(99.986528, 99.897778), factors = list())) 
   )
 })
 test_that("cf_slist", {
   expect_equal(
-    calc_cf_slist(test_bond), 
+    get_cfp_slist(test_bond)$cf_slist, 
     list(`2007-01-02` = new(
       "dgCMatrix", i = 0:1, 
       p = c(0L, 0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L), 
@@ -171,6 +176,6 @@ test_that("cf_slist", {
         Dimnames = list(
           c("20070104.400000", "20070111.400000"), c("1", "2", "3", "4", "5", "6", "7", "8", "9")), 
         x = c(100, 100), 
-        factors = list()))
+        factors = list())) 
   )
 })
