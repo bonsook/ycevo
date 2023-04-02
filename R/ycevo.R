@@ -135,13 +135,18 @@ ycevo <- function(data,
   if(is.null(ht))
     ht <- find_bindwidth_from_tau(tau)
   
-  estimate_yield(
-    data = data ,
-    xgrid = xgrid,
-    hx = hx,
-    tau = tau,
-    ht = ht,
-    loess = loess)
+  pbapply::pblapply(
+    seq_along(xgrid),
+    function(i) 
+      estimate_yield(
+        data = data ,
+        xgrid = xgrid[[i]],
+        hx = hx[[i]],
+        tau = tau,
+        ht = ht[,i],
+        loess = loess)
+  ) %>%
+    bind_rows()
 }
 
 find_bindwidth_from_tau <- function(tau){
