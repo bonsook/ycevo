@@ -38,7 +38,8 @@ Imports:
     Matrix,
     Rcpp (>= 0.12.18),
     rlang,
-    stats
+    stats,
+    tibble
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.2.3
 Suggests: 

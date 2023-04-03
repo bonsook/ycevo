@@ -14,6 +14,8 @@
 #' 
 #' @importClassesFrom Matrix dgCMatrix
 ## usethis namespace: start
+#' @importFrom dplyr all_of
+#' @importFrom dplyr bind_rows
 #' @importFrom dplyr filter left_join mutate select group_by lead lag group_split ungroup
 #' @importFrom magrittr %>%
 #' @importFrom Matrix colSums rowSums sparseMatrix t
@@ -21,7 +23,7 @@
 #' @importFrom Rcpp sourceCpp
 #' @importFrom rlang !! sym .data
 #' @importFrom stats var
-#' @importFrom dplyr all_of
+#' @importFrom tibble as_tibble
 ## usethis namespace: end
 #' @useDynLib ycevo
 #' @references Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562-588.
