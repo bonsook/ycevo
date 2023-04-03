@@ -436,7 +436,8 @@ estimate_yield <- function(data, xgrid, hx, tau, ht,
     loess_model <- lapply(
       unique(dhat$ug), 
       function(ugg) stats::loess(discount~qg, 
-                                 data = filter(dhat, .data$ug == ugg)))
+                                 data = filter(dhat, .data$ug == ugg), 
+                                 control = loess.control(surface = "direct")))
   if(loess){
     dhat$discount <- do.call(base::c, lapply(loess_model, stats::predict))
   }
