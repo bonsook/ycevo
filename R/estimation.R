@@ -433,12 +433,11 @@ estimate_yield <- function(data, xgrid, hx, tau, ht,
     
   }
   # loess smoothing
+    loess_model <- lapply(
+      unique(dhat$ug), 
+      function(ugg) stats::loess(discount~qg, 
+                                 data = filter(dhat, .data$ug == ugg)))
   if(loess){
-    # loess_model <- stats::loess(discount~qg, data = dhat)
-    # dhat$discount <- predict(loess_model)
-    loess_model <- lapply(unique(dhat$ug), 
-                          function(ugg) stats::loess(discount~qg, 
-                                                     data = filter(dhat, .data$ug == ugg)))
     dhat$discount <- do.call(base::c, lapply(loess_model, stats::predict))
   }
   dhat$yield <- -log(dhat$discount) / dhat$qg
@@ -446,5 +445,6 @@ estimate_yield <- function(data, xgrid, hx, tau, ht,
                         xgrid = "ug",
                         tau = "qg"
   )
+  attr(dhat, "loess") <- loess_model
   return(dhat)
 }
