@@ -107,8 +107,7 @@ ycevo <- function(data,
                   cols = NULL,
                   hx = NULL,
                   ht = NULL,
-                  ...,
-                  loess = length(tau)>10){
+                  ...){
   
   if(anyDuplicated(xgrid)){
     stop("Duplicated xgrid found.")
@@ -135,7 +134,7 @@ ycevo <- function(data,
   if(is.null(ht))
     ht <- find_bindwidth_from_tau(tau)
   
-  pbapply::pblapply(
+  output <- pbapply::pblapply(
     seq_along(xgrid),
     function(i) 
       estimate_yield(
@@ -144,9 +143,15 @@ ycevo <- function(data,
         hx = hx[[i]],
         tau = tau,
         ht = ht[,i],
-        loess = loess)
-  ) %>%
-    bind_rows()
+        loess = FALSE)
+  ) 
+  
+  res <- bind_rows(lapply(output, `attr<-`, "loess", NULL))
+  loess <- vapply(output, attr, vector("list", 1L), "loess")
+  names(loess) <- xgrid
+  
+  list(res = res, 
+       loess = loess)
 }
 
 find_bindwidth_from_tau <- function(tau){
