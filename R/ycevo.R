@@ -115,6 +115,9 @@ ycevo <- function(data,
   if(anyDuplicated(tau)){
     stop("Duplicated tau found.")
   }
+  stopifnot(!anyNA(xgrid))
+  stopifnot(!anyNA(tau))
+  
   d_col <- c('qdate', 'crspid', 'mid.price', 'accint', 'pdint', 'tupq')
   names(d_col) <- d_col
   cols <- enexpr(cols)
@@ -134,6 +137,15 @@ ycevo <- function(data,
   if(is.null(ht))
     ht <- find_bindwidth_from_tau(tau)
   
+  # sort xgrid and tau
+  # in case the user don't specify them in sorted order
+  order_xgrid <- order(xgrid)
+  order_tau <- order(tau)
+  xgrid <- xgrid[order_xgrid]
+  hx <- hx[order_xgrid]
+  tau <- tau[order_tau]
+  ht <- ht[order_tau]
+  
   output <- pbapply::pblapply(
     seq_along(xgrid),
     function(i) 
@@ -146,7 +158,10 @@ ycevo <- function(data,
         loess = FALSE)
   ) 
   
-  res <- bind_rows(lapply(output, `attr<-`, "loess", NULL))
+  res <- lapply(output, `attr<-`, "loess", NULL) %>% 
+    bind_rows() %>% 
+    dplyr::relocate(tau, xgrid, discount, yield) %>% 
+    as_tibble()
   loess <- vapply(output, attr, vector("list", 1L), "loess")
   names(loess) <- xgrid
   
