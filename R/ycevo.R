@@ -136,6 +136,8 @@ ycevo <- function(data,
   if(length(hx) == 1) hx <- rep(hx, length(xgrid))
   if(is.null(ht))
     ht <- find_bindwidth_from_tau(tau)
+  if(is.vector(ht))
+    ht <- matrix(ht, nrow = length(ht), ncol = length(xgrid))
   
   # sort xgrid and tau
   # in case the user don't specify them in sorted order
@@ -144,7 +146,7 @@ ycevo <- function(data,
   xgrid <- xgrid[order_xgrid]
   hx <- hx[order_xgrid]
   tau <- tau[order_tau]
-  ht <- ht[order_tau]
+  ht <- ht[order_tau, order_xgrid, drop = FALSE]
   
   output <- pbapply::pblapply(
     seq_along(xgrid),
