@@ -150,8 +150,15 @@ ycevo <- function(data,
   loess <- vapply(output, attr, vector("list", 1L), "loess")
   names(loess) <- xgrid
   
-  list(res = res, 
-       loess = loess)
+  new_ycevo(list(
+    res = res, 
+    loess = loess, 
+    xgrid = xgrid, 
+    tau = tau, 
+    hx = hx, 
+    ht = ht, 
+    cols = cols
+  ))
 }
 
 find_bindwidth_from_tau <- function(tau){
@@ -174,4 +181,6 @@ find_bindwidth_from_xgrid <- function(xgrid, data){
   hx
 }
 
-
+new_ycevo <- function(x) {
+  structure(x, class = c("ycevo", "list"))
+}
