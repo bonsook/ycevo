@@ -1,6 +1,6 @@
 test_that("Simplest example", {
   expect_equal(
-    estimate_yield(
+    suppressWarnings(estimate_yield(
       structure(list(
         mat_days = c(
           180, 360, 360, 540, 540, 540, 720,
@@ -48,7 +48,7 @@ test_that("Simplest example", {
       tau = c(0.493150684931507, 0.986301369863014, 1.47945205479452, 1.97260273972603),
       ht = c(0.18, 0.18, 0.18, 0.18),
       loess = FALSE
-    )$yield,
+    )$yield),
     get_yield_at_vec(rep(0, 4), c(0.493150684931507, 0.986301369863014, 1.47945205479452, 1.97260273972603))
   )
 })
