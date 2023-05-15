@@ -9,6 +9,7 @@ prep_windows <- function(data, xgrid, hx, rgrid, hr,
   
   # kernel weights on interest
   joint_window <-  NULL
+  day_grid <- NULL
   if(interest_grid){
     r_window <- calc_r_window(interest, rgrid, hr)
     day_grid <- expand.grid(ug = xgrid, rg = rgrid)
@@ -69,7 +70,8 @@ prep_windows <- function(data, xgrid, hx, rgrid, hr,
     ntupq_tau = ntupq_tau, 
     mat_weights_tau_p = mat_weights_tau_p,
     tupq_idx_tau_p = tupq_idx_tau_p, 
-    ntupq_tau_p = ntupq_tau_p
+    ntupq_tau_p = ntupq_tau_p, 
+    day_grid = day_grid
   )
 }
 
@@ -120,7 +122,7 @@ calc_dbar <- function(data, xgrid,
   joint_window <- windows_ls$joint_window
   ntupq <- windows_ls$ntupq_tau
   nday <- windows_ls$nday
-  
+  day_grid <- windows_ls$day_grid
   
   if(interest_grid){
     dbar <- calc_dbar_c(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, joint_window, price_slist, cf_slist)
@@ -192,7 +194,7 @@ calc_hhat_num <- function(data, xgrid,
   ntupq_tau <- windows_ls$ntupq_tau
   ntupq_tau_p <- windows_ls$ntupq_tau_p
   nday <- windows_ls$nday
-  
+  day_grid <- windows_ls$day_grid
   
   if(interest_grid){
     hhat <- calc_hhat_num2_c(nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist)
