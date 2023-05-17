@@ -5,15 +5,17 @@
 #include <Rcpp.h>
 
 // [[Rcpp::export]]
-arma::mat calc_dbar_c(int nday, int ntupq, arma::mat day_idx, arma::mat tupq_idx, arma::mat mat_weights_tau, arma::mat mat_weights_qdatetime,
+arma::mat calc_dbar_c(int nday, int ntupq, arma::mat day_idx, 
+                      arma::mat tupq_idx, arma::mat mat_weights_tau, 
+                      arma::mat mat_weights_qdatetime,
                       Rcpp::List price_slist, Rcpp::List cf_slist){
   arma::mat dbar(nday * ntupq, 2);
   
-  // For each element in ugrid
+  // For each element in time grid
   for(int i = 0; i < nday; ++i){
     arma::rowvec seq_day = day_idx.row(i);
     
-    // For each element in xgrid
+    // For each element in time-to-maturity tau grid
     for(int j = 0; j < ntupq; ++j){
       Rcpp::checkUserInterrupt();
       arma::rowvec seq_tupq(2);
@@ -52,6 +54,89 @@ arma::mat calc_dbar_c(int nday, int ntupq, arma::mat day_idx, arma::mat tupq_idx
     }
   }
   return dbar;
+}
+
+// [[Rcpp::export]]
+arma::mat calc_dbar_c2(int nday, int ntupq, arma::mat day_idx, 
+                      arma::mat tupq_idx, arma::mat mat_weights_tau, 
+                      arma::mat mat_weights_qdatetime,
+                      Rcpp::List price_slist, Rcpp::List cf_slist){
+  arma::mat dbar(nday * ntupq, 2);
+  
+  // For each element in time grid
+    arma::rowvec seq_day = day_idx.row(0);
+    
+    // For each element in time-to-maturity tau grid
+    for(int j = 0; j < ntupq; ++j){
+      Rcpp::checkUserInterrupt();
+      arma::rowvec seq_tupq(2);
+        seq_tupq = tupq_idx.row(j);
+      arma::vec num(seq_day[1] - seq_day[0] + 1, arma::fill::zeros), den(seq_day[1] - seq_day[0] + 1, arma::fill::zeros);
+      
+      // For each element in the window of the current element of ugrid: t=1 to T in the paper
+      // The kernel for the rest is 0
+      for(int k = seq_day[0] - 1; k < seq_day[1]; ++k){
+        arma::sp_mat price_temp =  Rcpp::as<arma::sp_mat>(price_slist[k]);
+        arma::sp_mat cf_temp =  Rcpp::as<arma::sp_mat>(cf_slist[k]);
+        
+        // The next two loops are to loop over elements in the cash flow and price matrix in the price_slist and cf_slist
+        // For each bond: i=1 to n_t in the paper
+        for(unsigned int m = 0; m < price_temp.n_rows; ++m){
+          
+          // For each element in the window of the current element of xgrid: j=1 to m_it in the paper
+          // The kernel for the rest is 0
+          for(int n = seq_tupq[0] - 1; n < seq_tupq[1]; ++n) {
+            num(k - seq_day[0] + 1) += price_temp(m, n) * cf_temp(m, n) * mat_weights_tau(n, j) * mat_weights_qdatetime(k, 0);
+            den(k - seq_day[0] + 1) += pow(cf_temp(m, n), 2) * mat_weights_tau(n, j) * mat_weights_qdatetime(k, 0);
+          }
+        }
+      }
+      
+      double numer = arma::sum(num), denom = arma::sum(den);
+      dbar(j, 0) = numer;
+      dbar(j, 1) = denom;
+  }
+  return dbar;
+}
+
+// [[Rcpp::export]]
+arma::sp_mat calc_dbar_m(arma::sp_mat& mat_weights_tau, 
+                         arma::sp_mat& mat_weights_qdatetime,
+                      const arma::sp_mat& price_smat, 
+                      const arma::sp_mat& cf_smat){
+  
+  arma::uword ns = price_smat.n_rows / mat_weights_qdatetime.n_rows;
+  
+  arma::umat i(2, mat_weights_qdatetime.n_rows * ns);
+  arma::uvec temp_col = arma::conv_to<arma::uvec>::from(arma::vectorise(arma::repmat(arma::regspace(0, mat_weights_qdatetime.n_rows - 1), ns, 1), 1));
+  i.row(0) = temp_col.as_row();
+  i.row(1) = arma::regspace<arma::uvec>(0, price_smat.n_rows - 1).as_row();
+  
+  arma::vec x(i.n_cols);
+  x.fill(1);
+  
+  arma::sp_mat tempi(i, x, mat_weights_qdatetime.n_rows, price_smat.n_rows);
+  
+  arma::sp_mat num = (mat_weights_qdatetime.t() * tempi) * (price_smat % cf_smat) * mat_weights_tau;
+  arma::sp_mat den = (mat_weights_qdatetime.t() * tempi) * (cf_smat % cf_smat) * mat_weights_tau;
+  
+  arma::sp_mat combined = arma::join_cols(num, den);
+  arma::sp_mat result = combined.t();
+  return result;
+}
+// [[Rcpp::export]]
+arma::sp_mat calc_dbar_m2(arma::sp_mat& mat_weights_tau, 
+                         arma::sp_mat& mat_weights_qdatetime,
+                      const arma::sp_mat& price_smat, 
+                      const arma::sp_mat& cf_smat){
+  
+  
+  arma::sp_mat num = (price_smat % cf_smat) * mat_weights_tau;
+  arma::sp_mat den = (cf_smat % cf_smat) * mat_weights_tau;
+  
+  arma::sp_mat combined = arma::join_cols(num, den);
+  arma::sp_mat result = combined.t();
+  return result;
 }
 
 arma::mat check_crspid_intersect (Rcpp::List cf_slist, arma::rowvec seq_tupq_x, arma::rowvec seq_tupq_q, arma::rowvec seq_day){

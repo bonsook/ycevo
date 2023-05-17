@@ -130,6 +130,25 @@ calc_dbar <- function(data, xgrid,
     dbar <- data.frame(ug = day_grid$ug, rg = day_grid$rg, dbar_numer = dbar[,1], dbar_denom = dbar[,2])
   } else {
     dbar <- calc_dbar_c(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist)
+    # 
+    # price_smat <- do.call(cbind, price_slist)
+    # cf_smat <- do.call(cbind, cf_slist)
+    # 
+    # m1 <- as(mat_weights_tau, "sparseMatrix")
+    # m2 <- as(mat_weights_qdatetime, "sparseMatrix")
+    # 
+    # bench::mark(
+    # calc_dbar_c(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
+    # calc_dbar_c2(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist), # best
+    # calc_dbar_r(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
+    # calc_dbar_r2(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
+    # calc_dbar_r3(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
+    # calc_dbar_r4(mat_weights_tau, mat_weights_qdatetime, price_smat, cf_smat), 
+    # calc_dbar_m(m1,m2, price_smat, cf_smat),
+    # calc_dbar_m2(m1,m2, price_smat, cf_smat),
+    # check = FALSE
+    # )[,-1]
+    
     dbar <- data.frame(ug = rep(xgrid, rep(ntupq, nday)), dbar_numer = dbar[,1], dbar_denom = dbar[,2])
   }
   dbar$xg <- rep(tau, nday)

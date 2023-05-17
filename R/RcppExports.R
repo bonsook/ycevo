@@ -5,6 +5,18 @@ calc_dbar_c <- function(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_wei
     .Call('_ycevo_calc_dbar_c', PACKAGE = 'ycevo', nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist)
 }
 
+calc_dbar_c2 <- function(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist) {
+    .Call('_ycevo_calc_dbar_c2', PACKAGE = 'ycevo', nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist)
+}
+
+calc_dbar_m <- function(mat_weights_tau, mat_weights_qdatetime, price_smat, cf_smat) {
+    .Call('_ycevo_calc_dbar_m', PACKAGE = 'ycevo', mat_weights_tau, mat_weights_qdatetime, price_smat, cf_smat)
+}
+
+calc_dbar_m2 <- function(mat_weights_tau, mat_weights_qdatetime, price_smat, cf_smat) {
+    .Call('_ycevo_calc_dbar_m2', PACKAGE = 'ycevo', mat_weights_tau, mat_weights_qdatetime, price_smat, cf_smat)
+}
+
 calc_hhat_num2_c <- function(nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist) {
     .Call('_ycevo_calc_hhat_num2_c', PACKAGE = 'ycevo', nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist)
 }
