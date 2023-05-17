@@ -5,51 +5,44 @@
 #include <Rcpp.h>
 
 // [[Rcpp::export]]
-arma::mat calc_dbar_c(int nday, int ntupq, arma::mat day_idx, arma::mat tupq_idx, arma::mat mat_weights_tau, arma::mat mat_weights_qdatetime,
-                      Rcpp::List price_slist, Rcpp::List cf_slist){
+arma::mat calc_dbar_c(int nday, int ntupq, arma::mat day_idx, 
+                       arma::mat tupq_idx, arma::mat mat_weights_tau, 
+                       arma::mat mat_weights_qdatetime,
+                       Rcpp::List price_slist, Rcpp::List cf_slist){
   arma::mat dbar(nday * ntupq, 2);
   
-  // For each element in ugrid
-  for(int i = 0; i < nday; ++i){
-    arma::rowvec seq_day = day_idx.row(i);
+  // For each element in time grid
+  arma::rowvec seq_day = day_idx.row(0);
+  
+  // For each element in time-to-maturity tau grid
+  for(int j = 0; j < ntupq; ++j){
+    Rcpp::checkUserInterrupt();
+    arma::rowvec seq_tupq(2);
+    seq_tupq = tupq_idx.row(j);
+    arma::vec num(seq_day[1] - seq_day[0] + 1, arma::fill::zeros), den(seq_day[1] - seq_day[0] + 1, arma::fill::zeros);
     
-    // For each element in xgrid
-    for(int j = 0; j < ntupq; ++j){
-      Rcpp::checkUserInterrupt();
-      arma::rowvec seq_tupq(2);
-      int windowOffset = 0;
-      if(tupq_idx.n_cols == 2){
-        seq_tupq = tupq_idx.row(j);
-      } else {
-        seq_tupq = tupq_idx(j, arma::span(2*i, 2*i+1));
-        windowOffset = i * ntupq;
-      }
-      arma::vec num(seq_day[1] - seq_day[0] + 1, arma::fill::zeros), den(seq_day[1] - seq_day[0] + 1, arma::fill::zeros);
+    // For each element in the window of the current element of time xgrid: t=1 to T in the paper
+    // The kernel for the rest is 0
+    for(int k = seq_day[0] - 1; k < seq_day[1]; ++k){
+      arma::sp_mat price_temp =  Rcpp::as<arma::sp_mat>(price_slist[k]);
+      arma::sp_mat cf_temp =  Rcpp::as<arma::sp_mat>(cf_slist[k]);
       
-      // For each element in the window of the current element of ugrid: t=1 to T in the paper
-      // The kernel for the rest is 0
-      for(int k = seq_day[0] - 1; k < seq_day[1]; ++k){
-        arma::sp_mat price_temp =  Rcpp::as<arma::sp_mat>(price_slist[k]);
-        arma::sp_mat cf_temp =  Rcpp::as<arma::sp_mat>(cf_slist[k]);
-        double ncols = price_temp.n_cols;
+      // The next two loops are to loop over elements in the cash flow and price matrix in the price_slist and cf_slist
+      // For each bond: i=1 to n_t in the paper
+      for(unsigned int m = 0; m < price_temp.n_rows; ++m){
         
-        // The next two loops are to loop over elements in the cash flow and price matrix in the price_slist and cf_slist
-        // For each bond: i=1 to n_t in the paper
-        for(unsigned int m = 0; m < price_temp.n_rows; ++m){
-          
-          // For each element in the window of the current element of xgrid: j=1 to m_it in the paper
-          // The kernel for the rest is 0
-          for(int n = seq_tupq[0] - 1; n < std::min(seq_tupq[1], ncols); ++n) {
-            num(k - seq_day[0] + 1) += price_temp(m, n) * cf_temp(m, n) * mat_weights_tau(n, windowOffset + j) * mat_weights_qdatetime(k, i);
-            den(k - seq_day[0] + 1) += pow(cf_temp(m, n), 2) * mat_weights_tau(n, windowOffset + j) * mat_weights_qdatetime(k, i);
-          }
+        // For each element in the window of the current element of tau grid: j=1 to m_it in the paper
+        // The kernel for the rest is 0
+        for(int n = seq_tupq[0] - 1; n < seq_tupq[1]; ++n) {
+          num(k - seq_day[0] + 1) += price_temp(m, n) * cf_temp(m, n) * mat_weights_tau(n, j) * mat_weights_qdatetime(k, 0);
+          den(k - seq_day[0] + 1) += pow(cf_temp(m, n), 2) * mat_weights_tau(n, j) * mat_weights_qdatetime(k, 0);
         }
       }
-      
-      double numer = arma::sum(num), denom = arma::sum(den);
-      dbar(i*ntupq + j, 0) = numer;
-      dbar(i*ntupq + j, 1) = denom;
     }
+    
+    double numer = arma::sum(num), denom = arma::sum(den);
+    dbar(j, 0) = numer;
+    dbar(j, 1) = denom;
   }
   return dbar;
 }

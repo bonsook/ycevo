@@ -260,9 +260,9 @@ estimate_yield <- function(data, xgrid, hx, tau, ht,
   }
   
   # Check inputs
-  stopifnot(is.vector(xgrid))
+  stopifnot(length(xgrid) == 1)
   stopifnot(is.numeric(xgrid))
-  stopifnot(is.vector(hx))
+  stopifnot(length(hx) == 1)
   stopifnot(is.numeric(hx))
   stopifnot(is.data.frame(data))
   stopifnot(is.vector(tau))
