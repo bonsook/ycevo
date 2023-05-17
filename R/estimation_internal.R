@@ -45,10 +45,10 @@ calc_dbar_r2 <- function(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_we
     vapply(seq(seq_day[[1]], seq_day[[2]]), function(k){
       price_temp <- price_slist[[k]]  
       cf_temp <- cf_slist[[k]]
-      ncols <- ncol(price_temp)
-      seq_t <- seq(seq_tupq[[1]], min(seq_tupq[[2]], ncols))
-      num <- (price_temp[, seq_t] * cf_temp[, seq_t]) %*% (mat_weights_tau[seq_t, j] * mat_weights_qdatetime[k,1])
-      den <- (cf_temp[, seq_t]^2) %*% (mat_weights_tau[seq_t, j] * mat_weights_qdatetime[k,1])
+      seq_t <- seq(seq_tupq[[1]], seq_tupq[[2]])
+      mat_temp <- (mat_weights_tau[seq_t, j] * mat_weights_qdatetime[k,1])
+      num <- (price_temp[, seq_t] * cf_temp[, seq_t]) %*% mat_temp 
+      den <- (cf_temp[, seq_t]^2) %*% mat_temp 
       c(sum(num), sum(den))
     }, FUN.VALUE = numeric(2)) %>% 
       rowSums()
@@ -67,8 +67,9 @@ calc_dbar_r3 <- function(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_we
   vapply(seq(seq_day[[1]], seq_day[[2]]), function(k){
     price_temp <- price_slist[[k]]  
     cf_temp <- cf_slist[[k]]
-    num <- (price_temp * cf_temp) %*% mat_weights_tau * mat_weights_qdatetime[k,1]
-    den <- (cf_temp^2) %*% mat_weights_tau * mat_weights_qdatetime[k,1]
+    mat_temp <- mat_weights_tau * mat_weights_qdatetime[k,1]
+    num <- (price_temp * cf_temp) %*% mat_temp
+    den <- (cf_temp^2) %*% mat_temp
     rbind(colSums(num), colSums(den))
   }, FUN.VALUE = matrix(NA_real_, ncol = nrow(tupq_idx), nrow = 2)) %>% 
     rowSums(dims = 2L) %>% 

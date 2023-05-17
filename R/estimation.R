@@ -130,25 +130,38 @@ calc_dbar <- function(data, xgrid,
     dbar <- data.frame(ug = day_grid$ug, rg = day_grid$rg, dbar_numer = dbar[,1], dbar_denom = dbar[,2])
   } else {
     dbar <- calc_dbar_c(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist)
-    # 
+
     # price_smat <- do.call(cbind, price_slist)
     # cf_smat <- do.call(cbind, cf_slist)
     # 
     # m1 <- as(mat_weights_tau, "sparseMatrix")
     # m2 <- as(mat_weights_qdatetime, "sparseMatrix")
+    # a <- price_smat*cf_smat
+    # b <- cf_smat^2
     # 
     # bench::mark(
     # calc_dbar_c(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
-    # calc_dbar_c2(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist), # best
+    # calc_dbar_c2(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist), 
+    # calc_dbar_c3(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist), # best
     # calc_dbar_r(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
     # calc_dbar_r2(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
     # calc_dbar_r3(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
-    # calc_dbar_r4(mat_weights_tau, mat_weights_qdatetime, price_smat, cf_smat), 
+    # calc_dbar_r4(mat_weights_tau, mat_weights_qdatetime, price_smat, cf_smat),
     # calc_dbar_m(m1,m2, price_smat, cf_smat),
-    # calc_dbar_m2(m1,m2, price_smat, cf_smat),
+    # calc_dbar_m2(m1,mat_weights_qdatetime, a, b),
     # check = FALSE
     # )[,-1]
-    
+    # # min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result
+    # # <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>
+    # #   1 328.98µs 333.04µs   2916.      2.49KB     2.00  1458     1      500ms <NULL>
+    # #   2 318.53µs 324.29µs   3019.      2.49KB     0     1510     0      500ms <NULL>
+    # #   3  56.91µs  58.18µs  16737.      2.49KB     0     8363     0      500ms <NULL>
+    # #   4 373.15ms 377.52ms      2.65        0B     6.62     2     5      755ms <NULL>
+    # #   5   2.38ms   2.56ms    364.     70.63KB     5.99   182     3      500ms <NULL>
+    # #   6 478.14µs 505.28µs   1794.     94.14KB     5.99   898     3      500ms <NULL>
+    # #   7 817.38µs 858.95µs   1076.     83.08KB     3.99   539     2      501ms <NULL>
+    # #   8 539.85µs 543.29µs   1781.      2.49KB     2.00   891     1      500ms <NULL>
+    # #   9 488.02µs 490.44µs   2004.      2.49KB     0     1002     0      500ms <NULL>
     dbar <- data.frame(ug = rep(xgrid, rep(ntupq, nday)), dbar_numer = dbar[,1], dbar_denom = dbar[,2])
   }
   dbar$xg <- rep(tau, nday)

@@ -58,43 +58,81 @@ arma::mat calc_dbar_c(int nday, int ntupq, arma::mat day_idx,
 
 // [[Rcpp::export]]
 arma::mat calc_dbar_c2(int nday, int ntupq, arma::mat day_idx, 
-                      arma::mat tupq_idx, arma::mat mat_weights_tau, 
-                      arma::mat mat_weights_qdatetime,
-                      Rcpp::List price_slist, Rcpp::List cf_slist){
+                       arma::mat tupq_idx, arma::mat mat_weights_tau, 
+                       arma::mat mat_weights_qdatetime,
+                       Rcpp::List price_slist, Rcpp::List cf_slist){
   arma::mat dbar(nday * ntupq, 2);
   
   // For each element in time grid
-    arma::rowvec seq_day = day_idx.row(0);
+  arma::rowvec seq_day = day_idx.row(0);
+  
+  // For each element in time-to-maturity tau grid
+  for(int j = 0; j < ntupq; ++j){
+    Rcpp::checkUserInterrupt();
+    arma::rowvec seq_tupq(2);
+    seq_tupq = tupq_idx.row(j);
+    arma::vec num(seq_day[1] - seq_day[0] + 1, arma::fill::zeros), den(seq_day[1] - seq_day[0] + 1, arma::fill::zeros);
     
-    // For each element in time-to-maturity tau grid
-    for(int j = 0; j < ntupq; ++j){
-      Rcpp::checkUserInterrupt();
-      arma::rowvec seq_tupq(2);
-        seq_tupq = tupq_idx.row(j);
-      arma::vec num(seq_day[1] - seq_day[0] + 1, arma::fill::zeros), den(seq_day[1] - seq_day[0] + 1, arma::fill::zeros);
+    // For each element in the window of the current element of ugrid: t=1 to T in the paper
+    // The kernel for the rest is 0
+    for(int k = seq_day[0] - 1; k < seq_day[1]; ++k){
+      arma::sp_mat price_temp =  Rcpp::as<arma::sp_mat>(price_slist[k]);
+      arma::sp_mat cf_temp =  Rcpp::as<arma::sp_mat>(cf_slist[k]);
       
-      // For each element in the window of the current element of ugrid: t=1 to T in the paper
-      // The kernel for the rest is 0
-      for(int k = seq_day[0] - 1; k < seq_day[1]; ++k){
-        arma::sp_mat price_temp =  Rcpp::as<arma::sp_mat>(price_slist[k]);
-        arma::sp_mat cf_temp =  Rcpp::as<arma::sp_mat>(cf_slist[k]);
+      // The next two loops are to loop over elements in the cash flow and price matrix in the price_slist and cf_slist
+      // For each bond: i=1 to n_t in the paper
+      for(unsigned int m = 0; m < price_temp.n_rows; ++m){
         
-        // The next two loops are to loop over elements in the cash flow and price matrix in the price_slist and cf_slist
-        // For each bond: i=1 to n_t in the paper
-        for(unsigned int m = 0; m < price_temp.n_rows; ++m){
-          
-          // For each element in the window of the current element of xgrid: j=1 to m_it in the paper
-          // The kernel for the rest is 0
-          for(int n = seq_tupq[0] - 1; n < seq_tupq[1]; ++n) {
-            num(k - seq_day[0] + 1) += price_temp(m, n) * cf_temp(m, n) * mat_weights_tau(n, j) * mat_weights_qdatetime(k, 0);
-            den(k - seq_day[0] + 1) += pow(cf_temp(m, n), 2) * mat_weights_tau(n, j) * mat_weights_qdatetime(k, 0);
-          }
+        // For each element in the window of the current element of xgrid: j=1 to m_it in the paper
+        // The kernel for the rest is 0
+        for(int n = seq_tupq[0] - 1; n < seq_tupq[1]; ++n) {
+          num(k - seq_day[0] + 1) += price_temp(m, n) * cf_temp(m, n) * mat_weights_tau(n, j) * mat_weights_qdatetime(k, 0);
+          den(k - seq_day[0] + 1) += pow(cf_temp(m, n), 2) * mat_weights_tau(n, j) * mat_weights_qdatetime(k, 0);
         }
       }
+    }
+    
+    double numer = arma::sum(num), denom = arma::sum(den);
+    dbar(j, 0) = numer;
+    dbar(j, 1) = denom;
+  }
+  return dbar;
+}
+// [[Rcpp::export]]
+arma::mat calc_dbar_c3(int nday, int ntupq, arma::mat day_idx, 
+                       arma::mat tupq_idx, arma::mat mat_weights_tau, 
+                       arma::mat mat_weights_qdatetime,
+                       Rcpp::List price_slist, Rcpp::List cf_slist){
+  arma::mat dbar(nday * ntupq, 2);
+  
+  // For each element in time grid
+  arma::rowvec seq_day = day_idx.row(0);
+  
+  // For each element in time-to-maturity tau grid
+  for(int j = 0; j < ntupq; ++j){
+    Rcpp::checkUserInterrupt();
+    arma::rowvec seq_tupq(2);
+    seq_tupq = tupq_idx.row(j);
+    arma::vec num(seq_day[1] - seq_day[0] + 1, arma::fill::zeros), den(seq_day[1] - seq_day[0] + 1, arma::fill::zeros);
+    
+    // For each element in the window of the current element of ugrid: t=1 to T in the paper
+    // The kernel for the rest is 0
+    for(int k = seq_day[0] - 1; k < seq_day[1]; ++k){
+      arma::sp_mat price_temp =  Rcpp::as<arma::sp_mat>(price_slist[k]);
+      arma::sp_mat cf_temp =  Rcpp::as<arma::sp_mat>(cf_slist[k]);
       
-      double numer = arma::sum(num), denom = arma::sum(den);
-      dbar(j, 0) = numer;
-      dbar(j, 1) = denom;
+      arma::sp_mat x = cf_temp.cols(seq_tupq[0] - 1, seq_tupq[1]-1);
+      int q = seq_tupq[0] - 1;
+      for(arma::sp_mat::const_iterator c = x.begin();
+          c != x.end(); ++c) {
+        num(k - seq_day[0] + 1) += price_temp(c.row(), c.col() + q) * *c * mat_weights_tau(c.col() + q, j) * mat_weights_qdatetime(k, 0);
+        den(k - seq_day[0] + 1) += pow(*c, 2) * mat_weights_tau(c.col() + q, j) * mat_weights_qdatetime(k, 0);
+      };
+    };
+    
+    double numer = arma::sum(num), denom = arma::sum(den);
+    dbar(j, 0) = numer;
+    dbar(j, 1) = denom;
   }
   return dbar;
 }
@@ -102,8 +140,8 @@ arma::mat calc_dbar_c2(int nday, int ntupq, arma::mat day_idx,
 // [[Rcpp::export]]
 arma::sp_mat calc_dbar_m(arma::sp_mat& mat_weights_tau, 
                          arma::sp_mat& mat_weights_qdatetime,
-                      const arma::sp_mat& price_smat, 
-                      const arma::sp_mat& cf_smat){
+                         const arma::sp_mat& price_smat, 
+                         const arma::sp_mat& cf_smat){
   
   arma::uword ns = price_smat.n_rows / mat_weights_qdatetime.n_rows;
   
@@ -124,19 +162,25 @@ arma::sp_mat calc_dbar_m(arma::sp_mat& mat_weights_tau,
   arma::sp_mat result = combined.t();
   return result;
 }
+
+
+
+
+
+
 // [[Rcpp::export]]
 arma::sp_mat calc_dbar_m2(arma::sp_mat& mat_weights_tau, 
-                         arma::sp_mat& mat_weights_qdatetime,
-                      const arma::sp_mat& price_smat, 
-                      const arma::sp_mat& cf_smat){
+                          arma::mat mat_weights_qdatetime,
+                          const arma::sp_mat& a, 
+                          const arma::sp_mat& b){
   
   
-  arma::sp_mat num = (price_smat % cf_smat) * mat_weights_tau;
-  arma::sp_mat den = (cf_smat % cf_smat) * mat_weights_tau;
+  arma::sp_mat num = a * mat_weights_tau;
+  arma::sp_mat den = b * mat_weights_tau;
   
-  arma::sp_mat combined = arma::join_cols(num, den);
-  arma::sp_mat result = combined.t();
-  return result;
+  // arma::sp_mat combined = arma::join_cols(num, den);
+  // arma::sp_mat result = combined.t();
+  return num;
 }
 
 arma::mat check_crspid_intersect (Rcpp::List cf_slist, arma::rowvec seq_tupq_x, arma::rowvec seq_tupq_q, arma::rowvec seq_day){
@@ -323,11 +367,11 @@ arma::cube calc_hhat_num2_c(int nday, int ntupq_tau, int ntupq_tau_p, arma::mat 
   
   arma::cube hhat(ntupq_tau, ntupq_tau_p, nday, arma::fill::zeros);
   
-  // For each element in ugrid time
+  // For each element in xgrid time
   for (int i = 0; i < nday; ++i) {
     arma::rowvec seq_day = day_idx.row(i);
     
-    // For each element in xgrid tau
+    // For each element in tau grid
     for (int j = 0; j < ntupq_tau; ++j) {
       arma::rowvec seq_tupq_x(2);
       int window_lower_x, window_upper_x;
@@ -341,7 +385,7 @@ arma::cube calc_hhat_num2_c(int nday, int ntupq_tau, int ntupq_tau_p, arma::mat 
         window_upper_x = ntupq_tau * (i + 1) - 1;
       }
       
-      // For each element in qgrid tau_p
+      // For each element in tau_p
       for (int k = 0; k < ntupq_tau_p; ++k) {
         Rcpp::checkUserInterrupt();
         arma::rowvec seq_tupq_q(2);

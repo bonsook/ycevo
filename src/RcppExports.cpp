@@ -48,6 +48,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// calc_dbar_c3
+arma::mat calc_dbar_c3(int nday, int ntupq, arma::mat day_idx, arma::mat tupq_idx, arma::mat mat_weights_tau, arma::mat mat_weights_qdatetime, Rcpp::List price_slist, Rcpp::List cf_slist);
+RcppExport SEXP _ycevo_calc_dbar_c3(SEXP ndaySEXP, SEXP ntupqSEXP, SEXP day_idxSEXP, SEXP tupq_idxSEXP, SEXP mat_weights_tauSEXP, SEXP mat_weights_qdatetimeSEXP, SEXP price_slistSEXP, SEXP cf_slistSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type nday(ndaySEXP);
+    Rcpp::traits::input_parameter< int >::type ntupq(ntupqSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type day_idx(day_idxSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type tupq_idx(tupq_idxSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_tau(mat_weights_tauSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_qdatetime(mat_weights_qdatetimeSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type price_slist(price_slistSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type cf_slist(cf_slistSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_dbar_c3(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist));
+    return rcpp_result_gen;
+END_RCPP
+}
 // calc_dbar_m
 arma::sp_mat calc_dbar_m(arma::sp_mat& mat_weights_tau, arma::sp_mat& mat_weights_qdatetime, const arma::sp_mat& price_smat, const arma::sp_mat& cf_smat);
 RcppExport SEXP _ycevo_calc_dbar_m(SEXP mat_weights_tauSEXP, SEXP mat_weights_qdatetimeSEXP, SEXP price_smatSEXP, SEXP cf_smatSEXP) {
@@ -63,16 +81,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // calc_dbar_m2
-arma::sp_mat calc_dbar_m2(arma::sp_mat& mat_weights_tau, arma::sp_mat& mat_weights_qdatetime, const arma::sp_mat& price_smat, const arma::sp_mat& cf_smat);
-RcppExport SEXP _ycevo_calc_dbar_m2(SEXP mat_weights_tauSEXP, SEXP mat_weights_qdatetimeSEXP, SEXP price_smatSEXP, SEXP cf_smatSEXP) {
+arma::sp_mat calc_dbar_m2(arma::sp_mat& mat_weights_tau, arma::mat mat_weights_qdatetime, const arma::sp_mat& a, const arma::sp_mat& b);
+RcppExport SEXP _ycevo_calc_dbar_m2(SEXP mat_weights_tauSEXP, SEXP mat_weights_qdatetimeSEXP, SEXP aSEXP, SEXP bSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::sp_mat& >::type mat_weights_tau(mat_weights_tauSEXP);
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type mat_weights_qdatetime(mat_weights_qdatetimeSEXP);
-    Rcpp::traits::input_parameter< const arma::sp_mat& >::type price_smat(price_smatSEXP);
-    Rcpp::traits::input_parameter< const arma::sp_mat& >::type cf_smat(cf_smatSEXP);
-    rcpp_result_gen = Rcpp::wrap(calc_dbar_m2(mat_weights_tau, mat_weights_qdatetime, price_smat, cf_smat));
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_qdatetime(mat_weights_qdatetimeSEXP);
+    Rcpp::traits::input_parameter< const arma::sp_mat& >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const arma::sp_mat& >::type b(bSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_dbar_m2(mat_weights_tau, mat_weights_qdatetime, a, b));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -100,6 +118,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_ycevo_calc_dbar_c", (DL_FUNC) &_ycevo_calc_dbar_c, 8},
     {"_ycevo_calc_dbar_c2", (DL_FUNC) &_ycevo_calc_dbar_c2, 8},
+    {"_ycevo_calc_dbar_c3", (DL_FUNC) &_ycevo_calc_dbar_c3, 8},
     {"_ycevo_calc_dbar_m", (DL_FUNC) &_ycevo_calc_dbar_m, 4},
     {"_ycevo_calc_dbar_m2", (DL_FUNC) &_ycevo_calc_dbar_m2, 4},
     {"_ycevo_calc_hhat_num2_c", (DL_FUNC) &_ycevo_calc_hhat_num2_c, 10},
