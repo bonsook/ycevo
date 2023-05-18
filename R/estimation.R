@@ -125,12 +125,23 @@ calc_dbar <- function(data, xgrid,
   day_grid <- windows_ls$day_grid
   
   if(interest_grid){
-    dbar <- calc_dbar_c(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, joint_window, price_slist, cf_slist)
+    dbar <- calc_dbar_c3(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, joint_window, price_slist, cf_slist)
+    # bench::mark(
+    #   calc_dbar_c2(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, joint_window, price_slist, cf_slist),
+    #   calc_dbar_c3(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, joint_window, price_slist, cf_slist), # best
+    #   calc_dbar_r3(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, joint_window, price_slist, cf_slist),
+    #   check=FALSE
+    # )[,-1]
+    # # min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result memory                 time           gc              
+    # # <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list> <list>                 <list>         <list>          
+    # #   1    9.09s    9.09s     0.110    5.18KB     0        1     0      9.09s <NULL> <Rprofmem [978 × 3]>   <bench_tm [1]> <tibble [1 × 3]>
+    # #   2  74.34ms  76.48ms    12.9      5.18KB     1.84     7     1   542.12ms <NULL> <Rprofmem [3 × 3]>     <bench_tm [7]> <tibble [7 × 3]>
+    # #   3 568.81ms 568.81ms     1.76      2.1GB     3.52     1     2   568.81ms 
     day_grid <- day_grid[rep(1:nday, each=ntupq),]
     dbar <- data.frame(ug = day_grid$ug, rg = day_grid$rg, dbar_numer = dbar[,1], dbar_denom = dbar[,2])
   } else {
-    dbar <- calc_dbar_c(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist)
-
+    dbar <- calc_dbar_c3(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist)
+    
     # price_smat <- do.call(cbind, price_slist)
     # cf_smat <- do.call(cbind, cf_slist)
     # 
@@ -140,16 +151,15 @@ calc_dbar <- function(data, xgrid,
     # b <- cf_smat^2
     # 
     # bench::mark(
-    # calc_dbar_c(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
-    # calc_dbar_c2(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist), 
+    # # calc_dbar_c(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
+    # calc_dbar_c2(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
     # calc_dbar_c3(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist), # best
-    # calc_dbar_r(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
-    # calc_dbar_r2(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
-    # calc_dbar_r3(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
-    # calc_dbar_r4(mat_weights_tau, mat_weights_qdatetime, price_smat, cf_smat),
-    # calc_dbar_m(m1,m2, price_smat, cf_smat),
-    # calc_dbar_m2(m1,mat_weights_qdatetime, a, b),
-    # check = FALSE
+    # # calc_dbar_r(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
+    # # calc_dbar_r2(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
+    # # calc_dbar_r3(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist),
+    # # calc_dbar_r4(mat_weights_tau, mat_weights_qdatetime, price_smat, cf_smat),
+    # # calc_dbar_m(m1,m2, price_smat, cf_smat),
+    # # calc_dbar_m2(m1,mat_weights_qdatetime, a, b),
     # )[,-1]
     # # min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result
     # # <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>
@@ -162,6 +172,12 @@ calc_dbar <- function(data, xgrid,
     # #   7 817.38µs 858.95µs   1076.     83.08KB     3.99   539     2      501ms <NULL>
     # #   8 539.85µs 543.29µs   1781.      2.49KB     2.00   891     1      500ms <NULL>
     # #   9 488.02µs 490.44µs   2004.      2.49KB     0     1002     0      500ms <NULL>
+    
+    # min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result memory             time       gc      
+    # <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list> <list>             <list>     <list>  
+    #   c2    9.88s    9.88s     0.101    5.18KB    0.101     1     1      9.88s <NULL> <Rprofmem>         <bench_tm> <tibble>
+    #   c3  69.8ms  71.07ms     8.76     5.18KB    0         5     0    570.8ms <NULL> <Rprofmem [3 × 3]> <bench_tm> <tibble>
+    #   r3  575.6ms  575.6ms     1.74      2.1GB    3.47      1     2    575.6ms
     dbar <- data.frame(ug = rep(xgrid, rep(ntupq, nday)), dbar_numer = dbar[,1], dbar_denom = dbar[,2])
   }
   dbar$xg <- rep(tau, nday)
@@ -228,8 +244,18 @@ calc_hhat_num <- function(data, xgrid,
   nday <- windows_ls$nday
   day_grid <- windows_ls$day_grid
   
+  # browser()
   if(interest_grid){
     hhat <- calc_hhat_num2_c(nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist)
+    
+    # bench_base <- bench::mark(calc_hhat_num2_c(nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist))
+    # hhat <- bench_base$result[[1]]
+    # bench_base[,-1]
+    # # # A tibble: 1 × 12
+    # # min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result              memory     time           gc      
+    # # <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>              <list>     <list>         <list>  
+    # #   1    2.42m    2.42m   0.00690    20.2MB   0.0690     1    10      2.42m <dbl [83 × 83 × 1]> <Rprofmem> <bench_tm [1]> <tibble>
+    
     day_grid <- day_grid[rep(1:nday, each=ntupq_tau_p*ntupq_tau),]
     hhat <- data.frame(hhat_numer = c(hhat), ug = day_grid$ug, rg = day_grid$rg)
   } else {
@@ -467,11 +493,11 @@ estimate_yield <- function(data, xgrid, hx, tau, ht,
     
   }
   # loess smoothing
-    loess_model <- lapply(
-      unique(dhat$ug), 
-      function(ugg) stats::loess(discount~qg, 
-                                 data = filter(dhat, .data$ug == ugg), 
-                                 control = loess.control(surface = "direct")))
+  loess_model <- lapply(
+    unique(dhat$ug), 
+    function(ugg) stats::loess(discount~qg, 
+                               data = filter(dhat, .data$ug == ugg), 
+                               control = loess.control(surface = "direct")))
   if(loess){
     dhat$discount <- do.call(base::c, lapply(loess_model, stats::predict))
   }
