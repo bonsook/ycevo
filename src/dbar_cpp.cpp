@@ -122,7 +122,7 @@ arma::mat calc_dbar_c3(int nday, int ntupq, arma::mat day_idx,
       arma::sp_mat cf_temp =  Rcpp::as<arma::sp_mat>(cf_slist[k]);
       
       arma::sp_mat x = cf_temp.cols(seq_tupq[0] - 1, seq_tupq[1]-1);
-      int q = seq_tupq[0] - 1;
+      arma::uword q = seq_tupq[0] - 1;
       for(arma::sp_mat::const_iterator c = x.begin();
           c != x.end(); ++c) {
         num(k - seq_day[0] + 1) += price_temp(c.row(), c.col() + q) * *c * mat_weights_tau(c.col() + q, j) * mat_weights_qdatetime(k, 0);
@@ -405,6 +405,39 @@ arma::cube calc_hhat_num2_c(int nday, int ntupq_tau, int ntupq_tau_p, arma::mat 
       }
       
     }
+  }
+  return hhat;
+}
+
+// [[Rcpp::export]]
+arma::mat calc_hhat_num_c(int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, 
+                           arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, 
+                           arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, 
+                           arma::mat mat_weights_qdatetime, Rcpp::List cf_slist) {
+  
+  arma::mat hhat(ntupq_tau, ntupq_tau_p, arma::fill::zeros);
+  
+  // For each element in xgrid time
+  arma::rowvec seq_day = day_idx.row(0);
+  
+  // For each element in tau grid
+  for (int j = 0; j < ntupq_tau; ++j) {
+    arma::rowvec seq_tupq_x(2);
+    seq_tupq_x = tupq_idx_tau.row(j);
+    
+    // For each element in tau_p
+    for (int k = 0; k < ntupq_tau_p; ++k) {
+      Rcpp::checkUserInterrupt();
+      arma::rowvec seq_tupq_q(2);
+      seq_tupq_q = tupq_idx_tau_p.row(k);
+      
+      hhat(j, k) = calc_hhat_once(j, k, seq_day, seq_tupq_x, seq_tupq_q, cf_slist,
+           mat_weights_tau, 
+           mat_weights_tau_p, 
+           mat_weights_qdatetime.col(0));
+      
+    }
+    
   }
   return hhat;
 }
