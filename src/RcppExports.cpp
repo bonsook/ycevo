@@ -2,7 +2,6 @@
 // Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #include <RcppArmadillo.h>
-#include <RcppEigen.h>
 #include <Rcpp.h>
 
 using namespace Rcpp;
@@ -114,6 +113,121 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// calc_hhat_num_c
+arma::mat calc_hhat_num_c(int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, arma::mat mat_weights_qdatetime, Rcpp::List cf_slist);
+RcppExport SEXP _ycevo_calc_hhat_num_c(SEXP ntupq_tauSEXP, SEXP ntupq_tau_pSEXP, SEXP day_idxSEXP, SEXP tupq_idx_tauSEXP, SEXP tupq_idx_tau_pSEXP, SEXP mat_weights_tauSEXP, SEXP mat_weights_tau_pSEXP, SEXP mat_weights_qdatetimeSEXP, SEXP cf_slistSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type ntupq_tau(ntupq_tauSEXP);
+    Rcpp::traits::input_parameter< int >::type ntupq_tau_p(ntupq_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type day_idx(day_idxSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type tupq_idx_tau(tupq_idx_tauSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type tupq_idx_tau_p(tupq_idx_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_tau(mat_weights_tauSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_tau_p(mat_weights_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_qdatetime(mat_weights_qdatetimeSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type cf_slist(cf_slistSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calc_hhat_num_c2
+arma::mat calc_hhat_num_c2(int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, arma::mat mat_weights_qdatetime, Rcpp::List cf_slist);
+RcppExport SEXP _ycevo_calc_hhat_num_c2(SEXP ntupq_tauSEXP, SEXP ntupq_tau_pSEXP, SEXP day_idxSEXP, SEXP tupq_idx_tauSEXP, SEXP tupq_idx_tau_pSEXP, SEXP mat_weights_tauSEXP, SEXP mat_weights_tau_pSEXP, SEXP mat_weights_qdatetimeSEXP, SEXP cf_slistSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type ntupq_tau(ntupq_tauSEXP);
+    Rcpp::traits::input_parameter< int >::type ntupq_tau_p(ntupq_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type day_idx(day_idxSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type tupq_idx_tau(tupq_idx_tauSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type tupq_idx_tau_p(tupq_idx_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_tau(mat_weights_tauSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_tau_p(mat_weights_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_qdatetime(mat_weights_qdatetimeSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type cf_slist(cf_slistSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_hhat_num_c2(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calc_hhat_num_c3
+arma::mat calc_hhat_num_c3(int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, arma::mat mat_weights_qdatetime, Rcpp::List cf_slist);
+RcppExport SEXP _ycevo_calc_hhat_num_c3(SEXP ntupq_tauSEXP, SEXP ntupq_tau_pSEXP, SEXP day_idxSEXP, SEXP tupq_idx_tauSEXP, SEXP tupq_idx_tau_pSEXP, SEXP mat_weights_tauSEXP, SEXP mat_weights_tau_pSEXP, SEXP mat_weights_qdatetimeSEXP, SEXP cf_slistSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type ntupq_tau(ntupq_tauSEXP);
+    Rcpp::traits::input_parameter< int >::type ntupq_tau_p(ntupq_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type day_idx(day_idxSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type tupq_idx_tau(tupq_idx_tauSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type tupq_idx_tau_p(tupq_idx_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_tau(mat_weights_tauSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_tau_p(mat_weights_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_qdatetime(mat_weights_qdatetimeSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type cf_slist(cf_slistSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_hhat_num_c3(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calc_hhat_num_c4
+arma::mat calc_hhat_num_c4(int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, arma::mat mat_weights_qdatetime, Rcpp::List cf_slist);
+RcppExport SEXP _ycevo_calc_hhat_num_c4(SEXP ntupq_tauSEXP, SEXP ntupq_tau_pSEXP, SEXP day_idxSEXP, SEXP tupq_idx_tauSEXP, SEXP tupq_idx_tau_pSEXP, SEXP mat_weights_tauSEXP, SEXP mat_weights_tau_pSEXP, SEXP mat_weights_qdatetimeSEXP, SEXP cf_slistSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type ntupq_tau(ntupq_tauSEXP);
+    Rcpp::traits::input_parameter< int >::type ntupq_tau_p(ntupq_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type day_idx(day_idxSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type tupq_idx_tau(tupq_idx_tauSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type tupq_idx_tau_p(tupq_idx_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_tau(mat_weights_tauSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_tau_p(mat_weights_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_qdatetime(mat_weights_qdatetimeSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type cf_slist(cf_slistSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_hhat_num_c4(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calc_hhat_num_c5
+arma::mat calc_hhat_num_c5(int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, arma::mat mat_weights_qdatetime, Rcpp::List cf_slist);
+RcppExport SEXP _ycevo_calc_hhat_num_c5(SEXP ntupq_tauSEXP, SEXP ntupq_tau_pSEXP, SEXP day_idxSEXP, SEXP tupq_idx_tauSEXP, SEXP tupq_idx_tau_pSEXP, SEXP mat_weights_tauSEXP, SEXP mat_weights_tau_pSEXP, SEXP mat_weights_qdatetimeSEXP, SEXP cf_slistSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type ntupq_tau(ntupq_tauSEXP);
+    Rcpp::traits::input_parameter< int >::type ntupq_tau_p(ntupq_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type day_idx(day_idxSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type tupq_idx_tau(tupq_idx_tauSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type tupq_idx_tau_p(tupq_idx_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_tau(mat_weights_tauSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_tau_p(mat_weights_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_qdatetime(mat_weights_qdatetimeSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type cf_slist(cf_slistSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_hhat_num_c5(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calc_hhat_num_c6
+arma::mat calc_hhat_num_c6(int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, arma::mat mat_weights_qdatetime, Rcpp::List cf_slist, bool same_tau);
+RcppExport SEXP _ycevo_calc_hhat_num_c6(SEXP ntupq_tauSEXP, SEXP ntupq_tau_pSEXP, SEXP day_idxSEXP, SEXP tupq_idx_tauSEXP, SEXP tupq_idx_tau_pSEXP, SEXP mat_weights_tauSEXP, SEXP mat_weights_tau_pSEXP, SEXP mat_weights_qdatetimeSEXP, SEXP cf_slistSEXP, SEXP same_tauSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type ntupq_tau(ntupq_tauSEXP);
+    Rcpp::traits::input_parameter< int >::type ntupq_tau_p(ntupq_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type day_idx(day_idxSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type tupq_idx_tau(tupq_idx_tauSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type tupq_idx_tau_p(tupq_idx_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_tau(mat_weights_tauSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_tau_p(mat_weights_tau_pSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type mat_weights_qdatetime(mat_weights_qdatetimeSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type cf_slist(cf_slistSEXP);
+    Rcpp::traits::input_parameter< bool >::type same_tau(same_tauSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_hhat_num_c6(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist, same_tau));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_ycevo_calc_dbar_c", (DL_FUNC) &_ycevo_calc_dbar_c, 8},
@@ -122,6 +236,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ycevo_calc_dbar_m", (DL_FUNC) &_ycevo_calc_dbar_m, 4},
     {"_ycevo_calc_dbar_m2", (DL_FUNC) &_ycevo_calc_dbar_m2, 4},
     {"_ycevo_calc_hhat_num2_c", (DL_FUNC) &_ycevo_calc_hhat_num2_c, 10},
+    {"_ycevo_calc_hhat_num_c", (DL_FUNC) &_ycevo_calc_hhat_num_c, 9},
+    {"_ycevo_calc_hhat_num_c2", (DL_FUNC) &_ycevo_calc_hhat_num_c2, 9},
+    {"_ycevo_calc_hhat_num_c3", (DL_FUNC) &_ycevo_calc_hhat_num_c3, 9},
+    {"_ycevo_calc_hhat_num_c4", (DL_FUNC) &_ycevo_calc_hhat_num_c4, 9},
+    {"_ycevo_calc_hhat_num_c5", (DL_FUNC) &_ycevo_calc_hhat_num_c5, 9},
+    {"_ycevo_calc_hhat_num_c6", (DL_FUNC) &_ycevo_calc_hhat_num_c6, 10},
     {NULL, NULL, 0}
 };
 

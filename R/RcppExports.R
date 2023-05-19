@@ -25,3 +25,27 @@ calc_hhat_num2_c <- function(nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau
     .Call('_ycevo_calc_hhat_num2_c', PACKAGE = 'ycevo', nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist)
 }
 
+calc_hhat_num_c <- function(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist) {
+    .Call('_ycevo_calc_hhat_num_c', PACKAGE = 'ycevo', ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist)
+}
+
+calc_hhat_num_c2 <- function(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist) {
+    .Call('_ycevo_calc_hhat_num_c2', PACKAGE = 'ycevo', ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist)
+}
+
+calc_hhat_num_c3 <- function(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist) {
+    .Call('_ycevo_calc_hhat_num_c3', PACKAGE = 'ycevo', ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist)
+}
+
+calc_hhat_num_c4 <- function(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist) {
+    .Call('_ycevo_calc_hhat_num_c4', PACKAGE = 'ycevo', ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist)
+}
+
+calc_hhat_num_c5 <- function(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist) {
+    .Call('_ycevo_calc_hhat_num_c5', PACKAGE = 'ycevo', ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist)
+}
+
+calc_hhat_num_c6 <- function(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist, same_tau) {
+    .Call('_ycevo_calc_hhat_num_c6', PACKAGE = 'ycevo', ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist, same_tau)
+}
+

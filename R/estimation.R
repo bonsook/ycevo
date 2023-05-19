@@ -246,20 +246,114 @@ calc_hhat_num <- function(data, xgrid,
   
   # browser()
   if(interest_grid){
-    hhat <- calc_hhat_num2_c(nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist)
-    
+    # hhat <- calc_hhat_num2_c(nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist)
+    hhat <- calc_hhat_num_c6(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist,
+                             same_tau = TRUE)
+    hhat <- hhat + `diag<-`(t(hhat), 0)
     # bench_base <- bench::mark(calc_hhat_num2_c(nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist))
     # hhat <- bench_base$result[[1]]
+    # hhat[,,1]
     # bench_base[,-1]
     # # # A tibble: 1 × 12
-    # # min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result              memory     time           gc      
-    # # <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>              <list>     <list>         <list>  
+    # # min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result              memory     time           gc
+    # # <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>              <list>     <list>         <list>
     # #   1    2.42m    2.42m   0.00690    20.2MB   0.0690     1    10      2.42m <dbl [83 × 83 × 1]> <Rprofmem> <bench_tm [1]> <tibble>
+    # 
+    # bench_alter <- bench::mark(calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist))
+    # hhat2 <- bench_alter$result[[1]]
+    # bench_alter[,-1]
+    # # # A tibble: 1 × 12
+    # # min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result          memory                 time           gc              
+    # # <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>          <list>                 <list>         <list>          
+    # #   1    8.14m    8.14m   0.00205      59KB  0.00614     1     3      8.14m <dbl [83 × 83]> <Rprofmem [2,105 × 3]> <bench_tm [1]> <tibble [1 × 3]>
+    # bench_alter2 <- bench::mark(calc_hhat_num_c2(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist))
+    # hhat3 <- bench_alter2$result[[1]]
+    # bench_alter2[,-1]
+    # # # A tibble: 1 × 12
+    # # min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result          memory               time           gc      
+    # # <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>          <list>               <list>         <list>  
+    # #   1    11.8m    11.8m   0.00141     523KB  0.00566     1     4      11.8m <dbl [83 × 83]> <Rprofmem [606 × 3]> <bench_tm [1]> <tibble>
+    # 
+    # 
+    # bench_alter3 <- bench::mark(calc_hhat_num_c3(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist))
+    # hhat4 <- bench_alter3$result[[1]]
+    # bench_alter3[,-1]
+    # # # A tibble: 1 × 12
+    # # min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result          memory                 time       gc      
+    # # <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>          <list>                 <list>     <list>  
+    # #   1    4.01m    4.01m   0.00415    1.01MB   0.0125     1     3      4.01m <dbl [83 × 83]> <Rprofmem [1,215 × 3]> <bench_tm> <tibble>
+    # 
+    # 
+    # # 4 NOT CORRECT 
+    # bench_alter4 <- bench::mark(calc_hhat_num_c4(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist))
+    # hhat5 <- bench_alter4$result[[1]]
+    # bench_alter4[,-1]
+    # # # A tibble: 1 × 12
+    # # min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result          memory                 time       gc      
+    # # <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>          <list>                 <list>     <list>  
+    # #   1    2.52m    2.52m   0.00661    3.33MB   0.0198     1     3      2.52m <dbl [83 × 83]> <Rprofmem [1,019 × 3]> <bench_tm> <tibble>
+    # 
+    # bench_alter5 <- bench::mark(calc_hhat_num_c5(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist))
+    # hhat6 <- bench_alter5$result[[1]]
+    # bench_alter5[,-1]
+    # # # A tibble: 1 × 12
+    # # min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result          memory             time           gc      
+    # # <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>          <list>             <list>         <list>  
+    # #   1    41.1s    41.1s    0.0243      59KB   0.0729     1     3      41.1s <dbl [83 × 83]> <Rprofmem [4 × 3]> <bench_tm [1]> <tibble>
+    # 
+    # # fastest
+    # bench_alter6 <- bench::mark(calc_hhat_num_c6(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist, 
+    #                                              TRUE))
+    # hhat7 <- bench_alter6$result[[1]]
+    # hhat7 <- hhat7 + `diag<-`(t(hhat7), 0)
+    # bench_alter6[,-1]
+    # # min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result          memory             time           gc              
+    # # <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>          <list>             <list>         <list>          
+    # #   1    19.2s    19.2s    0.0521      59KB    0.104     1     2      19.2s <dbl [83 × 83]> <Rprofmem [4 × 3]> <bench_tm [1]> <tibble [1 × 3]>
+    # all.equal({
+    #   x <- hhat7
+    #   x[lower.tri(x)] <-  t(hhat7)[lower.tri(t(hhat7))]
+    #   x
+    # }, hhat6, 0.0001)
+    # bench::mark(
+    #   hhat7 + `diag<-`(t(hhat7), 0), 
+    #   `[<-`(hhat7, temp <- lower.tri(hhat7),t(hhat7)[temp])
+    # )
+    # # expression                                                  min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc
+    # # <bch:expr>                                             <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>
+    # #   1 hhat7 + `diag<-`(t(hhat7), 0)                            28.5µs     43µs    11918.     109KB     2.14  5564     1
+    # # 2 `[<-`(hhat7, temp <- lower.tri(hhat7), t(hhat7)[temp])   55.9µs   82.1µs     9027.     296KB     0     4512     0
+    # 
+    # Rcpp::sourceCpp('../ycevo/src/dbar_cpp.cpp', env = current_env())
     
     day_grid <- day_grid[rep(1:nday, each=ntupq_tau_p*ntupq_tau),]
     hhat <- data.frame(hhat_numer = c(hhat), ug = day_grid$ug, rg = day_grid$rg)
   } else {
-    hhat <- calc_hhat_num2_c(nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist)
+    hhat <- calc_hhat_num_c6(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist,
+                             same_tau = TRUE)
+    hhat <- hhat + `diag<-`(t(hhat), 0)
+    # bench_base <- bench::mark(calc_hhat_num2_c(nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, 
+    #                                            mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist))
+    # hhat <- bench_base$result[[1]]
+    # bench_base[,-1]
+    # # # A tibble: 1 × 12
+    # # min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result            memory             time               gc                  
+    # # <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>            <list>             <list>             <list>              
+    # # 1    319µs    367µs     2612.    2.49KB     2.33  1123     1      430ms <dbl [4 × 4 × 1]> <Rprofmem [1 × 3]> <bench_tm [1,124]> <tibble [1,124 × 3]>
+    
+    # bench_alter <- bench::mark(calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, 
+    #                                            mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist))
+    # hhat2 <- bench_alter$result[[1]]
+    # hhat2
+    # bench_alter[,-1]
+    # # min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result        memory             time               gc                  
+    # # <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>        <list>             <list>             <list>              
+    # #   1   71.3µs   82.6µs    11446.    2.49KB     2.14  5356     1      468ms <dbl [4 × 4]> <Rprofmem [1 × 3]> <bench_tm [5,357]> <tibble [5,357 × 3]>
+    
+    # Rcpp::sourceCpp('../ycevo/src/dbar_cpp.cpp', env = current_env())
+    # calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, 
+    #                 mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist)
+    
     hhat <- data.frame(hhat_numer = c(hhat), ug = rep(xgrid, rep(ntupq_tau_p * ntupq_tau, nday)))
   }
   
@@ -334,9 +428,9 @@ estimate_yield <- function(data, xgrid, hx, tau, ht,
   
   if(is.null(cfp_slist)){
     cfp_slist <- get_cfp_slist(data)
-    cf_slist <- cfp_slist$cf_slist
-    price_slist <- cfp_slist$price_slist
   }
+  cf_slist <- cfp_slist$cf_slist
+  price_slist <- cfp_slist$price_slist
   
   windows_ls <- prep_windows(data = data, 
                              xgrid = xgrid, 

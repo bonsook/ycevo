@@ -120,7 +120,8 @@ arma::mat calc_dbar_c3(int nday, int ntupq, arma::mat day_idx,
     for(int k = seq_day[0] - 1; k < seq_day[1]; ++k){
       arma::sp_mat price_temp =  Rcpp::as<arma::sp_mat>(price_slist[k]);
       arma::sp_mat cf_temp =  Rcpp::as<arma::sp_mat>(cf_slist[k]);
-      
+      // if(cf_temp.n_nonzero == 0) continue;
+      // arma::sp_mat x = cf_temp.cols(seq_tupq[0] - 1, std::min<int>(seq_tupq[1]-  1, cf_temp.n_cols-1));
       arma::sp_mat x = cf_temp.cols(seq_tupq[0] - 1, seq_tupq[1]-1);
       arma::uword q = seq_tupq[0] - 1;
       for(arma::sp_mat::const_iterator c = x.begin();
@@ -411,33 +412,299 @@ arma::cube calc_hhat_num2_c(int nday, int ntupq_tau, int ntupq_tau_p, arma::mat 
 
 // [[Rcpp::export]]
 arma::mat calc_hhat_num_c(int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, 
-                           arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, 
-                           arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, 
-                           arma::mat mat_weights_qdatetime, Rcpp::List cf_slist) {
+                          arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, 
+                          arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, 
+                          arma::mat mat_weights_qdatetime, Rcpp::List cf_slist) {
   
-  arma::mat hhat(ntupq_tau, ntupq_tau_p, arma::fill::zeros);
+  arma::mat hhat(ntupq_tau, ntupq_tau_p);
   
   // For each element in xgrid time
   arma::rowvec seq_day = day_idx.row(0);
   
   // For each element in tau grid
-  for (int j = 0; j < ntupq_tau; ++j) {
+  for (int jj = 0; jj < ntupq_tau; ++jj) {
     arma::rowvec seq_tupq_x(2);
-    seq_tupq_x = tupq_idx_tau.row(j);
+    seq_tupq_x = tupq_idx_tau.row(jj);
     
     // For each element in tau_p
-    for (int k = 0; k < ntupq_tau_p; ++k) {
+    for (int pp = 0; pp < ntupq_tau_p; ++pp) {
       Rcpp::checkUserInterrupt();
       arma::rowvec seq_tupq_q(2);
-      seq_tupq_q = tupq_idx_tau_p.row(k);
+      seq_tupq_q = tupq_idx_tau_p.row(pp);
       
-      hhat(j, k) = calc_hhat_once(j, k, seq_day, seq_tupq_x, seq_tupq_q, cf_slist,
-           mat_weights_tau, 
-           mat_weights_tau_p, 
-           mat_weights_qdatetime.col(0));
-      
+      for(int k = seq_day[0] - 1; k < seq_day[1]; ++k){
+        arma::sp_mat cf_temp = Rcpp::as<arma::sp_mat>(cf_slist[k]);
+        
+        arma::sp_mat x = cf_temp.cols(seq_tupq_x[0] - 1, seq_tupq_x[1] - 1);
+        arma::uword q = seq_tupq_x[0] - 1;
+        // Rcpp::Rcout << "The value of x : " << x << "\n";
+        // Rcpp::Rcout << "The value of x.row(1) : " << x.row(1) << "\n";
+        for(arma::sp_mat::const_iterator j = x.begin(); j != x.end(); ++j) {
+          
+          double sum_p = 0;
+          // arma::sp_mat cf_temp_t = cf_temp.t();
+          // arma::sp_mat xx=cf_temp_t.col(j.row());
+          arma::sp_mat xx=cf_temp.row(j.row());
+        // Rcpp::Rcout << "The value of xx : " << xx << "\n";
+        // Rcpp::Rcout << "The value of x.row(j.row()) : " << x.row(j.row()) << "\n";
+          for(arma::sp_mat::const_iterator p = xx.begin(); p != xx.end(); ++p){
+        // Rcpp::Rcout << "The value of seq_tupq_x : " << seq_tupq_x << "\n";
+        // Rcpp::Rcout << "The value of seq_tupq_q : " << seq_tupq_q << "\n";
+        // Rcpp::Rcout << "The value of p.col() : " << p.col() << "\n";
+        // Rcpp::Rcout << "The value of j.col() : " << j.col() << "\n";
+            // if(p.row() != j.col() + q){
+            if(p.col() != j.col() + q){
+        // Rcpp::Rcout << "The value of p : " << *p << "\n";
+              sum_p += *p * mat_weights_tau(p.col(), pp);
+            }
+          }
+        // Rcpp::Rcout << "The value of sum_p : " << sum_p << "\n";
+          hhat(jj, pp) += sum_p * *j * mat_weights_tau(j.col() + q, jj) * mat_weights_qdatetime(k, 0);
+            
+        }
+      }
     }
+  }
+  return hhat;
+}
+
+// [[Rcpp::export]]
+arma::mat calc_hhat_num_c2(int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, 
+                          arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, 
+                          arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, 
+                          arma::mat mat_weights_qdatetime, Rcpp::List cf_slist) {
+  
+  arma::mat hhat(ntupq_tau, ntupq_tau_p);
+  
+  // For each element in xgrid time
+  arma::rowvec seq_day = day_idx.row(0);
+  
+  // For each element in tau grid
+  for (int jj = 0; jj < ntupq_tau; ++jj) {
+    arma::rowvec seq_tupq_x(2);
+    seq_tupq_x = tupq_idx_tau.row(jj);
     
+    // For each element in tau_p
+    for (int pp = 0; pp < ntupq_tau_p; ++pp) {
+      Rcpp::checkUserInterrupt();
+      arma::rowvec seq_tupq_q(2);
+      seq_tupq_q = tupq_idx_tau_p.row(pp);
+      
+      for(int k = seq_day[0] - 1; k < seq_day[1]; ++k){
+        arma::sp_mat cf_temp = Rcpp::as<arma::sp_mat>(cf_slist[k]);
+        
+        arma::sp_mat x = cf_temp.cols(seq_tupq_x[0] - 1, seq_tupq_x[1] - 1);
+        arma::uword q = seq_tupq_x[0] - 1;
+        for(arma::sp_mat::const_iterator j = x.begin(); j != x.end(); ++j) {
+          
+          double sum_p = 0;
+          arma::sp_mat cf_temp_t = cf_temp.t();
+          arma::sp_mat xx=cf_temp_t.col(j.row());
+          for(arma::sp_mat::const_iterator p = xx.begin(); p != xx.end(); ++p){
+            if(p.row() != j.col() + q){
+              sum_p += *p * mat_weights_tau(p.row(), pp);
+            }
+          }
+          hhat(jj, pp) += sum_p * *j * mat_weights_tau(j.col() + q, jj) * mat_weights_qdatetime(k, 0);
+            
+        }
+      }
+    }
+  }
+  return hhat;
+}
+
+
+// [[Rcpp::export]]
+arma::mat calc_hhat_num_c3(int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, 
+                          arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, 
+                          arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, 
+                          arma::mat mat_weights_qdatetime, Rcpp::List cf_slist) {
+  
+  arma::mat hhat(ntupq_tau, ntupq_tau_p);
+  
+  // For each element in xgrid time
+  arma::rowvec seq_day = day_idx.row(0);
+  
+  // For each element in tau grid
+  for (int jj = 0; jj < ntupq_tau; ++jj) {
+    arma::rowvec seq_tupq_x(2);
+    seq_tupq_x = tupq_idx_tau.row(jj);
+    
+    // For each element in tau_p
+    for (int pp = 0; pp < ntupq_tau_p; ++pp) {
+      Rcpp::checkUserInterrupt();
+      arma::rowvec seq_tupq_q(2);
+      seq_tupq_q = tupq_idx_tau_p.row(pp);
+      
+      for(int k = seq_day[0] - 1; k < seq_day[1]; ++k){
+        arma::sp_mat cf_temp = Rcpp::as<arma::sp_mat>(cf_slist[k]);
+        
+        arma::sp_mat cf_temp_p(size(cf_temp));
+        
+        for(arma::sp_mat::const_iterator p = cf_temp.begin(); p != cf_temp.end(); ++p){
+          cf_temp_p(p.row(), p.col()) =  *p * mat_weights_tau(p.col(), pp);
+        }
+        
+        arma::sp_mat x = cf_temp.cols(seq_tupq_x[0] - 1, seq_tupq_x[1] - 1);
+        arma::uword q = seq_tupq_x[0] - 1;
+        for(arma::sp_mat::const_iterator j = x.begin(); j != x.end(); ++j) {
+          
+          double sum_p = 0;
+          arma::sp_mat cf_temp_pt = cf_temp_p.t();
+          arma::sp_mat xx=cf_temp_pt.col(j.row());
+          for(arma::sp_mat::const_iterator p = xx.begin(); p != xx.end(); ++p){
+            if(p.row() != j.col() + q){
+              sum_p += *p;
+            }
+          }
+          hhat(jj, pp) += sum_p * *j * mat_weights_tau(j.col() + q, jj) * mat_weights_qdatetime(k, 0);
+            
+        }
+      }
+    }
+  }
+  return hhat;
+}
+
+// [[Rcpp::export]]
+arma::mat calc_hhat_num_c4(int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, 
+                           arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, 
+                           arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, 
+                           arma::mat mat_weights_qdatetime, Rcpp::List cf_slist) {
+  
+  arma::mat hhat(ntupq_tau, ntupq_tau_p);
+  
+  // For each element in xgrid time
+  arma::rowvec seq_day = day_idx.row(0);
+  
+  // For each element in tau grid
+  for (int jj = 0; jj < ntupq_tau; ++jj) {
+    arma::rowvec seq_tupq_x(2);
+    seq_tupq_x = tupq_idx_tau.row(jj);
+    
+    // For each element in tau_p
+    for (int pp = 0; pp < ntupq_tau_p; ++pp) {
+      Rcpp::checkUserInterrupt();
+      arma::rowvec seq_tupq_q(2);
+      seq_tupq_q = tupq_idx_tau_p.row(pp);
+      
+      for(int k = seq_day[0] - 1; k < seq_day[1]; ++k){
+        arma::sp_mat cf_temp = Rcpp::as<arma::sp_mat>(cf_slist[k]);
+        
+        arma::sp_mat cf_temp_p(size(cf_temp));
+        
+        for(arma::sp_mat::const_iterator p = cf_temp.begin(); p != cf_temp.end(); ++p){
+          cf_temp_p(p.row(), p.col()) =  *p * mat_weights_tau(p.col(), pp);
+        }
+        arma::sp_mat row_sum = sum(cf_temp_p.t(), 0);
+        for(arma::sp_mat::const_iterator p = cf_temp.begin(); p != cf_temp.end(); ++p){
+          cf_temp_p(p.row(), p.col()) =  row_sum(0, p.row());
+        }
+        
+        arma::sp_mat x = cf_temp.cols(seq_tupq_x[0] - 1, seq_tupq_x[1] - 1);
+        arma::uword q = seq_tupq_x[0] - 1;
+        for(arma::sp_mat::const_iterator j = x.begin(); j != x.end(); ++j) {
+          hhat(jj, pp) += (cf_temp_p(j.row(), j.col() + q)- *j) * *j * mat_weights_tau(j.col() + q, jj) * mat_weights_qdatetime(k, 0);
+        }
+      }
+    }
+  }
+  return hhat;
+}
+
+// [[Rcpp::export]]
+arma::mat calc_hhat_num_c5(int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, 
+                           arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, 
+                           arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, 
+                           arma::mat mat_weights_qdatetime, Rcpp::List cf_slist) {
+  
+  arma::mat hhat(ntupq_tau, ntupq_tau_p);
+  
+  // For each element in xgrid time
+  arma::rowvec seq_day = day_idx.row(0);
+  
+  // For each element in tau grid
+  for (int jj = 0; jj < ntupq_tau; ++jj) {
+    arma::rowvec seq_tupq_x(2);
+    seq_tupq_x = tupq_idx_tau.row(jj);
+    
+    // For each element in tau_p
+    for (int pp = 0; pp < ntupq_tau_p; ++pp) {
+      Rcpp::checkUserInterrupt();
+      arma::rowvec seq_tupq_q(2);
+      seq_tupq_q = tupq_idx_tau_p.row(pp);
+      
+      for(int k = seq_day[0] - 1; k < seq_day[1]; ++k){
+        arma::sp_mat cf_temp = Rcpp::as<arma::sp_mat>(cf_slist[k]);
+        
+        arma::sp_mat cf_temp_p(size(cf_temp));
+        
+        for(arma::sp_mat::const_iterator p = cf_temp.begin(); p != cf_temp.end(); ++p){
+          cf_temp_p(p.row(), p.col()) =  *p * mat_weights_tau_p(p.col(), pp);
+        }
+        arma::sp_mat row_sum = sum(cf_temp_p.t(), 0);
+        
+        arma::sp_mat x = cf_temp.cols(seq_tupq_x[0] - 1, seq_tupq_x[1] - 1);
+        arma::uword q = seq_tupq_x[0] - 1;
+        for(arma::sp_mat::const_iterator j = x.begin(); j != x.end(); ++j) {
+          hhat(jj, pp) += (row_sum(0, j.row()) - cf_temp_p(j.row(), j.col() + q)) * *j * 
+            mat_weights_tau(j.col() + q, jj) * mat_weights_qdatetime(k, 0);
+        }
+      }
+    }
+  }
+  return hhat;
+}
+
+// [[Rcpp::export]]
+arma::mat calc_hhat_num_c6(int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, 
+                           arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, 
+                           arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, 
+                           arma::mat mat_weights_qdatetime, Rcpp::List cf_slist, 
+                           bool same_tau) {
+  
+  arma::mat hhat(ntupq_tau, ntupq_tau_p);
+  
+  // For each element in xgrid time
+  arma::rowvec seq_day = day_idx.row(0);
+  
+  int pp_start = 0;
+  
+  // For each element in tau grid
+  for (int jj = 0; jj < ntupq_tau; ++jj) {
+    arma::rowvec seq_tupq_x(2);
+    seq_tupq_x = tupq_idx_tau.row(jj);
+    
+    // For each element in tau_p
+    // The numerator of H_hat is symmetric 
+    // so we only need to calculate half of it 
+    // to cut time
+    if(same_tau) pp_start = jj;
+    for (int pp = pp_start; pp < ntupq_tau_p; ++pp) {
+      Rcpp::checkUserInterrupt();
+      arma::rowvec seq_tupq_q(2);
+      seq_tupq_q = tupq_idx_tau_p.row(pp);
+      
+      for(int k = seq_day[0] - 1; k < seq_day[1]; ++k){
+        arma::sp_mat cf_temp = Rcpp::as<arma::sp_mat>(cf_slist[k]);
+        // if(cf_temp.n_nonzero == 0) continue;
+        arma::sp_mat cf_temp_p(size(cf_temp));
+        
+        for(arma::sp_mat::const_iterator p = cf_temp.begin(); p != cf_temp.end(); ++p){
+          cf_temp_p(p.row(), p.col()) =  *p * mat_weights_tau_p(p.col(), pp);
+        }
+        arma::sp_mat row_sum = sum(cf_temp_p.t(), 0);
+        // arma::sp_mat x = cf_temp.cols(seq_tupq_x[0] - 1, std::min<int>(seq_tupq_x[1]-  1, cf_temp.n_cols-1));
+        
+        arma::sp_mat x = cf_temp.cols(seq_tupq_x[0] - 1, seq_tupq_x[1] - 1);
+        arma::uword q = seq_tupq_x[0] - 1;
+        for(arma::sp_mat::const_iterator j = x.begin(); j != x.end(); ++j) {
+          hhat(jj, pp) += (row_sum(0, j.row()) - cf_temp_p(j.row(), j.col() + q)) * *j * 
+            mat_weights_tau(j.col() + q, jj) * mat_weights_qdatetime(k, 0);
+        }
+      }
+    }
   }
   return hhat;
 }
