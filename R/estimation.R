@@ -125,11 +125,11 @@ calc_dbar <- function(data, xgrid,
   day_grid <- windows_ls$day_grid
   
   if(interest_grid){
-    dbar <- calc_dbar_c(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, joint_window, price_slist, cf_slist)
+    dbar <- calc_dbar_c(ntupq, day_idx, tupq_idx, mat_weights_tau, joint_window, price_slist, cf_slist)
     day_grid <- day_grid[rep(1:nday, each=ntupq),]
     dbar <- data.frame(ug = day_grid$ug, rg = day_grid$rg, dbar_numer = dbar[,1], dbar_denom = dbar[,2])
   } else {
-    dbar <- calc_dbar_c(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist)
+    dbar <- calc_dbar_c(ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist)
     dbar <- data.frame(ug = rep(xgrid, rep(ntupq, nday)), dbar_numer = dbar[,1], dbar_denom = dbar[,2])
   }
   dbar$xg <- rep(tau, nday)
@@ -197,11 +197,17 @@ calc_hhat_num <- function(data, xgrid,
   day_grid <- windows_ls$day_grid
   
   if(interest_grid){
-    hhat <- calc_hhat_num2_c(nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist)
+    hhat <- calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, 
+                            mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist, 
+                            same_tau = TRUE)
+    hhat <- hhat + `diag<-`(t(hhat), 0)
     day_grid <- day_grid[rep(1:nday, each=ntupq_tau_p*ntupq_tau),]
     hhat <- data.frame(hhat_numer = c(hhat), ug = day_grid$ug, rg = day_grid$rg)
   } else {
-    hhat <- calc_hhat_num2_c(nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist)
+    hhat <- calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, 
+                            mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist, 
+                            same_tau = TRUE)
+    hhat <- hhat + `diag<-`(t(hhat), 0)
     hhat <- data.frame(hhat_numer = c(hhat), ug = rep(xgrid, rep(ntupq_tau_p * ntupq_tau, nday)))
   }
   

@@ -12,12 +12,11 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // calc_dbar_c
-arma::mat calc_dbar_c(int nday, int ntupq, arma::mat day_idx, arma::mat tupq_idx, arma::mat mat_weights_tau, arma::mat mat_weights_qdatetime, Rcpp::List price_slist, Rcpp::List cf_slist);
-RcppExport SEXP _ycevo_calc_dbar_c(SEXP ndaySEXP, SEXP ntupqSEXP, SEXP day_idxSEXP, SEXP tupq_idxSEXP, SEXP mat_weights_tauSEXP, SEXP mat_weights_qdatetimeSEXP, SEXP price_slistSEXP, SEXP cf_slistSEXP) {
+arma::mat calc_dbar_c(int ntupq, arma::mat day_idx, arma::mat tupq_idx, arma::mat mat_weights_tau, arma::mat mat_weights_qdatetime, Rcpp::List price_slist, Rcpp::List cf_slist);
+RcppExport SEXP _ycevo_calc_dbar_c(SEXP ntupqSEXP, SEXP day_idxSEXP, SEXP tupq_idxSEXP, SEXP mat_weights_tauSEXP, SEXP mat_weights_qdatetimeSEXP, SEXP price_slistSEXP, SEXP cf_slistSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type nday(ndaySEXP);
     Rcpp::traits::input_parameter< int >::type ntupq(ntupqSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type day_idx(day_idxSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type tupq_idx(tupq_idxSEXP);
@@ -25,17 +24,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type mat_weights_qdatetime(mat_weights_qdatetimeSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type price_slist(price_slistSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type cf_slist(cf_slistSEXP);
-    rcpp_result_gen = Rcpp::wrap(calc_dbar_c(nday, ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist));
+    rcpp_result_gen = Rcpp::wrap(calc_dbar_c(ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist));
     return rcpp_result_gen;
 END_RCPP
 }
-// calc_hhat_num2_c
-arma::cube calc_hhat_num2_c(int nday, int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, arma::mat mat_weights_qdatetime, Rcpp::List cf_slist);
-RcppExport SEXP _ycevo_calc_hhat_num2_c(SEXP ndaySEXP, SEXP ntupq_tauSEXP, SEXP ntupq_tau_pSEXP, SEXP day_idxSEXP, SEXP tupq_idx_tauSEXP, SEXP tupq_idx_tau_pSEXP, SEXP mat_weights_tauSEXP, SEXP mat_weights_tau_pSEXP, SEXP mat_weights_qdatetimeSEXP, SEXP cf_slistSEXP) {
+// calc_hhat_num_c
+arma::mat calc_hhat_num_c(int ntupq_tau, int ntupq_tau_p, arma::mat day_idx, arma::mat tupq_idx_tau, arma::mat tupq_idx_tau_p, arma::mat mat_weights_tau, arma::mat mat_weights_tau_p, arma::mat mat_weights_qdatetime, Rcpp::List cf_slist, bool same_tau);
+RcppExport SEXP _ycevo_calc_hhat_num_c(SEXP ntupq_tauSEXP, SEXP ntupq_tau_pSEXP, SEXP day_idxSEXP, SEXP tupq_idx_tauSEXP, SEXP tupq_idx_tau_pSEXP, SEXP mat_weights_tauSEXP, SEXP mat_weights_tau_pSEXP, SEXP mat_weights_qdatetimeSEXP, SEXP cf_slistSEXP, SEXP same_tauSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type nday(ndaySEXP);
     Rcpp::traits::input_parameter< int >::type ntupq_tau(ntupq_tauSEXP);
     Rcpp::traits::input_parameter< int >::type ntupq_tau_p(ntupq_tau_pSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type day_idx(day_idxSEXP);
@@ -45,14 +43,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type mat_weights_tau_p(mat_weights_tau_pSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type mat_weights_qdatetime(mat_weights_qdatetimeSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type cf_slist(cf_slistSEXP);
-    rcpp_result_gen = Rcpp::wrap(calc_hhat_num2_c(nday, ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist));
+    Rcpp::traits::input_parameter< bool >::type same_tau(same_tauSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist, same_tau));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_ycevo_calc_dbar_c", (DL_FUNC) &_ycevo_calc_dbar_c, 8},
-    {"_ycevo_calc_hhat_num2_c", (DL_FUNC) &_ycevo_calc_hhat_num2_c, 10},
+    {"_ycevo_calc_dbar_c", (DL_FUNC) &_ycevo_calc_dbar_c, 7},
+    {"_ycevo_calc_hhat_num_c", (DL_FUNC) &_ycevo_calc_hhat_num_c, 10},
     {NULL, NULL, 0}
 };
 
