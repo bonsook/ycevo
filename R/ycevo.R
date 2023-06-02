@@ -131,6 +131,25 @@ ycevo <- function(data,
     colnames(data) <- names(s_col)
   }
   
+  dots <- list(...)
+  if(any(temp <- (!names(dots) %in% colnames(data)))){
+    stop(paste0(colnames(data)[temp], collapse = ", "), " column(s) not found in the data")
+  }
+  if(length(dots) > 0){
+    if(length(dots) != 1)
+      stop("Currently only supports one extra predictor (interest rate)")
+    interest <- data %>% 
+      select(all_of(c("qdate", names(dots)))) %>% 
+      arrange(qdate) %>% 
+      distinct(qdate, .keep_all = TRUE) %>% 
+      pull(names(dots))
+    rgrid <- dots[[1]][[1]]
+    hr <- dots[[1]][[2]]
+    rgrid_order <- order(rgrid)
+    rgrid <- rgrid[rgrid_order]
+    hr <- hr[rgrid_order]
+  }
+  
   if(is.null(hx))
     hx <- find_bindwidth_from_xgrid(xgrid, data)
   if(length(hx) == 1) hx <- rep(hx, length(xgrid))
@@ -146,7 +165,9 @@ ycevo <- function(data,
   xgrid <- xgrid[order_xgrid]
   hx <- hx[order_xgrid]
   tau <- tau[order_tau]
-  ht <- ht[order_tau, order_xgrid, drop = FALSE]
+  ht <- as.matrix(ht)[order_tau, order_xgrid, drop = FALSE]
+  
+  stopifnot(identical(length(xgrid), length(rgrid)))
   
   output <- pbapply::pblapply(
     seq_along(xgrid),
@@ -157,25 +178,21 @@ ycevo <- function(data,
         hx = hx[[i]],
         tau = tau,
         ht = ht[,i],
-        loess = FALSE)
-  ) 
+        rgrid = rgrid[[i]],
+        hr = hr[[i]], 
+        interest = interest,
+        loess = FALSE)) 
   
   res <- lapply(output, `attr<-`, "loess", NULL) %>% 
     bind_rows() %>% 
     dplyr::relocate(tau, xgrid, discount, yield) %>% 
-    as_tibble()
-  loess <- vapply(output, attr, vector("list", 1L), "loess")
-  names(loess) <- xgrid
-  
-  new_ycevo(list(
-    res = res, 
-    loess = loess, 
-    xgrid = xgrid, 
-    tau = tau, 
-    hx = hx, 
-    ht = ht, 
-    cols = cols
-  ))
+    as_tibble() %>% 
+    group_by(across(any_of(c("xgrid", "rgrid")))) %>% 
+    nest() %>% 
+    mutate(loess = vapply(output, attr, vector("list", 1L), "loess")) %>% 
+    ungroup()
+  attr(res, "cols") <- cols
+  new_ycevo(res)
 }
 
 find_bindwidth_from_tau <- function(tau){
@@ -199,5 +216,5 @@ find_bindwidth_from_xgrid <- function(xgrid, data){
 }
 
 new_ycevo <- function(x) {
-  structure(x, class = c("ycevo", "list"))
+  structure(x, class = c("ycevo", class(x)))
 }
