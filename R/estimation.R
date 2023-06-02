@@ -195,19 +195,20 @@ calc_hhat_num <- function(data, xgrid,
   ntupq_tau_p <- windows_ls$ntupq_tau_p
   nday <- windows_ls$nday
   day_grid <- windows_ls$day_grid
-  
+  same_tau <- isTRUE(all.equal(tau, tau_p))
+
   if(interest_grid){
     hhat <- calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, 
                             mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist, 
-                            same_tau = TRUE)
-    hhat <- hhat + `diag<-`(t(hhat), 0)
+                            same_tau = same_tau)
+    if(same_tau) hhat <- hhat + `diag<-`(t(hhat), 0)
     day_grid <- day_grid[rep(1:nday, each=ntupq_tau_p*ntupq_tau),]
     hhat <- data.frame(hhat_numer = c(hhat), ug = day_grid$ug, rg = day_grid$rg)
   } else {
     hhat <- calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, 
                             mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist, 
-                            same_tau = TRUE)
-    hhat <- hhat + `diag<-`(t(hhat), 0)
+                            same_tau = same_tau)
+    if(same_tau) hhat <- hhat + `diag<-`(t(hhat), 0)
     hhat <- data.frame(hhat_numer = c(hhat), ug = rep(xgrid, rep(ntupq_tau_p * ntupq_tau, nday)))
   }
   
@@ -251,14 +252,14 @@ calc_hhat_num <- function(data, xgrid,
 #' @describeIn ycevo Experienced users only. 
 #' Yield estimation with interest rate and manually selected bandwidth parameters.
 #' @export
-estimate_yield <- function(data, xgrid, hx, tau, ht, 
+estimate_yield <- function(data, xgrid, hx, 
+                           tau, ht, 
+                           tau_p = tau, htp = ht,
                            rgrid = NULL, hr = NULL, 
                            interest = NULL, loess = TRUE, 
                            cfp_slist = NULL){
   units <- 365
   
-  tau_p <- tau
-  htp <- ht
   if(!is.null(rgrid) & !is.null(hr) & !is.null(interest)){
     interest_grid <- TRUE
   } else {
