@@ -127,10 +127,10 @@ calc_dbar <- function(data, xgrid,
   if(interest_grid){
     dbar <- calc_dbar_c(ntupq, day_idx, tupq_idx, mat_weights_tau, joint_window, price_slist, cf_slist)
     day_grid <- day_grid[rep(1:nday, each=ntupq),]
-    dbar <- data.frame(ug = day_grid$ug, rg = day_grid$rg, dbar_numer = dbar[,1], dbar_denom = dbar[,2])
+    dbar <- tibble(ug = day_grid$ug, rg = day_grid$rg, dbar_numer = dbar[,1], dbar_denom = dbar[,2])
   } else {
     dbar <- calc_dbar_c(ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist)
-    dbar <- data.frame(ug = rep(xgrid, rep(ntupq, nday)), dbar_numer = dbar[,1], dbar_denom = dbar[,2])
+    dbar <- tibble(ug = rep(xgrid, rep(ntupq, nday)), dbar_numer = dbar[,1], dbar_denom = dbar[,2])
   }
   dbar$xg <- rep(tau, nday)
   dbar
@@ -196,20 +196,20 @@ calc_hhat_num <- function(data, xgrid,
   nday <- windows_ls$nday
   day_grid <- windows_ls$day_grid
   same_tau <- isTRUE(all.equal(tau, tau_p))
-
+  
   if(interest_grid){
-    hhat <- calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, 
-                            mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist, 
-                            same_tau = same_tau)
-    if(same_tau) hhat <- hhat + `diag<-`(t(hhat), 0)
+    hhat_mat <- calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, 
+                                mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist, 
+                                same_tau = same_tau)
+    if(same_tau) hhat_mat <- hhat_mat + `diag<-`(t(hhat_mat), 0)
     day_grid <- day_grid[rep(1:nday, each=ntupq_tau_p*ntupq_tau),]
-    hhat <- data.frame(hhat_numer = c(hhat), ug = day_grid$ug, rg = day_grid$rg)
+    hhat <- tibble(hhat_numer = c(hhat_mat), ug = day_grid$ug, rg = day_grid$rg)
   } else {
-    hhat <- calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, 
-                            mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist, 
-                            same_tau = same_tau)
-    if(same_tau) hhat <- hhat + `diag<-`(t(hhat), 0)
-    hhat <- data.frame(hhat_numer = c(hhat), ug = rep(xgrid, rep(ntupq_tau_p * ntupq_tau, nday)))
+    hhat_mat <- calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, 
+                                mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist, 
+                                same_tau = same_tau)
+    if(same_tau) hhat <- hhat_mat + `diag<-`(t(hhat_mat), 0)
+    hhat <- tibble(hhat_numer = c(hhat_mat), ug = rep(xgrid, rep(ntupq_tau_p * ntupq_tau, nday)))
   }
   
   hhat$xg <- rep(tau, nday*ntupq_tau_p)
@@ -260,6 +260,10 @@ estimate_yield <- function(data, xgrid, hx,
                            cfp_slist = NULL){
   units <- 365
   
+  if(min(tau)>min(tau_p) || max(tau) < max(tau_p)){
+    stop('tau_p entries must lie inside tau')
+  }
+  
   if(!is.null(rgrid) & !is.null(hr) & !is.null(interest)){
     interest_grid <- TRUE
   } else {
@@ -276,6 +280,10 @@ estimate_yield <- function(data, xgrid, hx,
   stopifnot(is.numeric(tau))
   stopifnot(is.vector(ht))
   stopifnot(is.numeric(ht))
+  stopifnot(is.vector(tau_p))
+  stopifnot(is.numeric(tau_p))
+  stopifnot(is.vector(htp))
+  stopifnot(is.numeric(htp))
   stopifnot(length(xgrid) == length(hx))
   stopifnot(length(tau) == length(ht))
   stopifnot(all(c('qdate', 'crspid', 'mid.price', 'accint', 'pdint', 'tupq') %in% colnames(data)))
@@ -326,135 +334,94 @@ estimate_yield <- function(data, xgrid, hx,
       hx = hx,
       tau = tau[!tau %in% problem_tau],
       ht = ht[!tau %in% problem_tau], 
+      tau_p = tau_p, 
+      htp = htp, 
+      rgrid = rgrid, 
+      hr = hr,
       loess = FALSE)
     return(output)
   }
   
-  
-  
   # The denominator of h-hat entries are estimated as part of dbar
-  if(interest_grid){
-    
-    hhat <- dplyr::mutate(
-      dplyr::right_join(
-        dplyr::select(dbar, !!sym('ug'), !!sym('xg'), !!sym('rg'), !!sym('dbar_denom')),
-        hhat_num,
-        by = c('ug' = 'ug', 'xg' = 'xg', 'rg' = 'rg')
-      ),
-      hhat = !!sym('hhat_numer') / !!sym('dbar_denom')
-    )
-    
-    day_grid <- unique(hhat[c('ug', 'rg')])
-  } else {
-    hhat <- dplyr::mutate(
-      dplyr::right_join(
-        dplyr::select(dbar, !!sym('ug'), !!sym('xg'), !!sym('dbar_denom')),
-        hhat_num,
-        by = c('ug' = 'ug', 'xg' = 'xg')
-      ),
-      hhat =!!sym('hhat_numer') / !!sym('dbar_denom')
-    )
-    day_grid <- data.frame(ug = unique(hhat$ug), rg = 0)
-    hhat$rg <- 0
-    dbar$rg <- 0
+  dbar <- mutate(dbar, dbar = .data$dbar_numer/.data$dbar_denom)
+  if(any(is.na(dbar$dbar))) {
+    stop("Missing value in dbar")
+  }  
+  
+  hhat <- dbar %>% 
+    select("ug", "xg", "rg", "dbar_denom") %>% 
+    right_join(
+      hhat_num,
+      by = intersect(c("ug", "rg", "xg"), colnames(dbar))) %>% 
+    mutate(hhat = .data$hhat_numer/.data$dbar_denom)
+  
+  # Create a matrix of interpolation weights
+  interpol_weights <- matrix(0, 
+                             nrow = length(tau), 
+                             ncol = length(tau_p))
+  
+  
+  # Iterate over the values of tau_p
+  for(j in 1:length(tau_p)){
+    # If tau_p is contained in tau then the weight will be one
+    if(any(tau == tau_p[j])){
+      interpol_weights[which(tau == tau_p[j]), j] <- 1
+    } else {
+      # Otherwise find the tau immediately above and below this tau
+      lower <- max(which(tau < tau_p[j]))
+      upper <- min(which(tau > tau_p[j]))
+      # Find interpolation weights as ratio between the two tau values lying above and below this tau_p
+      dist <- tau[upper] - tau[lower]
+      interpol_weights[lower, j] <- (tau_p[j] - tau[lower]) / dist
+      interpol_weights[upper, j] <- (tau[upper] - tau_p[j]) / dist
+    }
   }
   
-  # Create the dataframe that the function returns
-  dhat <- data.frame()
-  for(i in 1:nrow(day_grid)){
-    
-    # Create the dbar vector and h-hat matrix for this value of ugrid
-    db <- dplyr::mutate(
-      dplyr::filter(dbar, !!sym('ug') == day_grid$ug[i], !!sym('rg') == day_grid$rg[i]),
-      dbar = !!sym('dbar_numer') / !!sym('dbar_denom')
-    )$dbar
-    
-    hh <- matrix(dplyr::filter(hhat, !!sym('ug') == day_grid$ug[i], !!sym('rg') == day_grid$rg[i])$hhat,
-                 nrow = length(db))
-    if(any(is.na(db))){
-      na <- which(is.na(db))
-      if(is.vector(tau) & is.vector(tau_p)){
-        xgr <- tau[-na]
-        qgr <- tau_p[tau_p <= max(xgr)]
-      } else if(nrow(tau) == 1 & nrow(tau_p) == 1){
-        xgr <- tau[-na]
-        qgr <- tau_p[tau_p <= max(xgr)]
-      } else {
-        xgr <- tau[i,-na]
-        qgr <- tau_p[i, tau_p[tau_p <= max(xgr)]]
-      }
-      db <- db[-na]
-      hh <- hh[1:length(xgr), 1:length(qgr)]
-    } else {
-      if(is.vector(tau) & is.vector(tau_p)){
-        xgr <- tau
-        qgr <- tau_p
-      } else if(nrow(tau) == 1 & nrow(tau_p) == 1){
-        xgr <- tau
-        qgr <- tau_p
-      } else {
-        xgr <- tau[i, ]
-        qgr <- tau_p[i, ]
-      }
-    }
-    
-    
-    # Extract the xgrid and qgrid for this value of u as xgr and qgr. 
-    # The dimensions of these objects are tested earlier in the code.
-    
-    # Create a matrix of interpolation weights
-    interpol_weights <- matrix(0, length(xgr), length(qgr))
-    
-    # Iterate over the values of qgrid
-    for(j in 1:length(qgr)){
-      # If qgrid is contained in xgrid then the weight will be one
-      if(any(xgr == qgr[j])){
-        interpol_weights[which(xgr == qgr[j]), j] <- 1
-      } else {
-        # Otherwise find the xgrid immediately above and below this xgrid
-        lower <- max(which(xgr < qgr[j]))
-        upper <- min(which(xgr > qgr[j]))
-        # Error if qgrid is lower than the first xgrid, or greater than the last xgrid
-        if(upper == 1 | lower == length(xgr)){
-          stop('tau_p entries must lie inside tau')
-        }
-        # Find interpolation weights as ratio between the two xgrid values lying above and below this qgrid
-        dist <- xgr[upper] - xgr[lower]
-        interpol_weights[lower, j] <- (qgr[j] - xgr[lower]) / dist
-        interpol_weights[upper, j] <- (xgr[upper] - qgr[j]) / dist
-      }
-    }
-    
-    # Construct the length(q) x length(x) matrix of the interpolated hhat
-    hh_interpol <- matrix(0, length(xgr), length(xgr))
-    for(j in 1:length(xgr)){
-      hh_interpol[,j] <- colSums(t(hh) * interpol_weights[j,])
-    }
-    
-    # transpose?
-    X <- diag(1, length(xgr)) + t(hh_interpol)
-    dh <- solve(X) %*% db
-    if(interest_grid){
-      dhat <- rbind(dhat, data.frame(discount = dh, ug = day_grid$ug[i], rgrid = day_grid$rg[i], qg = xgr))
-    } else {
-      dhat <- rbind(dhat, data.frame(discount = dh, ug = day_grid$ug[i], qg = xgr))
-    }
-    
-  }
+  
+  db <- dbar %>% 
+    select(any_of(c("ug", "rg", "dbar", "xg"))) %>% 
+    group_by(across(any_of(c("ug", "rg")))) %>% 
+    nest(.key = "db") %>% 
+    ungroup()
+  
+  
+  hh <- hhat %>%
+    select(any_of(c("ug", "rg", "hhat", "qg", "xg"))) %>% 
+    group_by(across(any_of(c("ug", "rg")))) %>% 
+    nest(.key = "hh") %>% 
+    ungroup() %>% 
+    mutate(hh = lapply(hh, function(x) {
+      x %>% 
+        pivot_wider(names_from = qg, values_from = hhat) %>% 
+        select(-"xg") %>% 
+        as.matrix() %>% 
+        unname()
+    }))
+  
+  dhat <- left_join(db, hh, by = intersect(c("ug", "rg"), colnames(db))) %>% 
+    mutate(discount = mapply(function(hh, db) {
+      # Construct the length(tau) x length(tau) matrix of the interpolated hhat
+      hh_interpol <- hh %*% t(interpol_weights)
+      X <- diag(1, length(tau)) + hh_interpol
+      transmute(db, xg, discount = as.vector(solve(X) %*% dbar))
+    }, hh = hh, db = db, SIMPLIFY = FALSE)) %>% 
+    select(any_of(c("ug", "rg", "discount"))) %>% 
+    unnest(discount)
+  
   # loess smoothing
-    loess_model <- lapply(
-      unique(dhat$ug), 
-      function(ugg) stats::loess(discount~qg, 
-                                 data = filter(dhat, .data$ug == ugg), 
-                                 control = loess.control(surface = "direct")))
+  loess_model <- lapply(
+    unique(dhat$ug), 
+    function(ugg) stats::loess(discount~xg, 
+                               data = filter(dhat, .data$ug == ugg), 
+                               control = loess.control(surface = "direct")))
   if(loess){
     dhat$discount <- do.call(base::c, lapply(loess_model, stats::predict))
   }
-  dhat$yield <- -log(dhat$discount) / dhat$qg
-  dhat <- dplyr::rename(dhat,
-                        xgrid = "ug",
-                        tau = "qg"
-  )
+  dhat <- dhat %>% 
+    mutate(yield = -log(.data$discount) / .data$xg) %>% 
+    rename(xgrid = "ug",
+           tau = "xg")
   attr(dhat, "loess") <- loess_model
-  return(dhat)
+  
+  dhat
 }
