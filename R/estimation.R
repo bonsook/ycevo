@@ -208,7 +208,7 @@ calc_hhat_num <- function(data, xgrid,
     hhat_mat <- calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p, 
                                 mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist, 
                                 same_tau = same_tau)
-    if(same_tau) hhat <- hhat_mat + `diag<-`(t(hhat_mat), 0)
+    if(same_tau) hhat_mat <- hhat_mat + `diag<-`(t(hhat_mat), 0)
     hhat <- tibble(hhat_numer = c(hhat_mat), ug = rep(xgrid, rep(ntupq_tau_p * ntupq_tau, nday)))
   }
   
@@ -349,7 +349,7 @@ estimate_yield <- function(data, xgrid, hx,
   }  
   
   hhat <- dbar %>% 
-    select("ug", "xg", "rg", "dbar_denom") %>% 
+    select(any_of(c("ug", "xg", "rg", "dbar_denom"))) %>% 
     right_join(
       hhat_num,
       by = intersect(c("ug", "rg", "xg"), colnames(dbar))) %>% 
@@ -384,7 +384,6 @@ estimate_yield <- function(data, xgrid, hx,
     nest(.key = "db") %>% 
     ungroup()
   
-  
   hh <- hhat %>%
     select(any_of(c("ug", "rg", "hhat", "qg", "xg"))) %>% 
     group_by(across(any_of(c("ug", "rg")))) %>% 
@@ -392,6 +391,7 @@ estimate_yield <- function(data, xgrid, hx,
     ungroup() %>% 
     mutate(hh = lapply(hh, function(x) {
       x %>% 
+        arrange(qg, xg) %>% 
         pivot_wider(names_from = qg, values_from = hhat) %>% 
         select(-"xg") %>% 
         as.matrix() %>% 

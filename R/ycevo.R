@@ -104,9 +104,11 @@
 ycevo <- function(data, 
                   xgrid, 
                   tau, 
+                  tau_p = tau,
                   cols = NULL,
                   hx = NULL,
                   ht = NULL,
+                  htp = NULL,
                   ...){
   
   if(anyDuplicated(xgrid)){
@@ -122,19 +124,25 @@ ycevo <- function(data,
   names(d_col) <- d_col
   cols <- enexpr(cols)
   
+  dots <- list(...)
+  qdate_label <- "qdate"
   if(!is.null(cols)){
     d_pairs <- as.list(cols)[-1]
     stopifnot(all(names(d_pairs) %in% d_col))
     s_col <- d_col
     s_col[names(d_pairs)] <- vapply(d_pairs, as.character, character(1))
-    data <- select(data, all_of(s_col))
+    data <- select(data, all_of(s_col), any_of(names(dots)))
     colnames(data) <- names(s_col)
+    qdate_label <- s_col[qdate_label]
   }
   
-  dots <- list(...)
+  
   if(any(temp <- (!names(dots) %in% colnames(data)))){
-    stop(paste0(colnames(data)[temp], collapse = ", "), " column(s) not found in the data")
+    stop(paste0(names(dots)[temp], collapse = ", "), " column(s) not found in the data")
   }
+  interest <- NULL
+  rgrid <- NULL
+  hr <- NULL
   if(length(dots) > 0){
     if(length(dots) != 1)
       stop("Currently only supports one extra predictor (interest rate)")
@@ -148,6 +156,8 @@ ycevo <- function(data,
     rgrid_order <- order(rgrid)
     rgrid <- rgrid[rgrid_order]
     hr <- hr[rgrid_order]
+    
+    stopifnot(identical(length(xgrid), length(rgrid)))
   }
   
   if(is.null(hx))
@@ -155,8 +165,12 @@ ycevo <- function(data,
   if(length(hx) == 1) hx <- rep(hx, length(xgrid))
   if(is.null(ht))
     ht <- find_bindwidth_from_tau(tau)
+  if(is.null(htp))
+    htp <- find_bindwidth_from_tau(tau_p)
   if(is.vector(ht))
     ht <- matrix(ht, nrow = length(ht), ncol = length(xgrid))
+  if(is.vector(htp))
+    htp <- matrix(htp, nrow = length(htp), ncol = length(xgrid))
   
   # sort xgrid and tau
   # in case the user don't specify them in sorted order
@@ -167,30 +181,36 @@ ycevo <- function(data,
   tau <- tau[order_tau]
   ht <- as.matrix(ht)[order_tau, order_xgrid, drop = FALSE]
   
-  stopifnot(identical(length(xgrid), length(rgrid)))
   
-  output <- pbapply::pblapply(
+  
+  output <- lapply(
     seq_along(xgrid),
     function(i) 
-      estimate_yield(
+      rename(estimate_yield(
         data = data ,
         xgrid = xgrid[[i]],
         hx = hx[[i]],
         tau = tau,
         ht = ht[,i],
+        tau_p = tau_p, 
+        htp = htp[,i],
         rgrid = rgrid[[i]],
         hr = hr[[i]], 
         interest = interest,
-        loess = FALSE)) 
+        loess = FALSE), 
+        .discount = discount, .yield = yield)) 
+  xgrid_time <- unname(quantile(getElement(data, "qdate"), xgrid, type = 1))
   
   res <- lapply(output, `attr<-`, "loess", NULL) %>% 
     bind_rows() %>% 
-    dplyr::relocate(tau, xgrid, discount, yield) %>% 
+    dplyr::relocate(any_of(c("xgrid", "rgrid", "tau", ".discount", ".yield"))) %>% 
     as_tibble() %>% 
     group_by(across(any_of(c("xgrid", "rgrid")))) %>% 
     nest() %>% 
+    ungroup() %>% 
     mutate(loess = vapply(output, attr, vector("list", 1L), "loess")) %>% 
-    ungroup()
+    mutate(!!sym(qdate_label) := xgrid_time, .before = 1)
+  
   attr(res, "cols") <- cols
   new_ycevo(res)
 }
