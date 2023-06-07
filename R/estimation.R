@@ -420,7 +420,8 @@ estimate_yield <- function(data, xgrid, hx,
   dhat <- dhat %>% 
     mutate(yield = -log(.data$discount) / .data$xg) %>% 
     rename(xgrid = "ug",
-           tau = "xg")
+           tau = "xg") %>% 
+    rename_with(function(x) rep("rgrid", length(x)), any_of("rg"))
   attr(dhat, "loess") <- loess_model
   
   dhat

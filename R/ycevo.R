@@ -204,10 +204,10 @@ ycevo <- function(data,
   res <- lapply(output, `attr<-`, "loess", NULL) %>% 
     bind_rows() %>% 
     dplyr::relocate(any_of(c("xgrid", "rgrid", "tau", ".discount", ".yield"))) %>% 
-    as_tibble() %>% 
     group_by(across(any_of(c("xgrid", "rgrid")))) %>% 
     nest() %>% 
     ungroup() %>% 
+    rename_with(function(x) rep(names(dots), length(x)), any_of("rgrid")) %>% 
     mutate(loess = vapply(output, attr, vector("list", 1L), "loess")) %>% 
     mutate(!!sym(qdate_label) := xgrid_time, .before = 1)
   
