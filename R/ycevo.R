@@ -204,7 +204,7 @@ ycevo <- function(data,
     group_by(across(any_of(c("xgrid", "rgrid")))) %>% 
     nest() %>% 
     ungroup() %>% 
-    rename_with(function(x) rep(names(dots), length(x)), any_of("rgrid")) %>% 
+    rename_with(function(x) rep(names(dots) %||% character(0), length(x)), any_of("rgrid")) %>% 
     mutate(!!sym(qdate_label) := xgrid_time, .before = 1)
   
   attr(res, "cols") <- cols
