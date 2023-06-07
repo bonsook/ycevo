@@ -63,7 +63,6 @@
 #' for each time point \code{xgrid}. 
 #'  See \code{Details}.
 #' @param ... Reserved for exogenous variables.
-#' @param loess Logical. Whether the output estimated discount and yield are to be smoothed using locally estimated scatterplot smoothing (LOESS)
 #' @examples 
 #' library(dplyr)
 #' # Simulate 4 bonds issued at 2020-01-01
@@ -182,7 +181,6 @@ ycevo <- function(data,
   ht <- as.matrix(ht)[order_tau, order_xgrid, drop = FALSE]
   
   
-  
   output <- lapply(
     seq_along(xgrid),
     function(i) 
@@ -196,19 +194,17 @@ ycevo <- function(data,
         htp = htp[,i],
         rgrid = rgrid[[i]],
         hr = hr[[i]], 
-        interest = interest,
-        loess = FALSE), 
+        interest = interest), 
         .discount = discount, .yield = yield)) 
   xgrid_time <- unname(quantile(getElement(data, "qdate"), xgrid, type = 1))
   
-  res <- lapply(output, `attr<-`, "loess", NULL) %>% 
+  res <- output %>% 
     bind_rows() %>% 
     dplyr::relocate(any_of(c("xgrid", "rgrid", "tau", ".discount", ".yield"))) %>% 
     group_by(across(any_of(c("xgrid", "rgrid")))) %>% 
     nest() %>% 
     ungroup() %>% 
     rename_with(function(x) rep(names(dots), length(x)), any_of("rgrid")) %>% 
-    mutate(loess = vapply(output, attr, vector("list", 1L), "loess")) %>% 
     mutate(!!sym(qdate_label) := xgrid_time, .before = 1)
   
   attr(res, "cols") <- cols

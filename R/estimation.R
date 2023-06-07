@@ -256,7 +256,7 @@ estimate_yield <- function(data, xgrid, hx,
                            tau, ht, 
                            tau_p = tau, htp = ht,
                            rgrid = NULL, hr = NULL, 
-                           interest = NULL, loess = TRUE, 
+                           interest = NULL,
                            cfp_slist = NULL){
   units <- 365
   
@@ -337,8 +337,7 @@ estimate_yield <- function(data, xgrid, hx,
       tau_p = tau_p, 
       htp = htp, 
       rgrid = rgrid, 
-      hr = hr,
-      loess = FALSE)
+      hr = hr)
     return(output)
   }
   
@@ -408,21 +407,11 @@ estimate_yield <- function(data, xgrid, hx,
     select(any_of(c("ug", "rg", "discount"))) %>% 
     unnest(discount)
   
-  # loess smoothing
-  loess_model <- lapply(
-    unique(dhat$ug), 
-    function(ugg) stats::loess(discount~xg, 
-                               data = filter(dhat, .data$ug == ugg), 
-                               control = loess.control(surface = "direct")))
-  if(loess){
-    dhat$discount <- do.call(base::c, lapply(loess_model, stats::predict))
-  }
   dhat <- dhat %>% 
     mutate(yield = -log(.data$discount) / .data$xg) %>% 
     rename(xgrid = "ug",
            tau = "xg") %>% 
     rename_with(function(x) rep("rgrid", length(x)), any_of("rg"))
-  attr(dhat, "loess") <- loess_model
   
   dhat
 }
