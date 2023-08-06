@@ -231,6 +231,7 @@ find_bindwidth_from_xgrid <- function(xgrid, data){
   hx
 }
 
+#' @export
 new_ycevo <- function(x) {
   structure(x, class = c("ycevo", class(x)))
 }
