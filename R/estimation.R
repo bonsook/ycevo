@@ -259,7 +259,6 @@ estimate_yield <- function(data, xgrid, hx,
                            interest = NULL,
                            cfp_slist = NULL){
   units <- 365
-  
   if(min(tau)>min(tau_p) || max(tau) < max(tau_p)){
     stop('tau_p entries must lie inside tau')
   }
@@ -326,16 +325,22 @@ estimate_yield <- function(data, xgrid, hx,
   
   if(any(dbar$dbar_denom == 0)) {
     problem_tau <- filter(dbar, .data$dbar_denom == 0)$xg 
-    warning("tau values at ", paste(problem_tau, collapse = ", "), " does not have enough obs to estimate yield")
-    
+    if(!identical(tau_p, tau)) {
+      if(!(max(tau_p)<=min(problem_tau) || min(tau_p) >= max(problem_tau)))
+        stop("tau values at ", paste(problem_tau, collapse = ", "), 
+             " does not have enough obs to estimate yield. ",
+             "Modified tau and tau_p." )
+    }
+    warning("tau values at ", paste(problem_tau, collapse = ", "), 
+            " does not have enough obs to estimate yield")
     output <- estimate_yield(
       data = data,
       xgrid = xgrid,
       hx = hx,
       tau = tau[!tau %in% problem_tau],
       ht = ht[!tau %in% problem_tau], 
-      tau_p = tau_p, 
-      htp = htp, 
+      tau_p = tau_p[!tau_p %in% problem_tau], 
+      htp = htp[!tau_p %in% problem_tau], 
       rgrid = rgrid, 
       hr = hr)
     return(output)
