@@ -354,7 +354,7 @@ estimate_yield <- function(data, xgrid, hx,
   
   hhat <- dbar %>% 
     select(any_of(c("ug", "xg", "rg", "dbar_denom"))) %>% 
-    right_join(
+    dplyr::right_join(
       hhat_num,
       by = intersect(c("ug", "rg", "xg"), colnames(dbar))) %>% 
     mutate(hhat = .data$hhat_numer/.data$dbar_denom)
@@ -385,18 +385,18 @@ estimate_yield <- function(data, xgrid, hx,
   db <- dbar %>% 
     select(any_of(c("ug", "rg", "dbar", "xg"))) %>% 
     group_by(across(any_of(c("ug", "rg")))) %>% 
-    nest(.key = "db") %>% 
+    tidyr::nest(.key = "db") %>% 
     ungroup()
   
   hh <- hhat %>%
     select(any_of(c("ug", "rg", "hhat", "qg", "xg"))) %>% 
     group_by(across(any_of(c("ug", "rg")))) %>% 
-    nest(.key = "hh") %>% 
+    tidyr::nest(.key = "hh") %>% 
     ungroup() %>% 
     mutate(hh = lapply(hh, function(x) {
       x %>% 
         arrange(qg, xg) %>% 
-        pivot_wider(names_from = qg, values_from = hhat) %>% 
+        tidyr::pivot_wider(names_from = qg, values_from = hhat) %>% 
         select(-"xg") %>% 
         as.matrix() %>% 
         unname()
@@ -410,7 +410,7 @@ estimate_yield <- function(data, xgrid, hx,
       transmute(db, xg, discount = as.vector(solve(X) %*% dbar))
     }, hh = hh, db = db, SIMPLIFY = FALSE)) %>% 
     select(any_of(c("ug", "rg", "discount"))) %>% 
-    unnest(discount)
+    tidyr::unnest(discount)
   
   dhat <- dhat %>% 
     mutate(yield = -log(.data$discount) / .data$xg) %>% 

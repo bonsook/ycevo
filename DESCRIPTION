@@ -34,6 +34,7 @@ LazyData: true
 Imports: 
     dplyr,
     future.apply,
+    generics,
     lubridate,
     magrittr,
     Matrix,
@@ -41,14 +42,14 @@ Imports:
     Rcpp (>= 0.12.18),
     rlang,
     stats,
-    tibble
+    tibble,
+    tidyr
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.2.3
 Suggests: 
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
-    ggplot2,
-    tidyr
+    ggplot2
 Language: en-AU
 Config/testthat/edition: 3

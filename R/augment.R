@@ -5,7 +5,7 @@ augment.ycevo <- function(
     x,
     newdata = NULL,
     loess = TRUE){
-  df_flat <- unnest(x, data)
+  df_flat <- tidyr::unnest(x, data)
   
   cols <- attr(x, "cols")
   qdate_label <- "qdate"
@@ -61,7 +61,7 @@ interpolate <- function(object, newdata, qdate_label){
   newdata_idx <- newdata %>% 
     distinct(across(all_of(xnames))) %>% 
     # slice(46) %>% 
-    rowwise() %>% 
+    dplyr::rowwise() %>% 
     mutate(.idx = list({
       reduce(xnames, function(current_rows, next_x_name){
         if(!is.list(current_rows)) current_rows <- list(current_rows)
@@ -80,11 +80,11 @@ interpolate <- function(object, newdata, qdate_label){
       }, .init = seq_len(nrow(x_sort))) %>% 
         unlist()
     })) %>% 
-    unnest(.idx)
+    tidyr::unnest(.idx)
   
   df_loess <- newdata_idx %>% 
     group_by(.idx) %>% 
-    nest(.key = "xvalue") %>% 
+    tidyr::nest(.key = "xvalue") %>% 
     ungroup() %>% 
     left_join(mutate(object, .idx= row_number()), by = ".idx") %>% 
     mutate(loess = lapply(data, function(data)
@@ -129,12 +129,12 @@ interpolate <- function(object, newdata, qdate_label){
   
   output <- newdata_pred %>% 
     select(-.idx) %>% 
-    nest(.meta = !c(all_of(xnames), ends_with("_grid."), .discount),
+    tidyr::nest(.meta = !c(all_of(xnames), ends_with("_grid."), .discount),
          .discount = .discount, 
          .by = c(all_of(xnames), ends_with("_grid."))) %>% 
     # mutate(.discount = lapply(.discount, unlist)) %>% 
     group_by(across(c(all_of(xnames)))) %>% 
-    nest() %>% 
+    tidyr::nest() %>% 
     mutate(data = list({
       current_grid <- cur_group()
       meta <- slice(select(data[[1]], .meta), 1)
@@ -148,8 +148,8 @@ interpolate <- function(object, newdata, qdate_label){
   
   output <- output %>% 
     ungroup() %>% 
-    unnest(data) %>%
-    unnest(everything()) %>% 
+    tidyr::unnest(data) %>%
+    tidyr::unnest(everything()) %>% 
     mutate(.yield =  -log(.discount) / tau) %>% 
     relocate(all_of(colnames(newdata))) 
   
