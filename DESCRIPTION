@@ -33,9 +33,11 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     dplyr,
+    future.apply,
     lubridate,
     magrittr,
     Matrix,
+    progressr,
     Rcpp (>= 0.12.18),
     rlang,
     stats,

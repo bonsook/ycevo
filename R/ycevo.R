@@ -109,6 +109,7 @@ ycevo <- function(data,
                   ht = NULL,
                   htp = NULL,
                   ...){
+  stopifnot(is.data.frame(data))
   
   if(anyDuplicated(xgrid)){
     stop("Duplicated xgrid found.")
@@ -180,11 +181,12 @@ ycevo <- function(data,
   tau <- tau[order_tau]
   ht <- as.matrix(ht)[order_tau, order_xgrid, drop = FALSE]
   
-  
-  output <- lapply(
+  pb <- progressr::progressor(length(xgrid))
+  output <- future.apply::future_lapply(
     seq_along(xgrid),
-    function(i) 
-      rename(estimate_yield(
+    function(i) {
+      on.exit(pb())
+      dplyr::rename(estimate_yield(
         data = data ,
         xgrid = xgrid[[i]],
         hx = hx[[i]],
@@ -194,8 +196,11 @@ ycevo <- function(data,
         htp = htp[,i],
         rgrid = rgrid[[i]],
         hr = hr[[i]], 
-        interest = interest), 
-        .discount = discount, .yield = yield)) 
+        interest = interest),
+        .discount = discount, .yield = yield)
+    }, 
+    future.seed = TRUE
+  ) 
   xgrid_time <- unname(quantile(getElement(data, "qdate"), xgrid, type = 1))
   
   res <- output %>% 
