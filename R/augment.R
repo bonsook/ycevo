@@ -1,10 +1,13 @@
 
+#' @param ... Additional arguments required for generic consistency. Currently not used.
+#' Warning: A misspelled argument will not raise an error. 
+#' The misspelled argument will be either disregarded, or the default value will be applied if one exists.
 #' @importFrom generics augment
 #' @export
 augment.ycevo <- function(
     x,
     newdata = NULL,
-    loess = TRUE){
+    loess = TRUE, ...){
   df_flat <- tidyr::unnest(x, data)
   
   cols <- attr(x, "cols")
