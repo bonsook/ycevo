@@ -67,7 +67,7 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
 #' so the yield curve slowly changes over different quotation dates.
 #' 
 #' @param n_qdate Integer giving the number of quotation dates to use in the data. Defaults to 12.
-#' @param periods Integer giving the maximum number of time-to-maturity periods the yield curve is estimated for each quotation date. Defaults to 36
+#' @param periods Integer giving the maximum number of time-to-maturity periods in 10 years that the yield curve is estimated for each quotation date. Defaults to 36
 #' @param b0 Level term in yield curve equation, Defaults to 0. See \code{Details}.
 #' @param b1 Slope term in yield curve equation, Defaults to 0.05. See \code{Details}.
 #' @param b2 Curvature term in yield curve equation, Defaults to 2. See \code{Details}.
@@ -121,7 +121,7 @@ generate_yield <- function(n_qdate = 12, periods = 36,
 }
 
 
-#' @param time Numeric value.
+#' @param time Numeric value between 0 and 1.
 #' @param maturity Numeric value. Maturity in years.
 #' @describeIn generate_yield Return the yield at a specific point in time of a specific maturity.
 #' @return 

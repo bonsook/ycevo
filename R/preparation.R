@@ -1,4 +1,4 @@
-# Epaker kernel function
+# Epanechnikov kernel function
 #
 # Kernel function for grid windows
 #
@@ -36,7 +36,7 @@ epaker <- function(x) {
 #' @importFrom dplyr group_split
 get_cfp_slist <- function(data){
   cfp_list <- data %>%
-    mutate(mid.price = .data$mid.price + as.numeric(as.character(.data$accint))) %>%
+    mutate(mid.price = .data$mid.price) %>%
     select("qdate", "crspid", "tupq", "pdint", "mid.price") %>% 
     group_by(.data$qdate) %>% 
     group_split() 

@@ -120,7 +120,7 @@ ycevo <- function(data,
   stopifnot(!anyNA(xgrid))
   stopifnot(!anyNA(tau))
   
-  d_col <- c('qdate', 'crspid', 'mid.price', 'accint', 'pdint', 'tupq')
+  d_col <- c('qdate', 'crspid', 'mid.price', 'pdint', 'tupq')
   names(d_col) <- d_col
   cols <- enexpr(cols)
   

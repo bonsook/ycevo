@@ -248,7 +248,6 @@ calc_hhat_num <- function(data, xgrid,
 #'   \item{yield}{Estimated yield}
 #' }
 #' 
-#' @author Nathaniel Tomasetti, Bonsoo Koo, and Yangzhuoran Fin Yang
 #' @describeIn ycevo Experienced users only. 
 #' Yield estimation with interest rate and manually selected bandwidth parameters.
 #' @export
@@ -285,7 +284,7 @@ estimate_yield <- function(data, xgrid, hx,
   stopifnot(is.numeric(htp))
   stopifnot(length(xgrid) == length(hx))
   stopifnot(length(tau) == length(ht))
-  stopifnot(all(c('qdate', 'crspid', 'mid.price', 'accint', 'pdint', 'tupq') %in% colnames(data)))
+  stopifnot(all(c('qdate', 'crspid', 'mid.price', 'pdint', 'tupq') %in% colnames(data)))
   
   
   if(is.null(cfp_slist)){
