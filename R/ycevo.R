@@ -102,10 +102,10 @@
 #' @export
 ycevo <- function(data, 
                   xgrid, 
-                  tau, 
+                  tau = NULL, 
                   tau_p = tau,
                   cols = NULL,
-                  hx = NULL,
+                  hx = 1/length(xgrid),
                   ht = NULL,
                   htp = NULL,
                   ...){
@@ -120,29 +120,32 @@ ycevo <- function(data,
   stopifnot(!anyNA(xgrid))
   stopifnot(!anyNA(tau))
   
+  # The minimum required columns
   d_col <- c('qdate', 'id', 'mid.price', 'pdint', 'tupq')
   names(d_col) <- d_col
   cols <- enexpr(cols)
-  
+  # Now use id, not crspid
   if(any(colnames(data) == "crspid")) 
     warning('Column name "crspid" is deprecated. Column "id" is now used as asset identifier.')
-  
+  # If user specify cols, replace the columns in the data with cols
   dots <- list(...)
   qdate_label <- "qdate"
+  s_col <- d_col
   if(!is.null(cols)){
     d_pairs <- as.list(cols)[-1]
     stopifnot(all(names(d_pairs) %in% d_col))
-    s_col <- d_col
     s_col[names(d_pairs)] <- vapply(d_pairs, as.character, character(1))
-    data <- select(data, all_of(s_col), any_of(names(dots)))
-    colnames(data) <- names(s_col)
     qdate_label <- s_col[qdate_label]
   }
-  
+  # Minimal data
+  data <- select(data, all_of(s_col), any_of(names(dots)))
+  colnames(data) <- c(names(s_col), names(dots))
   
   if(any(temp <- (!names(dots) %in% colnames(data)))){
     stop(paste0(names(dots)[temp], collapse = ", "), " column(s) not found in the data")
   }
+  
+  # Handle interest rate
   interest <- NULL
   rgrid <- NULL
   hr <- NULL
@@ -163,11 +166,19 @@ ycevo <- function(data,
     stopifnot(identical(length(xgrid), length(rgrid)))
   }
   
-  if(is.null(hx))
-    hx <- find_bindwidth_from_xgrid(xgrid, data)
+  # Handle grids
+  # xgrid and hx
+  hx <- check_hx(xgrid, hx, data)
   if(length(hx) == 1) hx <- rep(hx, length(xgrid))
+  # tau 
+  if(is.null(tau)) {
+    max_tupq <- max(data$tupq)
+    tau <- default_tau(max_tupq)
+  }
+  # ht
   if(is.null(ht))
     ht <- find_bindwidth_from_tau(tau)
+  # ht
   if(is.null(htp))
     htp <- find_bindwidth_from_tau(tau_p)
   if(is.vector(ht))
@@ -219,6 +230,29 @@ ycevo <- function(data,
   new_ycevo(res)
 }
 
+check_hx <- function(xgrid, hx, data){
+  
+  if(all.equal(hx, 1/length(xgrid))) {
+    mat_weights_qdatetime <- get_weights(xgrid, hx, len = num_qdate)
+    if(any(colSums(mat_weights_qdatetime) == 0)) {
+      recommend <- seq_along(xgrid)/length(xgrid)
+      stop("Inappropriate xgrid. Recommend to choose value(s) from: ", paste(recommend, collapse = ", "))
+    }
+  }
+  
+  hx
+}
+
+default_tau <- function(max_tupq) {
+  tau <-  c(seq(30, 6 * 30, 30),  # Monthly up to six months
+            seq(240, 2 * 365, 60),  # Two months up to two years
+            seq(720 + 90, 6 * 365, 90),  # Three months up to six years
+            seq(2160 + 120, 20 * 365, 120),  # Four months up to 20 years
+            #               seq(20 * 365 + 182, 30 * 365, 182)) / 365 # Six months up to 30 years
+            seq(20 * 365 + 182, 30.6 * 365, 182)) / 365
+  tau[tau < max_tupq/365]
+}
+
 find_bindwidth_from_tau <- function(tau){
   laggap <- tau - lag(tau)
   leadgap <- lead(tau) - tau
@@ -229,15 +263,7 @@ find_bindwidth_from_tau <- function(tau){
 }
 
 
-find_bindwidth_from_xgrid <- function(xgrid, data){
-  hx <- 1/length(xgrid)
-  mat_weights_qdatetime <- get_weights(xgrid, hx, len = length(unique(data$qdate)))
-  if(any(colSums(mat_weights_qdatetime) == 0)) {
-    recommend <- seq_along(xgrid)/length(xgrid)
-    stop("Inappropriate xgrid. Recommend to choose value(s) from: ", paste(recommend, collapse = ", "))
-  }
-  hx
-}
+
 
 new_ycevo <- function(x) {
   structure(x, class = c("ycevo", class(x)))
