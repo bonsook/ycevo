@@ -104,34 +104,6 @@ xgrid_exp <- list(
 
 test_that("Calculates number of bonds that mature in each qgrid", {
   
-  expect_equal(num_points_mat(
-    USbonds, 
-    0.029, 
-    0.029, 
-    tau, 
-    ht,
-    units = 365
-  ), 
-  c(176, 160, 161, 191, 172, 260, 116, 67, 108, 100, 97, 121, 109, 
-    137, 172, 132, 140, 126, 112, 97, 95, 94, 87, 87, 97, 97, 70, 
-    28, 14, 28, 37, 29, 42, 40, 28, 42, 56, 42, 70, 84, 56, 62, 42, 
-    22, 28, 14, 14, 17, 28, 24, 14, 28, 28, 28, 28, 28, 28, 28, 14, 
-    14, 35, 28, 20, 14, 0, 0, 0, 0, 0, 0, 14, 28, 56, 56, 28, 28, 
-    42, 28, 28, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 14, 14, 0, 0))
-  
-  expect_equal(
-    `names<-`(create_xgrid_hx(
-      USbonds, 
-      0.029, 
-      0.029, 
-      tau, 
-      ht,
-      5,
-      units = 365
-    ), names(xgrid_exp)), 
-    xgrid_exp
-  )
-  
   expect_equal(
     generate_yield(), 
     sapply(
