@@ -37,10 +37,10 @@ epaker <- function(x) {
 get_cfp_slist <- function(data){
   cfp_list <- data %>%
     mutate(mid.price = .data$mid.price) %>%
-    select("qdate", "crspid", "tupq", "pdint", "mid.price") %>% 
+    select("qdate", "id", "tupq", "pdint", "mid.price") %>% 
     group_by(.data$qdate) %>% 
     group_split() 
-  id <- unique(data$crspid)
+  id <- unique(data$id)
   id_len <- length(id)
   tupq_len <- as.integer(max(data$tupq))
   qdate_len <- length(unique(data$qdate))
@@ -51,12 +51,12 @@ get_cfp_slist <- function(data){
   for (i in 1:qdate_len) {
     x_list <- cfp_list[[i]]
     
-    price_slist[[i]] <- sparseMatrix(i = match(x_list$crspid, id),
+    price_slist[[i]] <- sparseMatrix(i = match(x_list$id, id),
                                      j = match(x_list$tupq, seq_tupq),
                                      x = x_list$mid.price,
                                      dims = c(id_len, tupq_len),
                                      dimnames=list(id,seq_tupq))
-    cf_slist[[i]] <- sparseMatrix(i = match(x_list$crspid, id),
+    cf_slist[[i]] <- sparseMatrix(i = match(x_list$id, id),
                                   j = match(x_list$tupq, seq_tupq),
                                   x = x_list$pdint,
                                   dims = c(id_len, tupq_len),

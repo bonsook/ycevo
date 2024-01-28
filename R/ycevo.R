@@ -74,13 +74,13 @@
 #' # Quotation date is also at 2020-01-01
 #' exp_data <- tibble(
 #'   qdate = "2020-01-01", 
-#'   crspid = rep(1:4, 1:4), 
+#'   id = rep(1:4, 1:4), 
 #'   pdint = c(100, 1, 101, 1, 1, 101, 1, 1, 1, 101),
 #'   tupq = unlist(sapply(1:4, seq_len)) * 180, 
 #'   accint = 0
 #' ) %>% 
 #'   mutate(discount = exp(-tupq/365 * get_yield_at_vec(0, tupq/365))) %>% 
-#'   group_by(crspid) %>% 
+#'   group_by(id) %>% 
 #'   mutate(mid.price = sum(pdint * discount)) %>% 
 #'   ungroup()
 #'   
@@ -120,9 +120,12 @@ ycevo <- function(data,
   stopifnot(!anyNA(xgrid))
   stopifnot(!anyNA(tau))
   
-  d_col <- c('qdate', 'crspid', 'mid.price', 'pdint', 'tupq')
+  d_col <- c('qdate', 'id', 'mid.price', 'pdint', 'tupq')
   names(d_col) <- d_col
   cols <- enexpr(cols)
+  
+  if(any(colnames(data) == "crspid")) 
+    warning('Column name "crspid" is deprecated. Column "id" is now used as asset identifier.')
   
   dots <- list(...)
   qdate_label <- "qdate"

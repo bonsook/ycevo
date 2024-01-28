@@ -93,13 +93,13 @@ library(lubridate)
 # Quotation date is also at 2020-01-01
 exp_data <- tibble(
   qdate = ymd("2020-01-01"), 
-  crspid = rep(1:4, 1:4), 
+  id = rep(1:4, 1:4), 
   pdint = c(100, 1, 101, 1, 1, 101, 1, 1, 1, 101),
   tupq = unlist(sapply(1:4, seq_len)) * 180, 
   accint = 0
 ) %>% 
   mutate(discount = exp(-tupq/365 * get_yield_at_vec(0, tupq/365))) %>% 
-  group_by(crspid) %>% 
+  group_by(id) %>% 
   mutate(mid.price = sum(pdint * discount)) %>% 
   ungroup()
 

@@ -284,7 +284,7 @@ estimate_yield <- function(data, xgrid, hx,
   stopifnot(is.numeric(htp))
   stopifnot(length(xgrid) == length(hx))
   stopifnot(length(tau) == length(ht))
-  stopifnot(all(c('qdate', 'crspid', 'mid.price', 'pdint', 'tupq') %in% colnames(data)))
+  stopifnot(all(c('qdate', 'id', 'mid.price', 'pdint', 'tupq') %in% colnames(data)))
   
   
   if(is.null(cfp_slist)){

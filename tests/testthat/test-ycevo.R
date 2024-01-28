@@ -12,7 +12,7 @@ test_that("Simplest example", {
           18262,
           18262, 18262, 18262, 18262, 18262, 18262, 18262, 18262, 18262
         ), class = "Date"), coupon = c(0, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-        crspid = c(1L, 2L, 2L, 3L, 3L, 3L, 4L, 4L, 4L, 4L), mat_date = structure(c(
+        id = c(1L, 2L, 2L, 3L, 3L, 3L, 4L, 4L, 4L, 4L), mat_date = structure(c(
           18442,
           18622, 18622, 18802, 18802, 18802, 18982, 18982, 18982, 18982
         ), class = "Date"), paydates = structure(c(
