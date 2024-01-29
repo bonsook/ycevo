@@ -102,11 +102,11 @@
 #' @export
 ycevo <- function(data, 
                   xgrid, 
-                  tau = NULL, 
-                  tau_p = tau,
-                  cols = NULL,
                   hx = 1/length(xgrid),
+                  cols = NULL,
+                  tau = NULL, 
                   ht = NULL,
+                  tau_p = tau,
                   htp = NULL,
                   ...){
   stopifnot(is.data.frame(data))
@@ -169,7 +169,11 @@ ycevo <- function(data,
   # Handle grids
   # xgrid and hx
   hx <- check_hx(xgrid, hx, data)
-  if(length(hx) == 1) hx <- rep(hx, length(xgrid))
+  if(length(hx) == 1) {
+    hx <- rep(hx, length(xgrid))
+  } else if(length(hx) != length(xgrid)) {
+    stop("Length of hx does not equal to length of xgrid.")
+  }
   # tau 
   if(is.null(tau)) {
     max_tupq <- max(data$tupq)
@@ -181,6 +185,7 @@ ycevo <- function(data,
   # ht
   if(is.null(htp))
     htp <- find_bindwidth_from_tau(tau_p)
+  
   if(is.vector(ht))
     ht <- matrix(ht, nrow = length(ht), ncol = length(xgrid))
   if(is.vector(htp))
@@ -190,10 +195,27 @@ ycevo <- function(data,
   # in case the user don't specify them in sorted order
   order_xgrid <- order(xgrid)
   order_tau <- order(tau)
+  order_tau_p <- order(tau_p)
   xgrid <- xgrid[order_xgrid]
   hx <- hx[order_xgrid]
   tau <- tau[order_tau]
   ht <- as.matrix(ht)[order_tau, order_xgrid, drop = FALSE]
+  tau_p <- tau[order_tau_p]
+  htp <- as.matrix(htp)[order_tau_p, order_xgrid, drop = FALSE]
+  
+  
+  # Handle tau and tau_p again
+  # based on number of bonds in each window
+  tau_adjusted <- mapply(create_tau_ht,
+    xgrid = xgrid,
+    hx = hx,
+    ht = asplit(ht, 2),
+    htp = asplit(htp, 2),
+    MoreArgs = list(
+      data = data, tau = tau, tau_p = tau_p, 
+      rgrid = rgrid, hr = hr, interest = interest),
+    SIMPLIFY = FALSE
+  )
   
   pb <- progressr::progressor(length(xgrid))
   output <- future.apply::future_lapply(
@@ -204,15 +226,15 @@ ycevo <- function(data,
         data = data ,
         xgrid = xgrid[[i]],
         hx = hx[[i]],
-        tau = tau,
-        ht = ht[,i],
-        tau_p = tau_p, 
-        htp = htp[,i],
+        tau = tau_adjusted[[i]]$tau,
+        ht = tau_adjusted[[i]]$ht,
+        tau_p = tau_adjusted[[i]]$tau_p, 
+        htp = tau_adjusted[[i]]$htp,
         rgrid = rgrid[[i]],
         hr = hr[[i]], 
         interest = interest),
         .discount = discount, .yield = yield)
-    }, 
+    },
     future.seed = TRUE
   ) 
   xgrid_time <- unname(quantile(getElement(data, "qdate"), xgrid, type = 1))
@@ -232,7 +254,8 @@ ycevo <- function(data,
 
 check_hx <- function(xgrid, hx, data){
   
-  if(all.equal(hx, 1/length(xgrid))) {
+  if(isTRUE(all.equal(hx, 1/length(xgrid)))) {
+    num_qdate <- length(unique(data$qdate))
     mat_weights_qdatetime <- get_weights(xgrid, hx, len = num_qdate)
     if(any(colSums(mat_weights_qdatetime) == 0)) {
       recommend <- seq_along(xgrid)/length(xgrid)

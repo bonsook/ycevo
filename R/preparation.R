@@ -180,61 +180,67 @@ calc_r_window <- function(interest, rgrid, hr) {
 # 
 # Selects tau and ht from values of tau_p and htp with a given number of maturing bonds
 # 
-# Automatically select values for sparse time to maturity \code{tau} and \code{ht}
-# for a given dense time to maturity value of tau_p and htp and quotation date xgrid and hx.
+# Automatically select values for sparse time to maturity \code{tau}, \code{tau_p}, \code{ht}, \code{htp}
+# for a given quotation date xgrid and hx.
+# Grid values without maturing bonds do not have sufficient data for stable estimates.
+# Grid values at the end of the sequence that do not cover enough bonds are dropped. 
+# Values of \code{tau} that do not cover enough bonds in the middle of the sequence will be dropped,
+# and bindwidth \code{ht} associated with the two ends of the gap will be extended to cover the gap in the middle.
+# will be extended to cover the 
+#
 # The length of the provided tau may change for different xgrid values, so it is recommended
 # that the function is called separately for different values of xgrid.
+# @inheritParams ycevo
 # @param data Bond dataframe. See \code{?USbonds} for an example data strcture..
 # @param xgrid A single value for xgrid between 0 and 1
 # @param hx A single value for the bandwidth of the xgrid value
-# @param tau_p vector of dense time to maturity grid
-# @param htp vector of dense time to maturity bandwidth
 # @param min_points Integer, minimum number of maturing bonds in a tau_p range to be included in tau.
 # @param rgrid Optional, a single value for rgrid
 # @param hr Optional, A single value for the bandwidth of the rgrid value
-# @param interest, Optional, a vector of daily interest rates for use with rgrid. Must have a length equal to the number of unique qdates in data
-# @param units, Optional, number of units per period. Eg 365 for daily data, 12 for monthly.
-# Grid values without maturing bonds do not have sufficient data for stable estimates.
-# @return List of \code{tau}, \code{ht}, \code{tau_p} and \code{htp}. \code{tau_p} and \code{htp} is the same as input. 
-# For the usage of created \code{tau} and \code{ht}, see \code{\link{estimate_yield}}.
+# @return List of \code{tau}, \code{ht}, \code{tau_p} and \code{htp}.
 # @examples 
 #  xgrid <- 0.2
 #  hx <- 0.18
 #  tau_p <- c(30, 60, 90) / 365
 #  htp <- c(15, 15 , 15) / 365
 #  out <- create_tau_ht(data = USbonds, xgrid = xgrid, hx = hx, tau_p = tau_p,htp =htp, min_points = 5)
-# @author Nathaniel Tomasetti
-create_xgrid_hx <- function(data, xgrid, hx, tau, ht, min_points, rgrid = NULL, hr = NULL, interest = NULL, units = 365){
-  
-  tau_p <- tau
-  htp <- ht
-  points <- num_points_mat(data, xgrid, hx, tau, ht, rgrid, hr, interest, units)
-  
+create_tau_ht <- function(xgrid, hx, ht, htp, min_points = 5, data, tau, tau_p, rgrid, hr, interest) {
+  ht <- as.numeric(ht)
+  htp <- as.numeric(htp)
+  ## tau and ht
+  points <- num_points_mat(data, xgrid, hx, tau, ht, rgrid, hr, interest)
   
   # Shrink window if there is not enough bonds at the end
   while(points[length(points)] < min_points){
     points <- points[seq_len(length(points)-1)]
-    htp <- ht[seq_along(points)]
-    tau_p <- tau[seq_along(points)]
   }
+  tau <- tau[seq_along(points)]
+  ht <- ht[seq_along(points)]
   
-  # Set ht to htp, but exclude points where there are not many bonds maturing
-  ht <- htp
-  ht[points < min_points] <- NA
-  # Find where the gaps start: the indices of elements of ht that are non na, but are followed by an na, and where the gap ends: a non-na ht that follows an na ht
-  gap_start <- which(!is.na(ht) & dplyr::lead(is.na(ht)))
-  gap_end <- which(!is.na(ht) & dplyr::lag(is.na(ht)))
+  ht_narrow <- points < min_points
+  
+  # Find where the gaps start: the indices of elements of ht that are non na, 
+  # but are followed by an na, and where the gap ends: a non-na ht that follows an na ht
+  gap_start <- which(!ht_narrow & dplyr::lead(ht_narrow))
+  gap_end <- which(!ht_narrow & dplyr::lag(ht_narrow))
   # Amount of time in each gap
-  gap_size <- tau_p[gap_end] - tau_p[gap_start]
+  gap_size <- tau[gap_end] - tau[gap_start]
   # ht at the edges of missing values are extended so half the gap is covered by each end
   ht[gap_start] <- gap_size / 2
   ht[gap_end] <- gap_size / 2
   # Remove NA values
-  ht <- ht[!is.na(ht)]
-  # Set tau to be tau_p without the area without much data
-  tau <- tau_p[points >= min_points]
+  ht <- ht[!ht_narrow]
+  tau <- tau[!ht_narrow]
+  
+  ## tau_p and htp
+  points <- num_points_mat(data, xgrid, hx, tau_p, htp, rgrid, hr, interest)
+  # Shrink window if there is not enough bonds at the end
+  while(points[length(points)] < min_points){
+    points <- points[seq_len(length(points)-1)]
+  }
+  tau_p <- tau_p[seq_along(points)]
+  htp <- htp[seq_along(points)]
+  
   list(tau = tau, ht = ht, tau_p = tau_p, htp = htp)
+  
 }
-
-
-
