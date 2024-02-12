@@ -56,8 +56,8 @@
 #' 
 #' 
 #' @param data Data frame; bond data to estimate discount curve from. See \code{?USbonds} for an example bond data structure.
-#' @param xgrid Numeric vector of values between 0 and 1. 
-#' Time grids over the entire time horizon (percentile) of the data at which the discount curve is evaluated.
+#' @param x Time grids at which the discount curve is evaluated. 
+#' Should be specified using the same class of object as the quotation date (\code{qdate}) column in \code{data}.
 #' @param tau Numeric vector that
 #' represents time-to-maturities in years where discount function and yield curve will be found
 #' for each time point \code{xgrid}. 
@@ -101,8 +101,8 @@
 #' @importFrom lubridate days
 #' @export
 ycevo <- function(data, 
-                  xgrid, 
-                  hx = 1/length(xgrid),
+                  x, 
+                  hx = 1/length(x),
                   cols = NULL,
                   tau = NULL, 
                   ht = NULL,
@@ -111,13 +111,15 @@ ycevo <- function(data,
                   ...){
   stopifnot(is.data.frame(data))
   
-  if(anyDuplicated(xgrid)){
-    stop("Duplicated xgrid found.")
+  if(anyDuplicated(x)){
+    stop("Duplicated time grid x found.")
   }
   if(anyDuplicated(tau)){
     stop("Duplicated tau found.")
   }
-  stopifnot(!anyNA(xgrid))
+  
+  
+  stopifnot(!anyNA(x))
   stopifnot(!anyNA(tau))
   
   # The minimum required columns
@@ -144,6 +146,8 @@ ycevo <- function(data,
   if(any(temp <- (!names(dots) %in% colnames(data)))){
     stop(paste0(names(dots)[temp], collapse = ", "), " column(s) not found in the data")
   }
+  
+  xgrid <- ecdf(data$qdate)(x)
   
   # Handle interest rate
   interest <- NULL
@@ -172,7 +176,7 @@ ycevo <- function(data,
   if(length(hx) == 1) {
     hx <- rep(hx, length(xgrid))
   } else if(length(hx) != length(xgrid)) {
-    stop("Length of hx does not equal to length of xgrid.")
+    stop("Length of hx does not equal to length of x.")
   }
   # tau 
   if(is.null(tau)) {
@@ -237,7 +241,6 @@ ycevo <- function(data,
     },
     future.seed = TRUE
   ) 
-  xgrid_time <- unname(quantile(getElement(data, "qdate"), xgrid, type = 1))
   
   res <- output %>% 
     bind_rows() %>% 
@@ -246,7 +249,8 @@ ycevo <- function(data,
     tidyr::nest() %>% 
     ungroup() %>% 
     rename_with(function(x) rep(names(dots) %||% character(0), length(x)), any_of("rgrid")) %>% 
-    mutate(!!sym(qdate_label) := xgrid_time, .before = 1)
+    mutate(!!sym(qdate_label) := x, .before = 1) %>% 
+    select(-xgrid)
   
   attr(res, "cols") <- cols
   new_ycevo(res)
