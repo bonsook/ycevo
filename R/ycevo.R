@@ -103,11 +103,11 @@
 ycevo <- function(data, 
                   x, 
                   hx = 1/length(x),
-                  cols = NULL,
                   tau = NULL, 
                   ht = NULL,
                   tau_p = tau,
                   htp = NULL,
+                  cols = NULL,
                   ...){
   stopifnot(is.data.frame(data))
   
@@ -253,6 +253,7 @@ ycevo <- function(data,
     select(-xgrid)
   
   attr(res, "cols") <- cols
+  attr(res, "qdate_label") <- qdate_label
   new_ycevo(res)
 }
 
