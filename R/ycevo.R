@@ -245,9 +245,7 @@ ycevo <- function(data,
   res <- output %>% 
     bind_rows() %>% 
     dplyr::relocate(any_of(c("xgrid", "rgrid", "tau", ".discount", ".yield"))) %>% 
-    group_by(across(any_of(c("xgrid", "rgrid")))) %>% 
-    tidyr::nest() %>% 
-    ungroup() %>% 
+    tidyr::nest(.est = c(tau, .discount, .yield)) %>% 
     rename_with(function(x) rep(names(dots) %||% character(0), length(x)), any_of("rgrid")) %>% 
     mutate(!!sym(qdate_label) := x, .before = 1) %>% 
     select(-xgrid)

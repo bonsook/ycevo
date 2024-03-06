@@ -8,7 +8,7 @@ augment.ycevo <- function(
     x,
     newdata = NULL,
     loess = TRUE, ...){
-  df_flat <- tidyr::unnest(x, data)
+  df_flat <- tidyr::unnest(x, .est)
   
   cols <- attr(x, "cols")
   qdate_label <- "qdate"
