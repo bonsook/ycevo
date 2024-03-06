@@ -412,10 +412,12 @@ estimate_yield <- function(data, xgrid, hx,
     tidyr::unnest(discount)
   
   dhat <- dhat %>% 
-    mutate(yield = -log(.data$discount) / .data$xg) %>% 
+    mutate(yield = discount2yield(.data$discount, .data$xg)) %>% 
     rename(xgrid = "ug",
            tau = "xg") %>% 
     rename_with(function(x) rep("rgrid", length(x)), any_of("rg"))
   
   dhat
 }
+
+discount2yield <- function(discount, tau) -log(discount) / tau
