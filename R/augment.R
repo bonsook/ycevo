@@ -19,29 +19,20 @@ augment.ycevo <- function(
   } else {
     if(all(c("xgrid", qdate_label) %in% colnames(newdata)))
       warning("Both xgrid and ", qdate_label, " presented in newdata. Using xgrid.")
-    if(!"xgrid" %in% colnames(newdata)){
-      newdata <- mutate(newdata, xgrid = ecdf(temp <- getElement(newdata, qdate_label))(temp))
-    }
   }
   
   # newdata <- tibble(qdatetime, tupq, tau)
   if(!loess) {
-    norow <- anti_join(newdata, df_flat, by = setdiff(c("tau", "xgrid"), colnames(newdata)))
+    norow <- anti_join(newdata, df_flat, by = setdiff(c("tau"), colnames(newdata)))
     if(nrow(norow)>0) {
       stop("If loess = FALSE, newdata should be a subset of the xgrid and tau used to fit ycevo (e.g. the default).")
     }
     return(df_flat)
   }
   
-  # x <- mutate(x, loess = lapply(
-  #   data, function(data)
-  #     stats::loess(
-  #       .discount ~ tau, 
-  #       data = data, 
-  #       control = loess.control(surface = "direct"))))
-  
   if(any(newdata$tau> max(df_flat$tau)) || any(newdata$tau < min(df_flat$tau)))
     warning("tau in newdata outside of the original range of tau used to fit the model are extrapolated from loess.")
+  newdata <- select(newdata, !any_of(c(".discount", ".yield")))
   interpolate(x, newdata, qdate_label)
 }
 
@@ -49,113 +40,136 @@ augment.ycevo <- function(
 interpolate <- function(object, newdata, qdate_label){
   stopifnot(inherits(object, "ycevo"))
   
-  xnames <- setdiff(colnames(object), c("data", "loess", qdate_label))
-  ncl <- xnames[!xnames %in% colnames(newdata)]
+  # the names of covariates apart from time
+  xnames <- setdiff(colnames(object), c(".est", qdate_label))
+  # all names including time
+  ax <- c(qdate_label, xnames)
+  # all names with "_near." suffix
+  near. <- "_near."
+  ax. <- paste0(ax, near.)
   
+  # Check new data has all the covariates
+  ncl <- xnames[!xnames %in% colnames(newdata)]
   if(length(ncl)>0)
     stop(paste(ncl, collapse = ", "), " not found in newdata")
+  
+  
   object <- arrange(object, across(all_of(xnames)))
   
-  x_sort <- object %>%
-    select(all_of(xnames)) 
-  
-  
-  
-  newdata_idx <- newdata %>% 
-    distinct(across(all_of(xnames))) %>% 
-    # slice(46) %>% 
-    dplyr::rowwise() %>% 
-    mutate(.idx = list({
-      reduce(xnames, function(current_rows, next_x_name){
-        if(!is.list(current_rows)) current_rows <- list(current_rows)
-        lapply(current_rows, function(current_rows){
-          if(length(current_rows) == 1) return(current_rows)
-          temp_x_sort <- x_sort[current_rows,]
-          next_x <- getElement(temp_x_sort, next_x_name)
-          next_row <- findInterval(get(next_x_name), next_x)
-          next_rows <- c(next_row, next_row+1)
-          next_rows <- next_rows[next_rows>0 & next_rows<=nrow(temp_x_sort)]
-          out <- lapply(next_x[next_rows], function(x) current_rows[next_x==x])
-          if(next_x_name == xnames[[length(xnames)]]) out <- unlist(out)
-          out
-        }) %>% 
-          list_flatten()
-      }, .init = seq_len(nrow(x_sort))) %>% 
-        unlist()
-    })) %>% 
-    tidyr::unnest(.idx)
-  
-  df_loess <- newdata_idx %>% 
-    group_by(.idx) %>% 
-    tidyr::nest(.key = "xvalue") %>% 
-    ungroup() %>% 
-    left_join(mutate(object, .idx= row_number()), by = ".idx") %>% 
-    mutate(loess = lapply(data, function(data)
-      stats::loess(.discount ~ tau, data = data, 
+  # Fit a loess for every group
+  df_loess <- object %>% 
+    mutate(loess = lapply(.est, function(data)
+      stats::loess(.discount ~ tau, 
+                   # interpolate on the log of discount to avoid negative values
+                   data = mutate(data, .discount = log(.discount)),
                    control = loess.control(surface = "direct")))) %>% 
-    select(.idx, loess, all_of(xnames))
+    select(-.est)
   
-  newdata_pred <- newdata %>% 
-    # select(all_of(xnames), tau) %>% 
-    left_join(newdata_idx,by = xnames) %>% 
-    group_by(.idx) %>% 
-    mutate(.discount = {
-      predict(df_loess$loess[[which(df_loess$.idx == unlist(cur_group()))]], tau)
-    }, 
-    {
-      df_loess[df_loess$.idx == unlist(cur_group()),] %>% 
-        select(all_of(xnames)) %>% 
-        rename_with(function(x) paste0(x, "_grid."), all_of(xnames))
-    }
-    ) %>% 
-    ungroup()
+  # list of unique values of covariates (including time)
+  ls_x <- object %>% 
+    select(all_of(ax)) %>% 
+    lapply(unique)
   
-  interp_recu <- function(df, cur_g){
-    if(nrow(df)==1 && !is_grouped_df(df)) return(select(df, .discount))
-    df <- df %>%
-      summarise(.discount = {
-        if(n() == 1){
-          .discount
-        } else {
-          current_x_name <- setdiff(colnames(df), c(colnames(cur_group()), ".discount"))
-          cg <- getElement(cur_g, current_x_name)
-          out <- do.call(\(d1, d2){
-            mapply(\(d1, d2){
-              approx(x = get(current_x_name), y = c(d1, d2), xout = cg)$y
-            }, d1 = d1$.discount, d2=d2$.discount, SIMPLIFY = TRUE)
-          }, .discount)
-          list(tibble(.discount = out))
-        }
-      }, .groups = "drop_last")
-    interp_recu(df, cur_g)
+  # a function that finds the closest values in a covariate of a group
+  # if the value in the newdata matches a value in the original estimation, 
+  # or the new value is outside of the boundary, 
+  # return only that one value or one boundary value
+  find_near <- function(x){
+    # x <- seq(ymd("2023-02-01"), ymd("2023-07-01"), by = "1 month")
+    # browser()
+    target <- getElement(ls_x, cur_column())
+    l <- length(target)
+    
+    int <- match(x, target)
+    
+    nomatch <- is.na(int)
+    int_nomatch <- findInterval(x[nomatch], target)
+    
+    int <- as.list(int)
+    int[nomatch] <- lapply(int_nomatch, function(i) unique(pmin(pmax(c(i, i+1), 1), l)))
+    lapply(int, function(i) target[i])
   }
   
-  output <- newdata_pred %>% 
-    select(-.idx) %>% 
-    tidyr::nest(.meta = !c(all_of(xnames), ends_with("_grid."), .discount),
-         .discount = .discount, 
-         .by = c(all_of(xnames), ends_with("_grid."))) %>% 
-    # mutate(.discount = lapply(.discount, unlist)) %>% 
-    group_by(across(c(all_of(xnames)))) %>% 
-    tidyr::nest() %>% 
-    mutate(data = list({
-      current_grid <- cur_group()
-      meta <- slice(select(data[[1]], .meta), 1)
-      data[[1]] %>% 
-        select(-.meta) %>% 
-        rename_with(function(x) gsub("_grid.","", x), everything()) %>% 
-        group_by(across(all_of(xnames))) %>% 
-        interp_recu(current_grid) %>% 
-        bind_cols(meta)
-    }))
   
-  output <- output %>% 
-    ungroup() %>% 
-    tidyr::unnest(data) %>%
-    tidyr::unnest(everything()) %>% 
-    mutate(.yield =  -log(.discount) / tau) %>% 
-    relocate(all_of(colnames(newdata))) 
+  # Find the nearest groups of loess
+  df_near <- newdata %>% 
+    mutate(across(all_of(c(qdate_label, xnames)), find_near, .names = paste0("{.col}", near.))) %>% 
+    # expand grid so every combination of covariates are covered
+    mutate(near. = mapply(function(...) {
+      expand.grid(list(...)) %>% 
+        `colnames<-`(ax.)
+    }, 
+    !!!syms(ax.), 
+    SIMPLIFY = FALSE)) %>% 
+    select(!all_of(ax.)) %>% 
+    unnest(near.)
   
-  output
+  df_predict <- df_near %>%
+    # nest by loess to speed up prediction 
+    nest(.by = ends_with(near.)) %>%
+    # rename back to match loess name
+    rename_with(function(x) gsub(near.,"", x),  ends_with(near.)) %>%
+    # match loess
+    left_join(df_loess, by = c(qdate_label, xnames)) %>%
+    # predict discount rate
+    mutate(.discount = mapply(function(data, loess){
+      predict(loess, data$tau)
+    }, data = data, loess = loess, SIMPLIFY = FALSE)) %>% 
+    # drop loess
+    select(-loess) %>% 
+    # rename to separate
+    rename_with(function(x) paste0(x, near.), .cols = all_of(c(qdate_label, xnames))) %>% 
+    # unnest
+    unnest(c(data,.discount), names_repair = "minimal")
+  
+  
+  df_predict %>% 
+    group_by(!!!syms(c(ax, "tau"))) %>% 
+    summarise(.discount = interp(list(!!!syms(ax.)), 
+                                 .discount, 
+                                 lapply(list(!!!syms(ax)), unique)), 
+              .groups = "drop") %>% 
+    # the interpolation was done on the log of discount
+    # to prevent negative values
+    mutate(.discount = exp(.discount)) %>% 
+    mutate(.yield = discount2yield(.discount, tau))
 }
 
+# interpolate 
+# x and xout can be a list of multiple xs to interpolate
+interp <- function(x, y, xout) {
+  # if there is just one y, return y
+  if(length(y) == 1) return(y)
+  
+  # check if the number of elements match in x and y
+  lx <- unique(vapply(x, length, FUN.VALUE = integer(1L)))
+  stopifnot(length(lx) == 1)
+  stopifnot(lx == length(y))
+  
+  # number of covariates
+  ld <- length(x)
+  # unique value of covariates
+  ux <- lapply(x, unique)
+  # number of unique value of each covariate
+  lux <- vapply(ux, length, FUN.VALUE = integer(1L))
+  
+  # construct an array for all the values
+  # each dimension is one covariate
+  # the values in the array are values of y corresponding to the covariates
+  g <- array(dim = lux, dimnames = ux)
+  idx <- do.call(cbind, x)
+  idx[] <- as.character(idx)
+  g[idx] <- y
+  
+  # index of dimensions in reverse order
+  # interpolate by the largest dimension and work inwards
+  # only tested against two covariates
+  ds <- seq(ld, 1L, by = -1L)
+  for(d in ds) {
+    if(is.vector(g)) g <- t(g)
+    # skip when there is only one value for that dimension
+    if(dim(g)[[ds[[d]]]] == 1) next
+    g <- apply(g, d, function(y) approx(x = ux[[ds[[d]]]], y = y, xout = xout[[ds[[d]]]], rule = 2)$y)
+  }
+  unname(as.vector(g))
+}
