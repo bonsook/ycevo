@@ -1,13 +1,3 @@
-# Epanechnikov kernel function
-#
-# Kernel function for grid windows
-#
-# @param x value to apply kernel to
-# @author Bonsoo Koo and Kai-Yang Goh
-epaker <- function(x) {
-  (3/4)*(1-x^2)*(abs(x)<=1)
-  # (1-x^2)*(abs(x)<=1)
-}
 
 
 # Create lists of sparse matrices to represent cash flows and price
