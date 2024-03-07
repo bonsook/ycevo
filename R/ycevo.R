@@ -181,7 +181,7 @@ ycevo <- function(data,
   # tau 
   if(is.null(tau)) {
     max_tupq <- max(data$tupq)
-    tau <- default_tau(max_tupq)
+    tau <- seq_tau(max_tupq/365)
   }
   # ht
   if(is.null(ht))
@@ -269,14 +269,15 @@ check_hx <- function(xgrid, hx, data){
   hx
 }
 
-default_tau <- function(max_tupq) {
+#' @export
+seq_tau <- function(max_tau) {
   tau <-  c(seq(30, 6 * 30, 30),  # Monthly up to six months
             seq(240, 2 * 365, 60),  # Two months up to two years
             seq(720 + 90, 6 * 365, 90),  # Three months up to six years
             seq(2160 + 120, 20 * 365, 120),  # Four months up to 20 years
             #               seq(20 * 365 + 182, 30 * 365, 182)) / 365 # Six months up to 30 years
             seq(20 * 365 + 182, 30.6 * 365, 182)) / 365
-  tau[tau < max_tupq/365]
+  tau[tau < max_tau]
 }
 
 find_bindwidth_from_tau <- function(tau){
