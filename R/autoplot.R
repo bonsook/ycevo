@@ -41,6 +41,8 @@ autoplot.ycevo <- function(
           call. = FALSE
         )
       }
+      if(est == "both") 
+        stop("\"est\" must be one of \"discount\" or \"yield\" when when \"against = \"both\"\".")
       plotly::plot_ly(df_plot, 
                       x = ~tau, y = ~qdate, z = ~.value, 
                       type = 'scatter3d', mode = 'lines', 
