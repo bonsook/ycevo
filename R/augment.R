@@ -93,6 +93,8 @@ interpolate <- function(object, newdata, qdate_label){
   
   # Find the nearest groups of loess
   df_near <- newdata %>% 
+    select(all_of(c(qdate_label, xnames, "tau"))) %>% 
+    distinct() %>% 
     mutate(across(all_of(c(qdate_label, xnames)), find_near, .names = paste0("{.col}", near.))) %>% 
     # expand grid so every combination of covariates are covered
     mutate(near. = mapply(function(...) {
@@ -122,8 +124,7 @@ interpolate <- function(object, newdata, qdate_label){
     # unnest
     unnest(c(data,.discount), names_repair = "minimal")
   
-  
-  df_predict %>% 
+  df_temp <- df_predict %>% 
     group_by(!!!syms(c(ax, "tau"))) %>% 
     summarise(.discount = interp(list(!!!syms(ax.)), 
                                  .discount, 
@@ -133,11 +134,22 @@ interpolate <- function(object, newdata, qdate_label){
     # to prevent negative values
     mutate(.discount = exp(.discount)) %>% 
     mutate(.yield = discount2yield(.discount, tau))
+  left_join(newdata, df_temp, by = c(qdate_label, xnames, "tau"))
 }
 
 # interpolate 
 # x and xout can be a list of multiple xs to interpolate
 interp <- function(x, y, xout) {
+  switch(as.character(length(x)), 
+         "1" = interp1(x, y, xout), 
+         "2" = interp2(x, y, xout), 
+         stop("Currently only supports one extra predictor (interest rate)"))
+}
+interp1 <- function(x, y, xout) {
+  if(length(y) == 1) return(y)
+  stats::approx(x = x[[1L]], y = y, xout = xout[[1]], rule = 2)$y
+}
+interp2 <- function(x, y, xout) {
   # if there is just one y, return y
   if(length(y) == 1) return(y)
   
