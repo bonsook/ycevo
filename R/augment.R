@@ -1,4 +1,5 @@
 
+#' Augment data with predicted discount function and yield curve
 #' @param ... Additional arguments required for generic consistency. Currently not used.
 #' Warning: A misspelled argument will not raise an error. 
 #' The misspelled argument will be either disregarded, or the default value will be applied if one exists.
@@ -23,7 +24,7 @@ augment.ycevo <- function(
   
   # newdata <- tibble(qdatetime, tupq, tau)
   if(!loess) {
-    norow <- anti_join(newdata, df_flat, by = setdiff(c("tau"), colnames(newdata)))
+    norow <- dplyr::anti_join(newdata, df_flat, by = setdiff(c("tau"), colnames(newdata)))
     if(nrow(norow)>0) {
       stop("If loess = FALSE, newdata should be a subset of the xgrid and tau used to fit ycevo (e.g. the default).")
     }
@@ -62,7 +63,7 @@ interpolate <- function(object, newdata, qdate_label){
       stats::loess(.discount ~ tau, 
                    # interpolate on the log of discount to avoid negative values
                    data = mutate(data, .discount = log(.discount)),
-                   control = loess.control(surface = "direct")))) %>% 
+                   control = stats::loess.control(surface = "direct")))) %>% 
     select(-.est)
   
   # list of unique values of covariates (including time)
@@ -77,7 +78,7 @@ interpolate <- function(object, newdata, qdate_label){
   find_near <- function(x){
     # x <- seq(ymd("2023-02-01"), ymd("2023-07-01"), by = "1 month")
     # browser()
-    target <- getElement(ls_x, cur_column())
+    target <- getElement(ls_x, dplyr::cur_column())
     l <- length(target)
     
     int <- match(x, target)
@@ -108,14 +109,14 @@ interpolate <- function(object, newdata, qdate_label){
   
   df_predict <- df_near %>%
     # nest by loess to speed up prediction 
-    nest(.by = ends_with(near.)) %>%
+    tidyr::nest(.by = ends_with(near.)) %>%
     # rename back to match loess name
     rename_with(function(x) gsub(near.,"", x),  ends_with(near.)) %>%
     # match loess
     left_join(df_loess, by = c(qdate_label, xnames)) %>%
     # predict discount rate
     mutate(.discount = mapply(function(data, loess){
-      predict(loess, data$tau)
+      stats::predict(loess, data$tau)
     }, data = data, loess = loess, SIMPLIFY = FALSE)) %>% 
     # drop loess
     select(-loess) %>% 
@@ -126,13 +127,13 @@ interpolate <- function(object, newdata, qdate_label){
   
   df_temp <- df_predict %>% 
     group_by(!!!syms(c(ax, "tau"))) %>% 
-    summarise(.discount = interp(list(!!!syms(ax.)), 
+    dplyr::summarise(.discount = interp(list(!!!syms(ax.)), 
                                  .discount, 
                                  lapply(list(!!!syms(ax)), unique)), 
               .groups = "drop") %>% 
     # the interpolation was done on the log of discount
     # to prevent negative values
-    mutate(.discount = exp(.discount)) %>% 
+    mutate(.discount = exp(.data$.discount)) %>% 
     mutate(.yield = discount2yield(.discount, tau))
   left_join(newdata, df_temp, by = c(qdate_label, xnames, "tau"))
 }
@@ -181,7 +182,9 @@ interp2 <- function(x, y, xout) {
     if(is.vector(g)) g <- t(g)
     # skip when there is only one value for that dimension
     if(dim(g)[[ds[[d]]]] == 1) next
-    g <- apply(g, d, function(y) approx(x = ux[[ds[[d]]]], y = y, xout = xout[[ds[[d]]]], rule = 2)$y)
+    g <- apply(g, d, function(y) stats::approx(x = ux[[ds[[d]]]], y = y, xout = xout[[ds[[d]]]], rule = 2)$y)
   }
   unname(as.vector(g))
 }
+
+

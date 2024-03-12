@@ -33,6 +33,7 @@ Imports:
     dplyr (>= 1.0.0),
     future.apply,
     generics,
+    ggplot2,
     lubridate,
     magrittr,
     Matrix,
@@ -47,7 +48,6 @@ RoxygenNote: 7.3.1
 Suggests: 
     testthat (>= 3.0.0),
     knitr,
-    rmarkdown,
-    ggplot2
+    rmarkdown
 Language: en-AU
 Config/testthat/edition: 3

@@ -1,9 +1,8 @@
+#' @importFrom lubridate wday day month day<- years
 #' @export
 ycevo_data <- function() {
   first_qdate <- ymd("20230101")
-  last_qdate <- first_qdate
-  month(last_qdate) <- 12
-  day(last_qdate) <- 31
+  last_qdate <- ymd("20231231")
   
   ad <- seq(ymd("2023-01-01"), ymd("2023-12-31"), by = "1 day")
   wd <- ad[wday(ad, week_start = 1) < 6]
@@ -39,7 +38,7 @@ ycevo_data <- function() {
     }
     out
   }
-  bond_meta <- tribble(~ type, ~ n, ~ arg_range_issued, ~ maturity,
+  bond_meta <- tibble::tribble(~ type, ~ n, ~ arg_range_issued, ~ maturity,
                        1, 40, c(20, -1), 20,
                        2, 40, c(2, -1), 2,
                        2, 40, c(3, -1), 3,

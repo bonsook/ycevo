@@ -97,7 +97,7 @@
 #' 
 #' @references Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562-588.
 #' @order 1
-#' @importFrom rlang enexpr
+#' @importFrom rlang enexpr enexprs
 #' @importFrom lubridate days
 #' @export
 ycevo <- function(data, 
@@ -154,7 +154,7 @@ ycevo <- function(data,
     stop(paste0(names(dots)[temp], collapse = ", "), " column(s) not found in the data")
   }
   
-  xgrid <- ecdf(data$qdate)(x)
+  xgrid <- stats::ecdf(data$qdate)(x)
   
   # Handle interest rate
   interest <- NULL
@@ -275,7 +275,6 @@ check_hx <- function(xgrid, hx, data){
   hx
 }
 
-#' @export
 seq_tau <- function(max_tau) {
   tau <-  c(seq(30, 6 * 30, 30),  # Monthly up to six months
             seq(240, 2 * 365, 60),  # Two months up to two years

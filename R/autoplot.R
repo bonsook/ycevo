@@ -1,4 +1,4 @@
-#' @importFrom ggplot2 autoplot
+#' @importFrom ggplot2 autoplot ggplot aes geom_line facet_grid
 #' @export
 autoplot.ycevo <- function(
     object, est = c("both", "discount", "yield"),
@@ -14,7 +14,7 @@ autoplot.ycevo <- function(
   df_plot <- augment(object, loess = loess) %>% 
     mutate(!!sym(qdate_label)) %>% 
     select(!all_of(which_drop)) %>% 
-    pivot_longer(any_of(c(".discount", ".yield")), 
+    tidyr::pivot_longer(any_of(c(".discount", ".yield")), 
                  names_to = ".est", 
                  values_to = ".value")
   against <- match.arg(against)
