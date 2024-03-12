@@ -141,9 +141,11 @@ get_yield_at <- function(time, maturity,
                          b0 = 0, b1 = 0.05, b2 = 2, 
                          t1 = 0.75, t2 = 125,
                          linear = -0.55, quadratic = 0.55, cubic = -0.55) {
-  if(length(time) != length(maturity)) {
-    stop("The length of arg time should equal the length of arg maturity.")
+  if(length(time) !=1 && length(maturity) !=1 && length(time) != length(maturity)) {
+    stop("The length of arg \"time\" should equal the length of arg \"maturity\",",
+         " if both of them have more than one value.")
   }
+  time <- as.numeric(time)
   yieldInit <- nelson_siegel(maturity, b0, b1, b2, t1, t2)
   yieldInit * (1 + cubic * time^3 + quadratic * time^2 + linear * time)
   
