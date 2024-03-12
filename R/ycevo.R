@@ -130,7 +130,6 @@ ycevo <- function(data,
   if(any(colnames(data) == "crspid")) 
     warning('Column name "crspid" is deprecated. Column "id" is now used as asset identifier.')
   # If user specify cols, replace the columns in the data with cols
-  dots <- list(...)
   qdate_label <- "qdate"
   s_col <- d_col
   if(!is.null(cols)){
@@ -139,6 +138,14 @@ ycevo <- function(data,
     s_col[names(d_pairs)] <- vapply(d_pairs, as.character, character(1))
     qdate_label <- s_col[qdate_label]
   }
+  
+  dots <- enexprs(...)
+  if(length(dots) > 1)
+    stop("Currently only supports one extra predictor (interest rate)")
+  if(length(names(dots)) > 0) 
+    stop("The input of ... cannot be named")
+  names(dots) <- vapply(dots, as.character, FUN.VALUE = character(1L))
+    
   # Minimal data
   data <- select(data, all_of(s_col), any_of(names(dots)))
   colnames(data) <- c(names(s_col), names(dots))
@@ -154,8 +161,7 @@ ycevo <- function(data,
   rgrid <- NULL
   hr <- NULL
   if(length(dots) > 0){
-    if(length(dots) != 1)
-      stop("Currently only supports one extra predictor (interest rate)")
+    
     interest <- data %>% 
       select(all_of(c("qdate", names(dots)))) %>% 
       arrange(qdate) %>% 
