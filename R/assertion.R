@@ -24,3 +24,32 @@ assert_same_length <- function(a, b, allow_one = TRUE) {
   return()
 }
 
+
+# Check if both inputs are null or not null.
+# @param nonnull Logical. The value return when both of the inputs are not null.
+# @value value of \code{nonnull} argument if both inputs are not NULL, \code{!nonnull} if both inputs are NULL, and error if
+# one is NULL and the other isn't.
+assert_same_nullness <- function(a, b, nonnull = TRUE) {
+  name_a <- substitute(a)
+  name_b <- substitute(b)
+  text_a <- deparse(name_a)
+  text_b <- deparse(name_b)
+  null_a <- is.null(a)
+  null_b <- is.null(b)
+  
+  if(null_a && null_b) {
+    return(!nonnull)
+  }
+  
+  if((!null_a) && (!null_b)) {
+    return(nonnull)
+  }
+  
+  stop("If one is specified, both \"", text_a, "\" and \"", text_b, "\" need to be specified.", 
+       call. = FALSE)
+  
+}
+
+
+
+
