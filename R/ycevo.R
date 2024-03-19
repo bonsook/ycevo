@@ -171,14 +171,19 @@ ycevo <- function(data,
   }
   
   # Handle grids
+  assert_length(span_x, len = c(1, length(x)))
   # xgrid and hx
-  if(is.null(hx)) hx <- span2h(span_x, length(unique(data$qdate)))
+  if(is.null(hx)) hx <- vapply(
+    span_x, 
+    function(span_x) span2h(span_x, length(unique(data$qdate))), 
+    FUN.VALUE = numeric(1))
+  assert_length(hx, len = c(1, length(x)))
   hx <- check_hx(xgrid, hx, data)
+  
   if(length(hx) == 1) {
     hx <- rep(hx, length(xgrid))
-  } else if(length(hx) != length(xgrid)) {
-    stop("Length of hx does not equal to length of x.")
   }
+  
   # tau 
   if(is.null(tau)) {
     max_tupq <- max(data$tupq)
@@ -195,6 +200,9 @@ ycevo <- function(data,
     ht <- matrix(ht, nrow = length(ht), ncol = length(xgrid))
   if(is.vector(htp))
     htp <- matrix(htp, nrow = length(htp), ncol = length(xgrid))
+  
+  assert_length(ht, len = c(1, length(tau)))
+  assert_length(htp, len = c(1, length(tau_p)))
   
   # sort xgrid and tau
   # in case the user don't specify them in sorted order

@@ -1,3 +1,15 @@
+assert_length <- function(x, len = 1L) {
+  name_x <- substitute(x)
+  text_x <- deparse(name_x)
+  name_len <- substitute(len)
+  text_len <- vapply(name_len[-1], deparse, FUN.VALUE = character(1))
+  if(!length(x) %in% len) {
+    stop("Object ", text_x, " must have length ", paste0(text_len, collapse = " or "), 
+         ".", 
+         call. = FALSE)
+  }
+}
+
 # Check if both inputs have the same length
 # @param allow_one if FALSE, the lengths have to be exactly the same. If TRUE, one of them can have length one.
 assert_same_length <- function(a, b, allow_one = TRUE) {
