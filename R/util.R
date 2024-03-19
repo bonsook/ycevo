@@ -39,8 +39,8 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
   # Calculate number of maturing bonds in each x window
   ### Highly rely on the notion that tupq and tau are in days
   mat_weights_tau <- get_weights(tau, ht, 
-                           len = as.integer(max(data$tupq)),
-                           units = units)
+                                 len = as.integer(max(data$tupq)),
+                                 units = units)
   x_idx <- range_idx_nonzero(mat_weights_tau, threshold = 0.01)
   sapply(seq_along(tau), 
          function(j) sum(
@@ -169,6 +169,59 @@ span2h <- function(span, len, units = len) {
   
   obj_fun <- function(h) sum(calc_epaker_weights(gamma, median(gamma), h) > 0)/2 - span
   stats::uniroot(obj_fun, interval = c(0.0001, 1), extendInt = "up")$root
+}
+
+# handle user sepecified cols augment in, e.h., ycevo function
+# @inheritParams ycevo
+# @param covariate character vector of the column names of the addtional covariate. 
+# Currently only support one
+handle_cols <- function(data, cols = NULL, d_col, qdate_label) {
+  cols <- enexpr(cols)
+  loc <- tidyselect::eval_rename(cols, data)
+  
+  # variables required but missing in data
+  vars_missing_data <- setdiff(d_col, colnames(data))
+  # variables required but missing in data and not specified by user
+  setd <- setdiff(vars_missing_data, names(loc))
+  if(length(setd) > 0L) {
+    stop(
+      "The following columns are required but are not found in the data and are not specified in the cols argument: ", 
+      paste0(setd, collapse = ", "), call. = FALSE)
+  }
+  
+  if(any(names(loc) == qdate_label))
+    qdate_label <-  colnames(data)[[loc[[qdate_label]]]]
+  
+  data <- rename(data, !!cols)
+  list(data = data, qdate_label = qdate_label, loc = loc)
+}
+
+# @inheritParams ycevo
+handle_covariates <- function(data, ...) {
+  dots <- list(...)
+  
+  if(any(temp <- (!names(dots) %in% colnames(data)))){
+    stop(paste0(names(dots)[temp], collapse = ", "), " column(s) not found in the data")
+  }
+  
+  interest <- NULL
+  rgrid <- NULL
+  hr <- NULL
+  if(length(dots) > 0){
+    if(length(dots) != 1)
+      stop("Currently only supports one extra predictor (interest rate)")
+    interest <- data %>% 
+      select(all_of(c("qdate", names(dots)))) %>% 
+      arrange(qdate) %>% 
+      distinct(qdate, .keep_all = TRUE) %>% 
+      pull(names(dots))
+    rgrid <- dots[[1]][[1]]
+    hr <- dots[[1]][[2]]
+  }
+  
+  list(interest = interest, 
+       rgrid = rgrid, 
+       hr = hr)
 }
 
 

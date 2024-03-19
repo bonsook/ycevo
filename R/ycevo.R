@@ -116,53 +116,29 @@ ycevo <- function(data,
   assert_unique(x)
   assert_unique(tau)
   
-  # The minimum required columns
-  d_col <- c('qdate', 'id', 'mid.price', 'pdint', 'tupq')
-  names(d_col) <- d_col
-  cols <- enexpr(cols)
   # Now use id, not crspid
   if(any(colnames(data) == "crspid")) 
     warning('Column name "crspid" is deprecated. Column "id" is now used as asset identifier.')
-  # If user specify cols, replace the columns in the data with cols
-  dots <- list(...)
+  
+  # The minimum required columns
+  d_col <- c("qdate", "id", "mid.price", "pdint", "tupq")
   qdate_label <- "qdate"
-  s_col <- d_col
-  if(!is.null(cols)){
-    d_pairs <- as.list(cols)[-1]
-    stopifnot(all(names(d_pairs) %in% d_col))
-    s_col[names(d_pairs)] <- vapply(d_pairs, as.character, character(1))
-    qdate_label <- s_col[qdate_label]
-  }
-  # Minimal data
-  data <- select(data, all_of(s_col), any_of(names(dots)))
-  colnames(data) <- c(names(s_col), names(dots))
   
-  if(any(temp <- (!names(dots) %in% colnames(data)))){
-    stop(paste0(names(dots)[temp], collapse = ", "), " column(s) not found in the data")
-  }
-  
-  xgrid <- stats::ecdf(data$qdate)(x)
+  # Handle cols renaming 
+  handled_cols <- handle_cols(data, cols, d_col, qdate_label)
+  data <- handled_cols$data
+  qdate_label <- handled_cols$qdate_label
   
   # Handle interest rate
-  interest <- NULL
-  rgrid <- NULL
-  hr <- NULL
-  if(length(dots) > 0){
-    if(length(dots) != 1)
-      stop("Currently only supports one extra predictor (interest rate)")
-    interest <- data %>% 
-      select(all_of(c("qdate", names(dots)))) %>% 
-      arrange(qdate) %>% 
-      distinct(qdate, .keep_all = TRUE) %>% 
-      pull(names(dots))
-    rgrid <- dots[[1]][[1]]
-    hr <- dots[[1]][[2]]
-    rgrid_order <- order(rgrid)
-    rgrid <- rgrid[rgrid_order]
-    hr <- hr[rgrid_order]
-    
-    stopifnot(identical(length(xgrid), length(rgrid)))
-  }
+  covar_ls <- handle_covariates(data, ...)
+  interest <- covar_ls$interest
+  rgrid <- covar_ls$rgrid
+  hr <- covar_ls$hr
+  
+  # Minimal data
+  data <- select(data, all_of(d_col))
+  
+  xgrid <- stats::ecdf(data$qdate)(x)
   
   # Handle grids
   assert_length(span_x, len = c(1, length(x)))
@@ -190,38 +166,46 @@ ycevo <- function(data,
   if(is.null(htp))
     htp <- find_bindwidth_from_tau(tau_p)
   
+  assert_length(ht, len = c(1, length(tau)))
+  assert_length(htp, len = c(1, length(tau_p)))
+  
   if(is.vector(ht))
     ht <- matrix(ht, nrow = length(ht), ncol = length(xgrid))
   if(is.vector(htp))
     htp <- matrix(htp, nrow = length(htp), ncol = length(xgrid))
   
-  assert_length(ht, len = c(1, length(tau)))
-  assert_length(htp, len = c(1, length(tau_p)))
-  
-  # sort xgrid and tau
+  # sort grids
   # in case the user don't specify them in sorted order
+  # xgrid
   order_xgrid <- order(xgrid)
-  order_tau <- order(tau)
-  order_tau_p <- order(tau_p)
   xgrid <- xgrid[order_xgrid]
   hx <- hx[order_xgrid]
+  # tau
+  order_tau <- order(tau)
   tau <- tau[order_tau]
   ht <- as.matrix(ht)[order_tau, order_xgrid, drop = FALSE]
+  # tau_p
+  order_tau_p <- order(tau_p)
   tau_p <- tau[order_tau_p]
   htp <- as.matrix(htp)[order_tau_p, order_xgrid, drop = FALSE]
-  
+  # rgrid
+  if(!is.null(rgrid)) {
+    rgrid_order <- order(rgrid)
+    rgrid <- rgrid[rgrid_order]
+    hr <- hr[rgrid_order]
+  }
   
   # Handle tau and tau_p again
   # based on number of bonds in each window
   tau_adjusted <- mapply(create_tau_ht,
-    xgrid = xgrid,
-    hx = hx,
-    ht = asplit(ht, 2),
-    htp = asplit(htp, 2),
-    MoreArgs = list(
-      data = data, tau = tau, tau_p = tau_p, 
-      rgrid = rgrid, hr = hr, interest = interest),
-    SIMPLIFY = FALSE
+                         xgrid = xgrid,
+                         hx = hx,
+                         ht = asplit(ht, 2),
+                         htp = asplit(htp, 2),
+                         MoreArgs = list(
+                           data = data, tau = tau, tau_p = tau_p, 
+                           rgrid = rgrid, hr = hr, interest = interest),
+                         SIMPLIFY = FALSE
   )
   
   pb <- progressr::progressor(length(xgrid))
