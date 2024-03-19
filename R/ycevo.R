@@ -102,7 +102,8 @@
 #' @export
 ycevo <- function(data, 
                   x, 
-                  hx = 1/length(x),
+                  span_x = 60,
+                  hx = NULL,
                   tau = NULL, 
                   ht = NULL,
                   tau_p = tau,
@@ -178,6 +179,7 @@ ycevo <- function(data,
   
   # Handle grids
   # xgrid and hx
+  if(is.null(hx)) hx <- span2h(span_x, length(unique(data$qdate)))
   hx <- check_hx(xgrid, hx, data)
   if(length(hx) == 1) {
     hx <- rep(hx, length(xgrid))

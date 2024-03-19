@@ -163,3 +163,13 @@ get_yield_at_vec <- function(time, maturity,
 }
 
 
+# span_x to hx
+span2h <- function(span, len, units = len) {
+  gamma <- seq_len(len) /units
+  
+  obj_fun <- function(h) sum(calc_epaker_weights(gamma, median(gamma), h) > 0)/2 - span
+  stats::uniroot(obj_fun, interval = c(0.0001, 1), extendInt = "up")$root
+}
+
+
+
