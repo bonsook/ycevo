@@ -50,6 +50,27 @@ assert_same_nullness <- function(a, b, nonnull = TRUE) {
   
 }
 
+assert_unique <- function(x) {
+  name_x <- substitute(x)
+  text_x <- deparse(name_x)
+  if(anyDuplicated(x)) {
+    stop("Object ", text_x, " cannot contain duplicated values.", call. = FALSE)
+  }
+}
 
+assert_no_missing <- function(x) {
+  name_x <- substitute(x)
+  text_x <- deparse(name_x)
+  if(anyDuplicated(x)) {
+    stop("Object ", text_x, " cannot contain missing values.", call. = FALSE)
+  }
+}
 
-
+assert_class <- function(x, class) {
+  name_x <- substitute(x)
+  text_x <- deparse(name_x)
+  if(!inherits(x, class)) {
+    stop("Object ", text_x, " must be from class(es): ", 
+         paste0(class, collapse = ", "), call. = FALSE)
+  }
+}

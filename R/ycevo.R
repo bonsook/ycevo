@@ -110,18 +110,11 @@ ycevo <- function(data,
                   htp = NULL,
                   cols = NULL,
                   ...){
-  stopifnot(is.data.frame(data))
-  
-  if(anyDuplicated(x)){
-    stop("Duplicated time grid x found.")
-  }
-  if(anyDuplicated(tau)){
-    stop("Duplicated tau found.")
-  }
-  
-  
-  stopifnot(!anyNA(x))
-  stopifnot(!anyNA(tau))
+  assert_class(data, "data.frame")
+  assert_no_missing(x)
+  assert_no_missing(tau)
+  assert_unique(x)
+  assert_unique(tau)
   
   # The minimum required columns
   d_col <- c('qdate', 'id', 'mid.price', 'pdint', 'tupq')
