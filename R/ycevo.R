@@ -134,6 +134,7 @@ ycevo <- function(data,
   interest <- covar_ls$interest
   rgrid <- covar_ls$rgrid
   hr <- covar_ls$hr
+  dot_name <- covar_ls$dots_name
   
   # Minimal data
   data <- select(data, all_of(d_col))
@@ -233,7 +234,7 @@ ycevo <- function(data,
     bind_rows() %>% 
     dplyr::relocate(any_of(c("xgrid", "rgrid", "tau", ".discount", ".yield"))) %>% 
     tidyr::nest(.est = c(tau, .discount, .yield)) %>% 
-    rename_with(function(x) rep(names(dots) %||% character(0), length(x)), any_of("rgrid")) %>% 
+    rename_with(function(x) rep(dot_name %||% character(0), length(x)), any_of("rgrid")) %>% 
     mutate(!!sym(qdate_label) := x, .before = 1) %>% 
     select(-xgrid)
   

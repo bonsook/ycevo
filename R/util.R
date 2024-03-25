@@ -221,7 +221,8 @@ handle_covariates <- function(data, ...) {
   
   list(interest = interest, 
        rgrid = rgrid, 
-       hr = hr)
+       hr = hr, 
+       dots_name = names(dots))
 }
 
 

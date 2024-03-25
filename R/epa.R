@@ -22,11 +22,17 @@ repa <- function(n, mu, r) {
 #' @export
 vis_kernel <- function(data, 
                        x = NULL, hx = NULL, 
-                       tau = NULL, ht = NULL) {
+                       tau = NULL, ht = NULL, ...) {
+  p <- NULL
+  covar_ls <- handle_covariates(data, ...)
+  
   if(assert_same_nullness(x, hx)) {
     assert_same_length(x, hx)
     if((!is.null(tau)) || (!is.null(ht))) {
       stop("If \"x\" and \"hx\" are specified, \"tau\" and \"ht\" cannot be specified.")
+    }
+    if(!is.null(covar_ls$dots_name)) {
+      stop("If \"x\" and \"hx\" are specified, \"...\" cannot be specified.")
     }
     dates <- sort(unique(data$qdate))
     ndates <- length(dates)
@@ -46,12 +52,15 @@ vis_kernel <- function(data,
       ggplot(aes(x = dates, y= weight)) +
       geom_line(aes(colour = hx, group = interaction(hx, xgrid))) +
       geom_hline(yintercept = 0, linewidth = 1) +
-      scale_y_continuous(expand = c(0, 0))
+      scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
     
-  }
+  } 
   
   if(assert_same_nullness(tau, ht)) {
-    assert_same_length(x, hx)
+    assert_same_length(tau, ht)
+    if(!is.null(covar_ls$dots_name)) {
+      stop("If \"tau\" and \"ht\" are specified, \"...\" cannot be specified.")
+    }
     ntau <- length(tau)
     nht <- length(ht)
     gamma <- seq_len(as.integer(max(data$tupq)))/365
@@ -69,8 +78,36 @@ vis_kernel <- function(data,
       geom_line(aes(colour = ht, group = interaction(ht, tau))) +
       xlab("tau") +
       geom_hline(yintercept = 0, linewidth = 1) +
-      scale_y_continuous(expand = c(0, 0))
+      scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
+  }  
+    
+  if(!is.null(covar_ls$dots_name)) {
+    interest <- covar_ls$interest
+    rgrid <- covar_ls$rgrid
+    hr <- covar_ls$hr
+    dot_name <- covar_ls$dots_name
+    
+    nrgrid <- length(rgrid)
+    nhr <- length(hr)
+    gamma <- interest
+    ngamma <- length(gamma)
+    calc_epaker_weights(interest, rgrid, hr)
+    
+    df_p <- data.frame(
+      gamma = rep(gamma, max(nhr, nrgrid)), 
+      rgrid = rep(rgrid, each = ngamma), 
+      hr = rep(hr, each = ngamma)) %>% 
+      mutate(weight = epaker((rgrid - gamma)/hr)) %>% 
+      mutate(hr = as.factor(hr)) 
+    p <- df_p %>% 
+      ggplot(aes(x = gamma, y= weight)) +
+      geom_line(aes(colour = hr, group = interaction(hr, rgrid))) +
+      xlab(dot_name) +
+      geom_hline(yintercept = 0, linewidth = 1) +
+      scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
+    
   }
+  
   p
 }
 
