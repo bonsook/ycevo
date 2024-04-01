@@ -3,7 +3,6 @@
 \docType{package}
 \name{ycevo-package}
 \alias{ycevo-package}
-\alias{_PACKAGE}
 \title{Nonparametric Estimation of the Yield Curve Evolution}
 \description{
 Nonparametric estimation of the discount rate and yield curve.
@@ -20,12 +19,18 @@ Useful links:
 
 }
 \author{
-Bonsoo Koo \email{bonsoo.koo@monash.edu}
+\strong{Maintainer}: Yangzhuoran Fin Yang \email{yangyangzhuoran@gmail.com} (\href{https://orcid.org/0000-0002-1232-8017}{ORCID})
 
-Kai-Yang Goh \email{kai-yang.goh@monash.edu}
+Authors:
+\itemize{
+  \item Bonsoo Koo \email{Bonsoo.Koo@monash.edu}
+}
 
-Nathaniel Tomasetti \email{nathaniel.tomasetti@gmail.com}
+Other contributors:
+\itemize{
+  \item Nathaniel Tomasetti [contributor]
+  \item Kai-Yang Goh [contributor]
+}
 
-Yangzhuoran Fin Yang (Maintainer) \email{fin.yang@monash.edu}
 }
 \keyword{package}

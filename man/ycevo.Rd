@@ -7,13 +7,15 @@
 \usage{
 ycevo(
   data,
-  xgrid,
-  tau,
-  cols = NULL,
+  x,
+  span_x = 60,
   hx = NULL,
+  tau = NULL,
   ht = NULL,
-  ...,
-  loess = length(tau) > 10
+  tau_p = tau,
+  htp = NULL,
+  cols = NULL,
+  ...
 )
 
 estimate_yield(
@@ -22,157 +24,181 @@ estimate_yield(
   hx,
   tau,
   ht,
+  tau_p = tau,
+  htp = ht,
   rgrid = NULL,
   hr = NULL,
   interest = NULL,
-  loess = TRUE,
   cfp_slist = NULL
 )
 }
 \arguments{
-\item{data}{Data frame; bond data to estimate discount curve from. See \code{?USbonds} for an example bond data structure.}
+\item{data}{Data frame; bond data to estimate discount curve from. See
+\code{\link[=ycevo_data]{ycevo_data()}} for an example bond data structure. Minimum required columns
+are \code{qdate}, \code{id}, \code{price}, \code{tupq}, and \code{pdint}. The columns can be named
+differently: see \code{cols}.}
 
-\item{xgrid}{Numeric vector of values between 0 and 1.
-Time grids over the entire time horizon (percentile) of the data at which the discount curve is evaluated.}
+\item{x}{Time grids at which the discount curve is evaluated. Should be
+specified using the same class of object as the quotation date (\code{qdate})
+column in \code{data}.}
 
-\item{tau}{Numeric vector that
-represents time-to-maturities in years where discount function and yield curve will be found
-for each time point \code{xgrid}.
+\item{span_x}{Half of the window size, or the distance from the centre \code{x} to
+the maximum (or the minimum) \code{qdate} with non-zero weight using the kernel
+function, measured by the number of regular interval between two
+consecutive \code{qdate}. Ignored if \code{hx} is specified. See \code{Details}.}
+
+\item{hx}{Numeric vector of the bandwidth parameter corresponds to each time
+point \code{x}.}
+
+\item{tau}{Numeric vector that represents time-to-maturities in years where
+discount function and yield curve will be found for each time point \code{x}.
 See \code{Details}.}
 
-\item{hx}{Numeric vector of values between 0 and 1. Bandwidth parameter determining the size of the window 
-that corresponds to each time point (\code{xgrid}).
-See \code{Details}.
-The selection of bandwidth parameter is crucial in non-parametric estimation.
-If not sure, please use \code{ycevo} to allow the function choose it for you.}
+\item{ht}{Numeric vector of the bandwidth parameter corresponding to each
+time-to-maturities \code{tau}. See \code{Details}.}
 
-\item{ht}{Numeric vector that
-represents bandwidth parameter determining the size of the window 
-in the kernel function
-that corresponds to each time-to-maturities (\code{tau}). 
-The same unit as \code{tau}.
-See \code{Details}.
-The selection of bandwidth parameter is crucial in non-parametric estimation.
-If not sure, please use \code{ycevo} to allow the function choose it for you.}
+\item{tau_p}{Numeric vector that represents  auxiliarytime-to-maturities in
+years. See \code{Details}.}
 
-\item{...}{Reserved for exogenous variables.}
+\item{htp}{Numeric vector of the bandwidth parameter corresponding to each
+auxiliary time-to-maturities \code{tau_p}. See \code{Details}.}
 
-\item{loess}{Logical. Whether the output estimated discount and yield are to be smoothed using locally estimated scatterplot smoothing (LOESS)}
+\item{cols}{<\code{\link[=dplyr_tidy_select]{tidy-select}}> A named list or vector of
+alternative names of required variables, following the \code{new_name = old_name} syntax of the \code{\link[dplyr:rename]{dplyr::rename()}}, where the \code{new_nam} takes one of
+the five column names required in \code{data}. This enables the user to provide
+\code{data} with columns named differently from required.}
 
-\item{rgrid}{(Optional) Numeric vector of interest rate grids in percentage at which the discount curve is evaluated, e.g. 4.03 means at interest rate of 4.03\%.}
+\item{...}{Specification of an additional covariate, taking the form of \code{var = list(grid, bandwidth)}, where \code{var} is the name of the covariate in
+\code{data}, \code{grid} is the values at which the yield curve is estimated,
+similiar to \code{x}, and \code{bandwidth} is the bandwidth paramter corresponding to
+each of the \code{grid} values, similar to \code{hx}.}
 
-\item{hr}{(Optional) Numeric vector of bandwidth parameter in percentage determining the size of the window
-in the kernel function
-that corresponds to each interest rate grid (\code{rgrid}).}
+\item{xgrid}{Numeric vector of values between 0 and 1. Time grids over the
+entire time horizon (percentile) of the data at which the discount function is
+evaluated.}
 
-\item{interest}{(Optional) Numeric vector of daily short term interest rates. 
-The length is the same as the number of quotation dates included in the data, 
-i.e. one interest rate per day.}
+\item{rgrid}{(Optional) Numeric vector of interest rate grids in percentage
+at which the discount curve is evaluated, e.g. 4.03 means at interest rate
+of 4.03\%.}
 
-\item{cfp_slist}{(Internal) Experienced users only. A list of matrices, generated by the internal function \code{get_cfp_slist}.}
+\item{hr}{(Optional) Numeric vector of bandwidth parameter in percentage
+determining the size of the window in the kernel function that corresponds
+to each interest rate grid (`rgrid`).}
+
+\item{interest}{(Optional) Numeric vector of daily short term interest rates.
+The length is the same as the number of quotation dates included in the
+data, i.e. one interest rate per day.}
+
+\item{cfp_slist}{(Internal) Experienced users only. A list of matrices,
+generated by the internal function `get_cfp_slist`.}
 }
 \value{
-Data frame of the yield and discount rate at each combination of the provided grids.
+A \link[tibble:tibble]{tibble::tibble} object of class \code{ycevo} with the following
+columns.
+
 \describe{
-  \item{discount}{Estimated discount rate}
-  \item{xgrid}{Same as input \code{xgrid}}
-  \item{tau}{Same as input \code{tau}}
-  \item{yield}{Estimated yield}
+\item{qdate}{The time point that user-specified as \code{x}. The name of this
+column will be consistent with the name of the time index column in the
+\code{data} input, if the user choose to provide a data frame with the time
+index column named differently from \code{qdate} with the \code{cols} argument.}
+\item{.est}{A nested columns of estimation results containing a
+\link[tibble:tibble]{tibble::tibble} for each \code{qdate}. Each \code{tibble} contains three columns:
+\code{tau} for the time-to-maturity specified by the user in the \code{tau} argument,
+\code{.disount} for the estimated discount function at this time and this
+time-to-maturity, and \code{.yield} for the estimated yield curve.}
 }
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-Nonparametric estimation of discount functions at given dates, time-to-maturities,
-and interest rates (experienced users only) and their transformation to the yield curves.
+Nonparametric estimation of discount functions and yield curves at given
+dates, time-to-maturities, and one additional covariate, usually interest
+rate.
 }
 \details{
-Suppose that a bond \eqn{i} has a price \eqn{p_i} at time t with a set of cash payments,
-say \eqn{c_1, c_2, \ldots, c_m} with a set of corresponding discount values
-\eqn{d_1, d_2, \ldots, d_m}. In the bond pricing literature, the market price of
-a bond should reflect the discounted value of cash payments. Thus, we want to minimise
-\deqn{(p_i-\sum^m_{j=1}c_j\times d_j)^2.}
-For the estimation of \eqn{d_k(k=1, \ldots, m)}, solving the first order condition yields
-\deqn{(p_i-\sum^m_{j=1}c_j \times d_j)c_k = 0, }
-and
-\deqn{\hat{d}_k = \frac{p_i c_k}{c_k^2} - \frac{\sum^m_{j=1,k\neq k}c_k c_j d_j}{c_k^2}.}
+Suppose that a bond \eqn{i} has a price \eqn{p_i} at time t with a
+set of cash payments, say \eqn{c_1, c_2, \ldots, c_m} with a set of
+corresponding discount values \eqn{d_1, d_2, \ldots, d_m}. In the bond
+pricing literature, the market price of a bond should reflect the
+discounted value of cash payments. Thus, we want to minimise
+\deqn{(p_i-\sum^m_{j=1}c_j\times d_j)^2.} For the estimation of \eqn{d_k(k=1,
+\ldots, m)}, solving the first order condition yields
+\deqn{(p_i-\sum^m_{j=1}c_j \times d_j)c_k = 0, } and \deqn{\hat{d}_k =
+\frac{p_i c_k}{c_k^2} - \frac{\sum^m_{j=1,k\neq k}c_k c_j d_j}{c_k^2}.}
 
-There are challenges:
-\eqn{\hat{d}_k} depends on all the relevant discount values for the cash payments of the bond.
-Our model contains random errors and our interest lies in expected value of \eqn{d(.)} where
-the expected value of errors is zero.
-\eqn{d(.)} is an infinite-dimensional function not a discrete finite-dimensional vector.
-Generally, cash payments are made biannually, not dense at all. Moreover, cash payment schedules
-vary over different bonds.
+There are challenges: \eqn{\hat{d}_k} depends on all the relevant discount
+values for the cash payments of the bond. Our model contains random errors
+and our interest lies in expected value of \eqn{d(.)} where the expected
+value of errors is zero. \eqn{d(.)} is an infinite-dimensional function not
+a discrete finite-dimensional vector. Generally, cash payments are made
+biannually, not dense at all. Moreover, cash payment schedules vary over
+different bonds.
 
-Let \eqn{d(\tau, X_t)} be the discount function at given covariates \eqn{X_t} (dates \code{xgrid} and
-interest rates \code{rgrid}), and given time-to-maturities \eqn{\tau} (\code{tau}).
-\eqn{y(\tau, X_t)} is the yield curve at given covariates \eqn{X_t} (dates \code{xgrid} and
-interest rates \code{rgrid}), and given time-to-maturities \eqn{\tau} (\code{tau}).
+Let \eqn{d(\tau, X_t)} be the discount function at given covariates
+\eqn{X_t} (dates \code{x} and interest rates \code{rgrid}), and given
+time-to-maturities \eqn{\tau} (\code{tau}). \eqn{y(\tau, X_t)} is the yield
+curve at given covariates \eqn{X_t} (dates \code{xg} and interest rates
+\code{rgrid}), and given time-to-maturities \eqn{\tau} (\code{tau}).
 
-We pursue the minimum of the following
-smoothed sample least squares objective function for any smooth function \eqn{d(.)}:
-\deqn{Q(d) = \sum^T_{t=1}\sum^n_{i=1}\int\{p_{it}-\sum^{m_{it}}_{j=1}c_{it}(\tau_{ij})d(s_{ij}, x)\}^2 \sum^{m_{it}}_{k=1}\{K_h(s_{ik}-\tau_{ik})ds_{ik}\}K_h(x-X_t)dx,}
-where a bond \eqn{i} has a price \eqn{p_i} at time t with a set of cash payments \eqn{c_1, c_2, \ldots, c_m} with a set of corresponding discount values
-\eqn{d_1, d_2, \ldots, d_m},
-\eqn{K_h(.) = K(./h)} is the kernel function with a bandwidth parameter \eqn{h},
-the first kernel function is the kernel in space with bonds whose maturities \eqn{s_{ik}}
-are close to the sequence \eqn{\tau_{ik}},
-the second kernel function is the kernel in time and in interest rates with \eqn{x},
-which are close to the sequence \eqn{X_t}.
-This means that bonds with similar cash flows, and traded in contiguous days,
-where the short term interest rates in the market are similar,
-are combined for the estimation of the discount function at a point in space, in time, and in "interest rates".
+We pursue the minimum of the following smoothed sample least squares
+objective function for any smooth function \eqn{d(.)}: \deqn{Q(d) =
+\sum^T_{t=1}\sum^n_{i=1}\int\{p_{it}-\sum^{m_{it}}_{j=1}c_{it}(\tau_{ij})d(s_{ij},
+x)\}^2 \sum^{m_{it}}_{k=1}\{K_h(s_{ik}-\tau_{ik})ds_{ik}\}K_h(x-X_t)dx,}
+where a bond \eqn{i} has a price \eqn{p_i} at time t with a set of cash
+payments \eqn{c_1, c_2, \ldots, c_m} with a set of corresponding discount
+values \eqn{d_1, d_2, \ldots, d_m}, \eqn{K_h(.) = K(./h)} is the kernel
+function with a bandwidth parameter \eqn{h}, the first kernel function is
+the kernel in space with bonds whose maturities \eqn{s_{ik}} are close to
+the sequence \eqn{\tau_{ik}}, the second kernel function is the kernel in
+time and in interest rates with \eqn{x}, which are close to the sequence
+\eqn{X_t}. This means that bonds with similar cash flows, and traded in
+contiguous days, where the short term interest rates in the market are
+similar, are combined for the estimation of the discount function at a
+point in space, in time, and in "interest rates".
 
 The estimator for the discount function over time to maturity and time is
-\deqn{\hat{d}=\arg\min_d Q(d).}
-This function provides a data frame of the estimated yield and discount rate at each combination of the
-provided grids. The estimated yield is transformed from the estimated discount rate.
+\deqn{\hat{d}=\arg\min_d Q(d).} This function provides a data frame of the
+estimated yield and discount rate at each combination of the provided
+grids. The estimated yield is transformed from the estimated discount rate.
 
-For more information on the estimation method, please refer to \code{References}.
+An alternative specification of bandwidth \code{hx} is \code{span_x}, which provides
+kernel coverage invariate to the length of \code{data}. \code{span_x} takes an
+absolute measure of time depending on the unit of \code{x}. The default value is
+60. If the data is daily on trading days, i.e., the interval between every
+two consecutive \code{qdate} is one trading day, then the window of the kernel
+function allows the estimation at each point \code{x} to contain information
+from 60 trading days prior to and after the time point \code{x}.
+
+For more information on the estimation method, please refer to
+\code{References}.
 }
 \section{Functions}{
 \itemize{
-\item \code{estimate_yield()}: Experienced users only. 
-Yield estimation with interest rate and manually selected bandwidth parameters.
+\item \code{estimate_yield()}: Experienced users only. Yield estimation with interest rate
+  and manually selected bandwidth parameters. Returns a data frame of the
+  yield and discount rate at each combination of the provided grids.
+\describe{
+  \item{discount}{Estimated discount rate}
+  \item{xgrid}{Same as input `xgrid`}
+  \item{tau}{Same as input `tau`}
+  \item{yield}{Estimated yield}
+}
 
 }}
 \examples{
-library(dplyr)
-# Simulate 4 bonds issued at 2020-01-01
-# with maturity 180, 360, 540, 720 days
-# Apart from the first one, 
-# each has coupon 2, 
-# of which half is paid every 180 days.
-# The yield curve is sumulated fron `get_yield_at_vec`
-# Quotation date is also at 2020-01-01
-exp_data <- tibble(
-  qdate = "2020-01-01", 
-  id = rep(1:4, 1:4), 
-  pdint = c(100, 1, 101, 1, 1, 101, 1, 1, 1, 101),
-  tupq = unlist(sapply(1:4, seq_len)) * 180, 
-  accint = 0
-) \%>\% 
-  mutate(discount = exp(-tupq/365 * get_yield_at_vec(0, tupq/365))) \%>\% 
-  group_by(id) \%>\% 
-  mutate(mid.price = sum(pdint * discount)) \%>\% 
-  ungroup()
-  
-# Only one quotation date so time grid is set to 1
-xgrid <- 1 
-# Discount function is evaluated at time to maturity of each payment in the data
-tau <- unique(exp_data$tupq/365) 
-
-ycevo(
-  exp_data, 
-  xgrid = xgrid,
-  tau = tau
-)
+# Simulating bond data
+bonds <- ycevo_data(n = 10)
+\donttest{
+# Estimation can take up to 30 seconds
+ycevo(bonds, x = lubridate::ymd("2023-03-01"))
+}
 
 }
 \references{
-Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562-588.
+Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a
+nonparametric model for bond prices from cross-section and time series
+information. Journal of Econometrics, 220(2), 562-588.
 }
-\author{
-Nathaniel Tomasetti, Bonsoo Koo, and Yangzhuoran Fin Yang
+\seealso{
+\code{\link[=augment.ycevo]{augment.ycevo()}}, \code{\link[=autoplot.ycevo]{autoplot.ycevo()}}
 }

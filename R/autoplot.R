@@ -1,4 +1,37 @@
-#' @importFrom ggplot2 autoplot facet_grid
+#' @md
+#' @importFrom ggplot2 autoplot
+#' @export
+#' @seealso [autoplot.ycevo()]
+ggplot2::autoplot
+
+
+#' Plot discount function and yield curve
+#'
+#'
+#' @md
+#' @inheritParams augment.ycevo
+#' @param object A [ycevo] object
+#' @param est Which estimated values to plot: discount function, yield curve, or
+#'   both. Default is both.
+#' @param against Which variable to plot against, i.e. what is on the x axis.
+#'   Time-to-maturity `tau`, quotation date `x`, or both (requires package
+#'   `plotly`). If both, an interactive 3D plot is generated.
+#'
+#' @returns A [ggplot2::ggplot()] object if only one dimension is specified in
+#'   `against`. A [plotly::plot_ly()] object if `against` is set to both.
+#'
+#' @seealso [ycevo()]
+#' @examples
+#' # Simulating bond data
+#' bonds <- ycevo_data(n = 10)
+#' \donttest{
+#' # Estimation can take up to 30 seconds
+#' res <- ycevo(bonds, x = lubridate::ymd("2023-03-01"))
+#' # Plot
+#' autoplot(res)
+#' }
+#'
+#' @importFrom ggplot2 facet_grid
 #' @export
 autoplot.ycevo <- function(
     object, est = c("both", "discount", "yield"),
@@ -6,16 +39,16 @@ autoplot.ycevo <- function(
   qdate_label <- attr(object, "qdate_label")
   est <- match.arg(est)
   which_drop <- switch(
-    est, 
-    both = character(0), 
+    est,
+    both = character(0),
     discount = ".yield",
     yield = ".discount"
   )
-  df_plot <- augment(object, loess = loess) %>% 
-    mutate(!!sym(qdate_label)) %>% 
-    select(!all_of(which_drop)) %>% 
-    tidyr::pivot_longer(any_of(c(".discount", ".yield")), 
-                 names_to = ".est", 
+  df_plot <- augment(object, loess = loess) %>%
+    mutate(!!sym(qdate_label)) %>%
+    select(!all_of(which_drop)) %>%
+    tidyr::pivot_longer(any_of(c(".discount", ".yield")),
+                 names_to = ".est",
                  values_to = ".value")
   against <- match.arg(against)
   switch (
@@ -41,11 +74,11 @@ autoplot.ycevo <- function(
           call. = FALSE
         )
       }
-      if(est == "both") 
+      if(est == "both")
         stop("\"est\" must be one of \"discount\" or \"yield\" when when \"against = \"both\"\".")
-      plotly::plot_ly(df_plot, 
-                      x = ~tau, y = ~qdate, z = ~.value, 
-                      type = 'scatter3d', mode = 'lines', 
+      plotly::plot_ly(df_plot,
+                      x = ~tau, y = ~qdate, z = ~.value,
+                      type = 'scatter3d', mode = 'lines',
                       split = ~qdate) %>%
         plotly::layout(scene = list(zaxis = list(title = est)))
     }
