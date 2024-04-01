@@ -64,36 +64,10 @@
 #'  See \code{Details}.
 #' @param ... Reserved for exogenous variables.
 #' @examples 
-#' library(dplyr)
-#' # Simulate 4 bonds issued at 2020-01-01
-#' # with maturity 180, 360, 540, 720 days
-#' # Apart from the first one, 
-#' # each has coupon 2, 
-#' # of which half is paid every 180 days.
-#' # The yield curve is sumulated fron `get_yield_at_vec`
-#' # Quotation date is also at 2020-01-01
-#' exp_data <- tibble(
-#'   qdate = "2020-01-01", 
-#'   id = rep(1:4, 1:4), 
-#'   pdint = c(100, 1, 101, 1, 1, 101, 1, 1, 1, 101),
-#'   tupq = unlist(sapply(1:4, seq_len)) * 180, 
-#'   accint = 0
-#' ) %>% 
-#'   mutate(discount = exp(-tupq/365 * get_yield_at_vec(0, tupq/365))) %>% 
-#'   group_by(id) %>% 
-#'   mutate(mid.price = sum(pdint * discount)) %>% 
-#'   ungroup()
-#'   
-#' # Only one quotation date so time grid is set to 1
-#' xgrid <- 1 
-#' # Discount function is evaluated at time to maturity of each payment in the data
-#' tau <- unique(exp_data$tupq/365) 
-#' 
-#' ycevo(
-#'   exp_data, 
-#'   xgrid = xgrid,
-#'   tau = tau
-#' )
+#' # Simulate bond data
+#' bonds <- ycevo_data(n = 10)
+#' # Estimate 
+#' ycevo(bonds, x = lubridate::ymd("2023-03-01"))
 #' 
 #' @references Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562-588.
 #' @order 1
