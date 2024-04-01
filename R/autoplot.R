@@ -1,4 +1,4 @@
-#' @importFrom ggplot2 autoplot ggplot aes geom_line facet_grid
+#' @importFrom ggplot2 autoplot facet_grid
 #' @export
 autoplot.ycevo <- function(
     object, est = c("both", "discount", "yield"),
@@ -22,15 +22,15 @@ autoplot.ycevo <- function(
     against,
     tau = {
       df_plot %>%
-        ggplot(aes(x=tau, y=.value, colour = !!sym(qdate_label),
+        ggplot(aes(x=.data$tau, y=.data$.value, colour = !!sym(qdate_label),
                    group = !!sym(qdate_label))) +
         geom_line() +
         facet_grid(".est", scales = "free_y")
     },
     x = {
       df_plot %>%
-        ggplot(aes(x=!!sym(qdate_label), y=.value, colour = tau,
-                   group = tau)) +
+        ggplot(aes(x=!!sym(qdate_label), y=.data$.value, colour = .data$tau,
+                   group = .data$tau)) +
         geom_line() +
         facet_grid(".est", scales = "free_y")
     },
@@ -51,3 +51,4 @@ autoplot.ycevo <- function(
     }
   )
 }
+

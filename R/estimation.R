@@ -394,8 +394,8 @@ estimate_yield <- function(data, xgrid, hx,
     ungroup() %>% 
     mutate(hh = lapply(hh, function(x) {
       x %>% 
-        arrange(qg, xg) %>% 
-        tidyr::pivot_wider(names_from = qg, values_from = hhat) %>% 
+        arrange(.data$qg, .data$xg) %>% 
+        tidyr::pivot_wider(names_from = "qg", values_from = "hhat") %>% 
         select(-"xg") %>% 
         as.matrix() %>% 
         unname()
@@ -409,11 +409,11 @@ estimate_yield <- function(data, xgrid, hx,
       mutate(db, xg, discount = as.vector(solve(X) %*% dbar), .keep = "none")
     }, hh = hh, db = db, SIMPLIFY = FALSE)) %>% 
     select(any_of(c("ug", "rg", "discount"))) %>% 
-    tidyr::unnest(discount)
+    unnest("discount")
   
   dhat <- dhat %>% 
     mutate(yield = discount2yield(.data$discount, .data$xg)) %>% 
-    rename(xgrid = "ug",
+    dplyr::rename(xgrid = "ug",
            tau = "xg") %>% 
     rename_with(function(x) rep("rgrid", length(x)), any_of("rg"))
   

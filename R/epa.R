@@ -19,6 +19,7 @@ repa <- function(n, mu, r) {
 #' @param data Bond data. If \code{x} and \code{hx} are not NULL, \code{data} needs to include one 
 #' time index column \code{qdate}. If \code{tau} and \code{ht} are not NULL, \code{data} needs to include one 
 #' column of time to maturity in days \code{tupq}.
+#' @importFrom ggplot2 geom_hline scale_y_continuous expansion xlab
 #' @export
 vis_kernel <- function(data, 
                        x = NULL, hx = NULL, 
@@ -37,7 +38,7 @@ vis_kernel <- function(data,
     dates <- sort(unique(data$qdate))
     ndates <- length(dates)
     nx <- length(x)
-    xgrid <- ecdf(dates)(x)
+    xgrid <- stats::ecdf(dates)(x)
     nhx <- length(hx)
     gamma <- seq_along(dates)/ndates
     
@@ -49,7 +50,7 @@ vis_kernel <- function(data,
       mutate(hx = as.factor(hx)) 
     
     p <- df_p %>% 
-      ggplot(aes(x = dates, y= weight)) +
+      ggplot(aes(x = .data$dates, y= .data$weight)) +
       geom_line(aes(colour = hx, group = interaction(hx, xgrid))) +
       geom_hline(yintercept = 0, linewidth = 1) +
       scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
@@ -74,7 +75,7 @@ vis_kernel <- function(data,
       mutate(ht = as.factor(ht)) 
     
     p <- df_p %>% 
-      ggplot(aes(x = gamma, y= weight)) +
+      ggplot(aes(x = .data$gamma, y= .data$weight)) +
       geom_line(aes(colour = ht, group = interaction(ht, tau))) +
       xlab("tau") +
       geom_hline(yintercept = 0, linewidth = 1) +
@@ -100,7 +101,7 @@ vis_kernel <- function(data,
       mutate(weight = epaker((rgrid - gamma)/hr)) %>% 
       mutate(hr = as.factor(hr)) 
     p <- df_p %>% 
-      ggplot(aes(x = gamma, y= weight)) +
+      ggplot(aes(x = .data$gamma, y= .data$weight)) +
       geom_line(aes(colour = hr, group = interaction(hr, rgrid))) +
       xlab(dot_name) +
       geom_hline(yintercept = 0, linewidth = 1) +

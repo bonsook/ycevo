@@ -167,32 +167,34 @@ get_yield_at_vec <- function(time, maturity,
 span2h <- function(span, len, units = len) {
   gamma <- seq_len(len) /units
   
-  obj_fun <- function(h) sum(calc_epaker_weights(gamma, median(gamma), h) > 0)/2 - span
+  obj_fun <- function(h) sum(calc_epaker_weights(gamma, stats::median(gamma), h) > 0)/2 - span
   stats::uniroot(obj_fun, interval = c(0.0001, 1), extendInt = "up")$root
 }
 
 # handle user sepecified cols augment in, e.h., ycevo function
 # @inheritParams ycevo
+# @param cols expression of cols in ycevo
 # @param covariate character vector of the column names of the addtional covariate. 
 # Currently only support one
-handle_cols <- function(data, cols = NULL, d_col, qdate_label) {
-  cols <- enexpr(cols)
-  loc <- tidyselect::eval_rename(cols, data)
+handle_cols <- function(data, cols, d_col, qdate_label) {
   
   # variables required but missing in data
-  vars_missing_data <- setdiff(d_col, colnames(data))
-  # variables required but missing in data and not specified by user
-  setd <- setdiff(vars_missing_data, names(loc))
+  setd <- vars_missing_data <- setdiff(d_col, colnames(data))
+  loc <- NULL
+  if(!is.null(cols)) {
+    loc <- tidyselect::eval_rename(cols, data)
+    # variables required but missing in data and not specified by user
+    setd <- setdiff(vars_missing_data, names(loc))
+    if(any(names(loc) == qdate_label))
+      qdate_label <-  colnames(data)[[loc[[qdate_label]]]]
+    data <- dplyr::rename(data, !!cols)
+  }
   if(length(setd) > 0L) {
     stop(
       "The following columns are required but are not found in the data and are not specified in the cols argument: ", 
       paste0(setd, collapse = ", "), call. = FALSE)
   }
   
-  if(any(names(loc) == qdate_label))
-    qdate_label <-  colnames(data)[[loc[[qdate_label]]]]
-  
-  data <- rename(data, !!cols)
   list(data = data, qdate_label = qdate_label, loc = loc)
 }
 
@@ -212,9 +214,9 @@ handle_covariates <- function(data, ...) {
       stop("Currently only supports one extra predictor (interest rate)")
     interest <- data %>% 
       select(all_of(c("qdate", names(dots)))) %>% 
-      arrange(qdate) %>% 
-      distinct(qdate, .keep_all = TRUE) %>% 
-      pull(names(dots))
+      arrange(.data$qdate) %>% 
+      distinct(.data$qdate, .keep_all = TRUE) %>% 
+      dplyr::pull(names(dots))
     rgrid <- dots[[1]][[1]]
     hr <- dots[[1]][[2]]
   }

@@ -22,14 +22,11 @@
 # cfp_slist <- get_cfp_slist(USbonds)
 # }
 # @author Yangzhuoran Fin Yang, Bonsoo Koo and Kai-Yang Goh
-#' @importFrom dplyr group_by
-#' @importFrom dplyr group_split
 get_cfp_slist <- function(data){
   cfp_list <- data %>%
     mutate(mid.price = .data$mid.price) %>%
     select("qdate", "id", "tupq", "pdint", "mid.price") %>% 
-    group_by(.data$qdate) %>% 
-    group_split() 
+    split(.$qdate)
   id <- unique(data$id)
   id_len <- length(id)
   tupq_len <- as.integer(max(data$tupq))

@@ -1,15 +1,19 @@
+#' @importFrom generics augment
+#' @export
+#' @seealso [augment.ycevo()]
+generics::augment
+
 
 #' Augment data with predicted discount function and yield curve
 #' @param ... Additional arguments required for generic consistency. Currently not used.
 #' Warning: A misspelled argument will not raise an error. 
 #' The misspelled argument will be either disregarded, or the default value will be applied if one exists.
-#' @importFrom generics augment
 #' @export
 augment.ycevo <- function(
     x,
     newdata = NULL,
     loess = TRUE, ...){
-  df_flat <- tidyr::unnest(x, .est)
+  df_flat <- unnest(x, ".est")
   
   cols <- attr(x, "cols")
   qdate_label <- "qdate"
@@ -59,12 +63,12 @@ interpolate <- function(object, newdata, qdate_label){
   
   # Fit a loess for every group
   df_loess <- object %>% 
-    mutate(loess = lapply(.est, function(data)
+    mutate(loess = lapply(.data$.est, function(data)
       stats::loess(.discount ~ tau, 
                    # interpolate on the log of discount to avoid negative values
-                   data = mutate(data, .discount = log(.discount)),
+                   data = mutate(data, .discount = log(.data$.discount)),
                    control = stats::loess.control(surface = "direct")))) %>% 
-    select(-.est)
+    select(!".est")
   
   # list of unique values of covariates (including time)
   ls_x <- object %>% 
@@ -117,24 +121,24 @@ interpolate <- function(object, newdata, qdate_label){
     # predict discount rate
     mutate(.discount = mapply(function(data, loess){
       stats::predict(loess, data$tau)
-    }, data = data, loess = loess, SIMPLIFY = FALSE)) %>% 
+    }, data = .data$data, loess = .data$loess, SIMPLIFY = FALSE)) %>% 
     # drop loess
-    select(-loess) %>% 
+    select(!"loess") %>% 
     # rename to separate
     rename_with(function(x) paste0(x, near.), .cols = all_of(c(qdate_label, xnames))) %>% 
     # unnest
-    unnest(c(data,.discount), names_repair = "minimal")
+    unnest(c("data", ".discount"), names_repair = "minimal")
   
   df_temp <- df_predict %>% 
     group_by(!!!syms(c(ax, "tau"))) %>% 
     dplyr::summarise(.discount = interp(list(!!!syms(ax.)), 
-                                 .discount, 
-                                 lapply(list(!!!syms(ax)), unique)), 
-              .groups = "drop") %>% 
+                                        .data$.discount, 
+                                        lapply(list(!!!syms(ax)), unique)), 
+                     .groups = "drop") %>% 
     # the interpolation was done on the log of discount
     # to prevent negative values
     mutate(.discount = exp(.data$.discount)) %>% 
-    mutate(.yield = discount2yield(.discount, tau))
+    mutate(.yield = discount2yield(.data$.discount, .data$tau))
   left_join(newdata, df_temp, by = c(qdate_label, xnames, "tau"))
 }
 

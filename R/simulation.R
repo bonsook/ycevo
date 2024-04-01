@@ -1,4 +1,5 @@
 #' @importFrom lubridate wday day month day<- years
+#' @importFrom rlang .env
 #' @export
 ycevo_data <- function(b0 = 0, b1 = 0.05, b2 = 2, 
                        t1 = 0.75, t2 = 125,
@@ -48,51 +49,51 @@ ycevo_data <- function(b0 = 0, b1 = 0.05, b2 = 2,
                        2, 40, c(10, -1), 10,
                        4, 40, c(0.8, -1), 0.8) %>%
     rowwise() %>%
-    mutate(sim = list(sim_bond_meta(n, arg_range_issued, random = FALSE))) %>%
+    mutate(sim = list(sim_bond_meta(.data$n, .data$arg_range_issued, random = FALSE))) %>%
     ungroup() %>%
-    select(type, sim, maturity) %>%
-    unnest(sim) %>% # issuedate and maturity
+    select("type", "sim", "maturity") %>%
+    unnest("sim") %>% # issuedate and maturity
     rowwise() %>%
-    mutate(matdate = issuedate + if(is_wholenumber(maturity)) years(maturity) else days(round(maturity * 365))) %>%
+    mutate(matdate = .data$issuedate + if(is_wholenumber(.data$maturity)) years(.data$maturity) else days(round(.data$maturity * 365))) %>%
     # couprt
     mutate(couprt = case_when(
-      as.numeric(as.character(type)) == 1 ~ repa(1, 7.5, 7^0.5),
-      as.numeric(as.character(type)) == 2 ~ repa(1, 4, 7^0.5),
+      as.numeric(as.character(.data$type)) == 1 ~ repa(1, 7.5, 7^0.5),
+      as.numeric(as.character(.data$type)) == 2 ~ repa(1, 4, 7^0.5),
       .default = 0)) %>%
     # id
-    mutate(id = paste0(format(matdate, "%Y%m%d"),
+    mutate(id = paste0(format(.data$matdate, "%Y%m%d"),
                        ".",
-                       type,
-                       sprintf("%04d", round(100*couprt)),
+                       .data$type,
+                       sprintf("%04d", round(100*.data$couprt)),
                        sample(0:9, 1)) %>%
              as.factor()) %>%
-    mutate(pqdate = list(get_pqdate(type, issuedate, matdate, maturity))) %>%
-    unnest(pqdate) %>%
-    filter(pqdate > first_qdate)
+    mutate(pqdate = list(get_pqdate(.data$type, .data$issuedate, .data$matdate, .data$maturity))) %>%
+    unnest("pqdate") %>%
+    filter(.data$pqdate > .env$first_qdate)
   
   ls_row <- lapply(wd, function(wd) which(bond_meta$pqdate > wd & bond_meta$issuedate <= wd))
   n_wd <- vapply(ls_row, length, integer(1))
   cf <- bond_meta[unlist(ls_row),] %>%
-    mutate(qdate = rep(wd, n_wd)) %>%
-    arrange(qdate, id) %>%
-    mutate(tupq = as.double(pqdate - qdate, units = "days")) %>%
-    mutate(ttm = tupq/365) %>%
-    mutate(pdint = case_when(pqdate == matdate ~ couprt/2 + 100,
-                             .default = couprt/2))
+    mutate(qdate = rep(.env$wd, .env$n_wd)) %>%
+    arrange(.data$qdate, .data$id) %>%
+    mutate(tupq = as.double(.data$pqdate - .data$qdate, units = "days")) %>%
+    mutate(ttm = .data$tupq/365) %>%
+    mutate(pdint = case_when(.data$pqdate == .data$matdate ~ .data$couprt/2 + 100,
+                             .default = .data$couprt/2))
   
   # yield
   bond_yield <- cf %>%
-    mutate(qdate_num = as.numeric(qdate)) %>%
-    mutate(xgrid = (qdate_num - min(qdate_num))/(max(qdate_num) - min(qdate_num))) %>%
-    mutate(yield = get_yield_at(xgrid, ttm,
+    mutate(qdate_num = as.numeric(.data$qdate)) %>%
+    mutate(xgrid = (.data$qdate_num - min(.data$qdate_num))/(max(.data$qdate_num) - min(.data$qdate_num))) %>%
+    mutate(yield = get_yield_at(.data$xgrid, .data$ttm,
                                 b0 = b0, b1 = b1, b2 = b2, 
                                 t1 = t1, t2 = t2,
                                 linear = linear, quadratic = quadratic, cubic = cubic))
   bond <- bond_yield %>%
-    mutate(discount = exp(-ttm * yield)) %>%
-    group_by(qdate, id) %>%
-    mutate(mid.price = sum(pdint * discount)) %>%
+    mutate(discount = exp(-.data$ttm * .data$yield)) %>%
+    group_by(.data$qdate, .data$id) %>%
+    mutate(mid.price = sum(.data$pdint * .data$discount)) %>%
     ungroup() #%>%
   
-  select(bond, qdate, id, mid.price, tupq, pdint)
+  select(bond, "qdate", "id", "mid.price", "tupq", "pdint")
 }

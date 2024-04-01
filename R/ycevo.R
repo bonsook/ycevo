@@ -125,7 +125,7 @@ ycevo <- function(data,
   qdate_label <- "qdate"
   
   # Handle cols renaming 
-  handled_cols <- handle_cols(data, cols, d_col, qdate_label)
+  handled_cols <- handle_cols(data, enexpr(cols), d_col, qdate_label)
   data <- handled_cols$data
   qdate_label <- handled_cols$qdate_label
   
@@ -225,15 +225,15 @@ ycevo <- function(data,
         rgrid = rgrid[[i]],
         hr = hr[[i]], 
         interest = interest),
-        .discount = discount, .yield = yield)
+        .discount = "discount", .yield = "yield")
     },
     future.seed = TRUE
   ) 
   
   res <- output %>% 
-    bind_rows() %>% 
+    dplyr::bind_rows() %>% 
     dplyr::relocate(any_of(c("xgrid", "rgrid", "tau", ".discount", ".yield"))) %>% 
-    tidyr::nest(.est = c(tau, .discount, .yield)) %>% 
+    tidyr::nest(.est = c("tau", ".discount", ".yield")) %>% 
     rename_with(function(x) rep(dot_name %||% character(0), length(x)), any_of("rgrid")) %>% 
     mutate(!!sym(qdate_label) := x, .before = 1) %>% 
     select(-xgrid)
@@ -268,8 +268,8 @@ seq_tau <- function(max_tau) {
 }
 
 find_bindwidth_from_tau <- function(tau){
-  laggap <- tau - lag(tau)
-  leadgap <- lead(tau) - tau
+  laggap <- tau - dplyr::lag(tau)
+  leadgap <- dplyr::lead(tau) - tau
   vapply(
     1:length(tau), 
     function(x) max(laggap[x], leadgap[x], na.rm = TRUE), 

@@ -7,11 +7,6 @@
 #' @docType package
 #' @keywords package
 #' 
-#' @author Bonsoo Koo \email{bonsoo.koo@@monash.edu}
-#' @author Kai-Yang Goh \email{kai-yang.goh@@monash.edu}
-#' @author Nathaniel Tomasetti \email{nathaniel.tomasetti@@gmail.com}
-#' @author Yangzhuoran Fin Yang (Maintainer) \email{fin.yang@@monash.edu}
-#' 
 #' @importClassesFrom Matrix dgCMatrix
 ## usethis namespace: start
 #' @importFrom dplyr %>%
@@ -19,16 +14,20 @@
 #' @importFrom dplyr all_of
 #' @importFrom dplyr any_of
 #' @importFrom dplyr arrange
-#' @importFrom dplyr bind_rows
 #' @importFrom dplyr case_when
 #' @importFrom dplyr distinct
 #' @importFrom dplyr ends_with
-#' @importFrom dplyr filter left_join mutate select group_by lead lag group_split ungroup
-#' @importFrom dplyr n
-#' @importFrom dplyr pull
-#' @importFrom dplyr rename
+#' @importFrom dplyr filter 
+#' @importFrom dplyr group_by
+#' @importFrom dplyr left_join
+#' @importFrom dplyr mutate
 #' @importFrom dplyr rename_with
 #' @importFrom dplyr rowwise
+#' @importFrom dplyr select
+#' @importFrom dplyr ungroup
+#' @importFrom ggplot2 aes
+#' @importFrom ggplot2 geom_line
+#' @importFrom ggplot2 ggplot
 #' @importFrom lubridate ymd
 #' @importFrom Matrix colSums rowSums sparseMatrix t
 #' @importFrom Rcpp evalCpp
@@ -38,8 +37,6 @@
 #' @importFrom rlang %||%
 #' @importFrom rlang syms
 #' @importFrom stats runif
-#' @importFrom stats var
-#' @importFrom tibble as_tibble
 #' @importFrom tibble tibble
 #' @importFrom tidyr unnest
 ## usethis namespace: end
