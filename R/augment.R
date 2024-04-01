@@ -134,16 +134,22 @@ interpolate <- function(object, newdata, qdate_label){
   df_near <- newdata %>%
     select(all_of(c(qdate_label, xnames, "tau"))) %>%
     distinct() %>%
-    mutate(across(all_of(c(qdate_label, xnames)), find_near, .names = paste0("{.col}", near.))) %>%
-    # expand grid so every combination of covariates are covered
-    mutate(near. = mapply(function(...) {
-      expand.grid(list(...)) %>%
-        `colnames<-`(ax.)
-    },
-    !!!syms(ax.),
-    SIMPLIFY = FALSE)) %>%
-    select(!all_of(ax.)) %>%
-    unnest(near.)
+    mutate(across(all_of(c(qdate_label, xnames)), find_near, .names = paste0("{.col}", near.)))
+
+  if(length(ax) >1) {
+    df_near <- df_near %>%
+      # expand grid so every combination of covariates are covered
+      mutate(near. = mapply(function(...) {
+        expand.grid(list(...)) %>%
+          `colnames<-`(ax.)
+      },
+      !!!syms(ax.),
+      SIMPLIFY = FALSE)) %>%
+      select(!all_of(ax.)) %>%
+      unnest("near.")
+  } else {
+    df_near <- unnest(df_near, ax.)
+  }
 
   df_predict <- df_near %>%
     # nest by loess to speed up prediction
