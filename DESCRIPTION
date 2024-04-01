@@ -35,19 +35,20 @@ Imports:
     generics,
     ggplot2,
     lubridate,
-    magrittr,
     Matrix,
     progressr,
     Rcpp (>= 0.12.18),
     rlang,
     stats,
     tibble,
-    tidyr
+    tidyr,
+    tidyselect
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.3.1
 Suggests: 
     testthat (>= 3.0.0),
     knitr,
-    rmarkdown
+    rmarkdown,
+    plotly
 Language: en-AU
 Config/testthat/edition: 3

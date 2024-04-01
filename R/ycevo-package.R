@@ -14,6 +14,7 @@
 #' 
 #' @importClassesFrom Matrix dgCMatrix
 ## usethis namespace: start
+#' @importFrom dplyr %>%
 #' @importFrom dplyr across
 #' @importFrom dplyr all_of
 #' @importFrom dplyr any_of
@@ -29,7 +30,6 @@
 #' @importFrom dplyr rename_with
 #' @importFrom dplyr rowwise
 #' @importFrom lubridate ymd
-#' @importFrom magrittr %>%
 #' @importFrom Matrix colSums rowSums sparseMatrix t
 #' @importFrom Rcpp evalCpp
 #' @importFrom Rcpp sourceCpp
