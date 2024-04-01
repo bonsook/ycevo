@@ -1,6 +1,8 @@
 #' @importFrom lubridate wday day month day<- years
 #' @export
-ycevo_data <- function() {
+ycevo_data <- function(b0 = 0, b1 = 0.05, b2 = 2, 
+                       t1 = 0.75, t2 = 125,
+                       linear = -0.55, quadratic = 0.55, cubic = -0.55) {
   first_qdate <- ymd("20230101")
   last_qdate <- ymd("20231231")
   
@@ -82,7 +84,10 @@ ycevo_data <- function() {
   bond_yield <- cf %>%
     mutate(qdate_num = as.numeric(qdate)) %>%
     mutate(xgrid = (qdate_num - min(qdate_num))/(max(qdate_num) - min(qdate_num))) %>%
-    mutate(yield = get_yield_at(xgrid, ttm))
+    mutate(yield = get_yield_at(xgrid, ttm,
+                                b0 = b0, b1 = b1, b2 = b2, 
+                                t1 = t1, t2 = t2,
+                                linear = linear, quadratic = quadratic, cubic = cubic))
   bond <- bond_yield %>%
     mutate(discount = exp(-ttm * yield)) %>%
     group_by(qdate, id) %>%
