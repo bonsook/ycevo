@@ -1,9 +1,11 @@
 #' @importFrom lubridate wday day month day<- years
 #' @importFrom rlang .env
 #' @export
-ycevo_data <- function(b0 = 0, b1 = 0.05, b2 = 2, 
-                       t1 = 0.75, t2 = 125,
-                       linear = -0.55, quadratic = 0.55, cubic = -0.55) {
+ycevo_data <- function(
+    n = 40, 
+    b0 = 0, b1 = 0.05, b2 = 2, 
+    t1 = 0.75, t2 = 125,
+    linear = -0.55, quadratic = 0.55, cubic = -0.55) {
   first_qdate <- ymd("20230101")
   last_qdate <- ymd("20231231")
   
@@ -42,12 +44,12 @@ ycevo_data <- function(b0 = 0, b1 = 0.05, b2 = 2,
     out
   }
   bond_meta <- tibble::tribble(~ type, ~ n, ~ arg_range_issued, ~ maturity,
-                       1, 40, c(20, -1), 20,
-                       2, 40, c(2, -1), 2,
-                       2, 40, c(3, -1), 3,
-                       2, 40, c(5, -1), 5,
-                       2, 40, c(10, -1), 10,
-                       4, 40, c(0.8, -1), 0.8) %>%
+                               1, n, c(20, -1), 20,
+                               2, n, c(2, -1), 2,
+                               2, n, c(3, -1), 3,
+                               2, n, c(5, -1), 5,
+                               2, n, c(10, -1), 10,
+                               4, n, c(0.8, -1), 0.8) %>%
     rowwise() %>%
     mutate(sim = list(sim_bond_meta(.data$n, .data$arg_range_issued, random = FALSE))) %>%
     ungroup() %>%
