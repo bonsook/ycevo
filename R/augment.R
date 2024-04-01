@@ -21,14 +21,11 @@ augment.ycevo <- function(
   
   if(is.null(newdata)) {
     newdata <- df_flat
-  } else {
-    if(all(c("xgrid", qdate_label) %in% colnames(newdata)))
-      warning("Both xgrid and ", qdate_label, " presented in newdata. Using xgrid.")
   }
   
   # newdata <- tibble(qdatetime, tupq, tau)
   if(!loess) {
-    norow <- dplyr::anti_join(newdata, df_flat, by = setdiff(c("tau"), colnames(newdata)))
+    norow <- dplyr::anti_join(newdata, df_flat, by = c("tau", qdate_label))
     if(nrow(norow)>0) {
       stop("If loess = FALSE, newdata should be a subset of the xgrid and tau used to fit ycevo (e.g. the default).")
     }
