@@ -146,7 +146,7 @@ ycevo <- function(data,
     warning('Column name "crspid" is deprecated. Column "id" is now used as asset identifier.')
 
   # The minimum required columns
-  d_col <- c("qdate", "id", "mid.price", "pdint", "tupq")
+  d_col <- c("qdate", "id", "price", "pdint", "tupq")
   qdate_label <- "qdate"
 
   # Handle cols renaming

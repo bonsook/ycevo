@@ -163,8 +163,8 @@ ycevo_data <- function(
   bond <- bond_yield %>%
     mutate(discount = exp(-.data$ttm * .data$yield)) %>%
     group_by(.data$qdate, .data$id) %>%
-    mutate(mid.price = sum(.data$pdint * .data$discount)) %>%
+    mutate(price = sum(.data$pdint * .data$discount)) %>%
     ungroup() #%>%
 
-  select(bond, "qdate", "id", "mid.price", "tupq", "pdint")
+  select(bond, "qdate", "id", "price", "tupq", "pdint")
 }
