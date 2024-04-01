@@ -406,7 +406,7 @@ estimate_yield <- function(data, xgrid, hx,
       # Construct the length(tau) x length(tau) matrix of the interpolated hhat
       hh_interpol <- hh %*% t(interpol_weights)
       X <- diag(1, length(tau)) + hh_interpol
-      mutate(db, xg, discount = as.vector(solve(X) %*% dbar), .keep = "none")
+      mutate(db, discount = as.vector(solve(X) %*% dbar), .keep = "unused")
     }, hh = hh, db = db, SIMPLIFY = FALSE)) %>% 
     select(any_of(c("ug", "rg", "discount"))) %>% 
     unnest("discount")
