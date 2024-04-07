@@ -28,7 +28,7 @@ time-to-maturities \code{tau}. See \code{Details}.}
 
 \item{...}{Specification of an additional covariate, taking the form of \code{var = list(grid, bandwidth)}, where \code{var} is the name of the covariate in
 \code{data}, \code{grid} is the values at which the yield curve is estimated,
-similiar to \code{x}, and \code{bandwidth} is the bandwidth paramter corresponding to
+similar to \code{x}, and \code{bandwidth} is the bandwidth parameter corresponding to
 each of the \code{grid} values, similar to \code{hx}.}
 }
 \value{

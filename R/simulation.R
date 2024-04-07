@@ -22,7 +22,7 @@
 #' observed at the beginning of 2023. For example, the first bond with 20 years
 #' of maturity is issued at the beginning of 2003. The last bond within a type
 #' is issued at the end of 2023. The rest of the bonds have issue dates spread
-#' evenly inbetween.
+#' evenly in between.
 #'
 #' The initial yield at the beginning of 2023 is generated from the following
 #' equation

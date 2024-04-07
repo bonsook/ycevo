@@ -57,7 +57,7 @@ See \code{Details}.}
 \item{ht}{Numeric vector of the bandwidth parameter corresponding to each
 time-to-maturities \code{tau}. See \code{Details}.}
 
-\item{tau_p}{Numeric vector that represents  auxiliarytime-to-maturities in
+\item{tau_p}{Numeric vector that represents  auxiliary time-to-maturities in
 years. See \code{Details}.}
 
 \item{htp}{Numeric vector of the bandwidth parameter corresponding to each
@@ -70,7 +70,7 @@ the five column names required in \code{data}. This enables the user to provide
 
 \item{...}{Specification of an additional covariate, taking the form of \code{var = list(grid, bandwidth)}, where \code{var} is the name of the covariate in
 \code{data}, \code{grid} is the values at which the yield curve is estimated,
-similiar to \code{x}, and \code{bandwidth} is the bandwidth paramter corresponding to
+similar to \code{x}, and \code{bandwidth} is the bandwidth parameter corresponding to
 each of the \code{grid} values, similar to \code{hx}.}
 
 \item{xgrid}{Numeric vector of values between 0 and 1. Time grids over the
@@ -162,7 +162,7 @@ estimated yield and discount rate at each combination of the provided
 grids. The estimated yield is transformed from the estimated discount rate.
 
 An alternative specification of bandwidth \code{hx} is \code{span_x}, which provides
-kernel coverage invariate to the length of \code{data}. \code{span_x} takes an
+kernel coverage invariant to the length of \code{data}. \code{span_x} takes an
 absolute measure of time depending on the unit of \code{x}. The default value is
 60. If the data is daily on trading days, i.e., the interval between every
 two consecutive \code{qdate} is one trading day, then the window of the kernel

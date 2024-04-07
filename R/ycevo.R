@@ -54,7 +54,7 @@
 #'   grids. The estimated yield is transformed from the estimated discount rate.
 #'
 #'   An alternative specification of bandwidth `hx` is `span_x`, which provides
-#'   kernel coverage invariate to the length of `data`. `span_x` takes an
+#'   kernel coverage invariant to the length of `data`. `span_x` takes an
 #'   absolute measure of time depending on the unit of `x`. The default value is
 #'   60. If the data is daily on trading days, i.e., the interval between every
 #'   two consecutive `qdate` is one trading day, then the window of the kernel
@@ -82,7 +82,7 @@
 #'   See `Details`.
 #' @param ht Numeric vector of the bandwidth parameter corresponding to each
 #'   time-to-maturities `tau`. See `Details`.
-#' @param tau_p Numeric vector that represents  auxiliarytime-to-maturities in
+#' @param tau_p Numeric vector that represents  auxiliary time-to-maturities in
 #'   years. See `Details`.
 #' @param htp Numeric vector of the bandwidth parameter corresponding to each
 #'   auxiliary time-to-maturities `tau_p`. See `Details`.
@@ -94,7 +94,7 @@
 #' @param ... Specification of an additional covariate, taking the form of `var
 #'   = list(grid, bandwidth)`, where `var` is the name of the covariate in
 #'   `data`, `grid` is the values at which the yield curve is estimated,
-#'   similiar to `x`, and `bandwidth` is the bandwidth paramter corresponding to
+#'   similar to `x`, and `bandwidth` is the bandwidth parameter corresponding to
 #'   each of the `grid` values, similar to `hx`.
 #'
 #' @returns A [tibble::tibble] object of class `ycevo` with the following
