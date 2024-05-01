@@ -19,10 +19,11 @@ Authors@R:
              email = "yangyangzhuoran@gmail.com",
              comment = c(ORCID = "0000-0002-1232-8017")))
 Maintainer: Yangzhuoran Fin Yang <yangyangzhuoran@gmail.com>
-Description: Nonparametric estimation of the discount function and yield curve of bonds. 
+Description: Nonparametric estimation of discount functions and yield curves from 
+    trasaction data of coupon paying bonds. 
     Koo, B., La Vecchia, D., & Linton, O. B. (2021) <doi:10.1016/j.jeconom.2020.04.014> 
-    describe the application with the Center for Research in Security Prices (CRSP) Bond Data 
-    and document the methods of this package.
+    describe an application of this package using the Center for Research in 
+    Security Prices (CRSP) Bond Data and document its implementation.
 URL: https://github.com/bonsook/ycevo
 BugReports: https://github.com/bonsook/ycevo/issues
 License: GPL-3

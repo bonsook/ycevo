@@ -16,14 +16,14 @@ maturity in days \code{tupq}.}
 specified using the same class of object as the quotation date (\code{qdate})
 column in \code{data}.}
 
-\item{hx}{Numeric vector of the bandwidth parameter corresponds to each time
+\item{hx}{Numeric vector. Bandwidth parameters corresponding to each time
 point \code{x}.}
 
-\item{tau}{Numeric vector that represents time-to-maturities in years where
-discount function and yield curve will be found for each time point \code{x}.
+\item{tau}{Numeric vector. Time-to-maturities in years where
+discount function and yield curve will be estimated for each of time points \code{x}.
 See \code{Details}.}
 
-\item{ht}{Numeric vector of the bandwidth parameter corresponding to each
+\item{ht}{Numeric vector. Bandwidth parameters corresponding to each value of
 time-to-maturities \code{tau}. See \code{Details}.}
 
 \item{...}{Specification of an additional covariate, taking the form of \code{var = list(grid, bandwidth)}, where \code{var} is the name of the covariate in
@@ -35,15 +35,16 @@ each of the \code{grid} values, similar to \code{hx}.}
 A \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object.
 }
 \description{
-Visualise kernel weights surrounding a specific grid point using Epanechnikov
-kernel function and the given bandwidth.
+\code{vis_kernel()} visualises kernel weights assigned to the intervals
+surrounding specific grid points using the Epanechnikov
+kernel function and given bandwidths.
 }
 \details{
-If \code{x} and \code{hx} are provided, the kernel weights surrounding time
-points \code{x} will be plotted.
+If \code{x} and \code{hx} are provided, the kernel weights assigned to the intervals
+surrounding each of time points \code{x} will be plotted.
 
-If \code{tau} and \code{ht} are provided, the kernel weights surrounding time
-points \code{tau} will be plotted.
+If \code{tau} and \code{ht} are provided, the kernel weights assigned to the intervals
+surrounding each of time-to-maturities \code{tau} will be plotted.
 
 If the grid and bandwidth of a covariate are provided in \code{...}, the
 kernel weights of that covariate will be plotted.

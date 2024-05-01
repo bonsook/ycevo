@@ -5,27 +5,26 @@
 generics::augment
 
 
-#' Augment data with predicted discount function and yield curve
+#' Augment data with predicted discount functions and yield curves
 #'
 #'
 #' @details
 #' If `newdata` is not provided, returns the discount function and yield curve
-#' values at points specified for the estimation in [ycevo()].
+#' at the specified estimation points in [ycevo()].
 #'
-#' If `newdata` is provided, the discount function at the time-to-maturities
-#' specified in `newdata` will be generated from loess smoothing (see
-#' [stats::loess()]), then interpolated to produce the discount function at the
-#' quotation date specified in `newdata`.
+#' If `newdata` is provided, the discount functions at the time-to-maturities
+#' specified in `newdata` are generated from loess smoothing (see
+#' [stats::loess()]), and interpolated to produce the discount function values at the
+#' quotation date specified in `newdata`, before being converted to the yield curves.
 #'
 #' @md
 #' @param x A [ycevo] object
 #' @param newdata A data frame containing time-to-maturity in years `tau` and
-#'   the quotation date at which the discount function and the yield curve is to
-#'   be predicted. The quotation date is to be named the same as the quotation
-#'   date column in `x`, depending on the name of the quotation date column when
-#'   it was first provided to the `data` argument [ycevo()].The default is
-#'   `qdate`.
-#' @param loess Logical. Whether the returned discount function and yield curve
+#'   the quotation date at which the discount functions and the yield curves are to
+#'   be predicted. The quotation date is to be named after the quotation
+#'   date column in `x`, which is also the name of the quotation date column of
+#'   the `data` argument in [ycevo()] that produces `x`. The default is `qdate`.
+#' @param loess Logical. If TRUE, the returned discount functions and yield curves
 #'   are loess smoothed.
 #' @param ... Additional arguments required for generic consistency. Currently
 #'   not used. Warning: A misspelled argument will not raise an error. The

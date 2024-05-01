@@ -16,14 +16,15 @@ repa <- function(n, mu, r) {
 
 #' Visualise kernel weights
 #'
-#' Visualise kernel weights surrounding a specific grid point using Epanechnikov
-#' kernel function and the given bandwidth.
+#' `vis_kernel()` visualises kernel weights assigned to the intervals
+#' surrounding specific grid points using the Epanechnikov
+#' kernel function and given bandwidths.
 #'
-#' If `x` and `hx` are provided, the kernel weights surrounding time
-#' points `x` will be plotted.
+#' If `x` and `hx` are provided, the kernel weights assigned to the intervals
+#' surrounding each of time points `x` will be plotted.
 #'
-#' If `tau` and `ht` are provided, the kernel weights surrounding time
-#' points `tau` will be plotted.
+#' If `tau` and `ht` are provided, the kernel weights assigned to the intervals
+#' surrounding each of time-to-maturities `tau` will be plotted.
 #'
 #' If the grid and bandwidth of a covariate are provided in `...`, the
 #' kernel weights of that covariate will be plotted.

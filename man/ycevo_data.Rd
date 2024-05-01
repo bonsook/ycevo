@@ -17,30 +17,30 @@ ycevo_data(
 )
 }
 \arguments{
-\item{n}{The number of bonds of each maturity to simulation}
+\item{n}{Integer. Number of bonds of each maturity to simulation}
 
-\item{b0}{Level term in yield curve equation, Defaults to 0. See
+\item{b0}{Level term in yield curve equation, Defaults is 0. See
 \code{Details}.}
 
-\item{b1}{Slope term in yield curve equation, Defaults to 0.05. See
+\item{b1}{Slope term in yield curve equation, Defaults is 0.05. See
 \code{Details}.}
 
-\item{b2}{Curvature term in yield curve equation, Defaults to 2. See
+\item{b2}{Curvature term in yield curve equation, Defaults is 2. See
 \code{Details}.}
 
-\item{t1}{Scaling parameter in yield curve equation, Defaults to 0.75. See
+\item{t1}{Scaling parameter in yield curve equation, Defaults is 0.75. See
 \code{Details}.}
 
-\item{t2}{Scaling parameter in yield curve equation, Defaults to 125. See
+\item{t2}{Scaling parameter in yield curve equation, Defaults is 125. See
 \code{Details}.}
 
-\item{linear}{Linear term in yield curve evolution, Defaults to -0.55. See
+\item{linear}{Linear term in yield curve evolution, Defaults is -0.55. See
 \code{Details}.}
 
-\item{quadratic}{Quadratic term in yield curve evolution. Defaults to 0.55.
+\item{quadratic}{Quadratic term in yield curve evolution. Defaults is 0.55.
 See \code{Details}.}
 
-\item{cubic}{Cubic term in yield curve evolution. Defaults to -0.55. See
+\item{cubic}{Cubic term in yield curve evolution. Defaults is -0.55. See
 \code{Details}.}
 }
 \value{
@@ -60,7 +60,7 @@ payable on the interest payment date before maturity and the face value
 }
 }
 \description{
-Simulate bond transaction data at each weekday throughout the year 2023,
+Simulates bond transaction data at each weekday throughout the year 2023,
 following the extended version of Nelson & Siegel model (Nelson, C. R., &
 Siegel, A. F., 1987).
 }
@@ -81,9 +81,9 @@ transactions are observed for the estimation of the yield curve, the earliest
 bond is issued prior to the beginning of 2023, determined by the length of
 maturity of that type of bond, such that the last payment can still be
 observed at the beginning of 2023. For example, the first bond with 20 years
-of maturity is issued at the beginning of 2003. The last bond within a type
-is issued at the end of 2023. The rest of the bonds have issue dates spread
-evenly in between.
+of maturity is issued at the beginning of 2003. The last bond within this type
+is issued at the end of 2023. The rest of the bonds have issue dates evenly
+distributed between the first and the last bonds.
 
 The initial yield at the beginning of 2023 is generated from the following
 equation
@@ -91,8 +91,8 @@ equation
 b_2 * ((1 - \exp(-\tau_i / t_2)) / (\tau_i / t_2) - \exp(-\tau_i / t_2))}
 where \eqn{\tau_i} is the time to maturity in years. The yield curve at
 quotation time \eqn{t} is obtained by multiplying this curve by the cubic
-equation, \deqn{Yield_{i, t} = Yield_{i, 0} * (1 + linear * t + quadratic *
-t^2 + cubic * t^3)} so the yield curve slowly changes over different
+equation, \deqn{Yield_{i, t} = Yield_{i, 0} * (1 + linear * time + quadratic *
+time^2 + cubic * time^3)} so the yield curve slowly changes over different
 quotation dates. The time \eqn{t} is a value between 0 and 1, the proportion
 of time that has passed by a quotation date, identifying the progression
 through 2023. For example, the time \eqn{t} corresponding to 31 Mar 2023 is

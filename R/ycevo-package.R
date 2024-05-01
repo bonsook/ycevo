@@ -1,12 +1,12 @@
 
 
 #' Nonparametric Estimation of the Yield Curve Evolution
-#' 
-#' Nonparametric estimation of the discount rate and yield curve.
+#'
+#' Nonparametric estimation of discount functions and yield curves.
 #' @aliases ycevo-package
 #' @docType package
 #' @keywords package
-#' 
+#'
 #' @importClassesFrom Matrix dgCMatrix
 ## usethis namespace: start
 #' @importFrom dplyr %>%
@@ -17,7 +17,7 @@
 #' @importFrom dplyr case_when
 #' @importFrom dplyr distinct
 #' @importFrom dplyr ends_with
-#' @importFrom dplyr filter 
+#' @importFrom dplyr filter
 #' @importFrom dplyr group_by
 #' @importFrom dplyr left_join
 #' @importFrom dplyr mutate

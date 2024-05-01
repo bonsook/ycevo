@@ -2,7 +2,7 @@
 % Please edit documentation in R/augment.R
 \name{augment.ycevo}
 \alias{augment.ycevo}
-\title{Augment data with predicted discount function and yield curve}
+\title{Augment data with predicted discount functions and yield curves}
 \usage{
 \method{augment}{ycevo}(x, newdata = NULL, loess = TRUE, ...)
 }
@@ -10,13 +10,12 @@
 \item{x}{A \link{ycevo} object}
 
 \item{newdata}{A data frame containing time-to-maturity in years \code{tau} and
-the quotation date at which the discount function and the yield curve is to
-be predicted. The quotation date is to be named the same as the quotation
-date column in \code{x}, depending on the name of the quotation date column when
-it was first provided to the \code{data} argument \code{\link[=ycevo]{ycevo()}}.The default is
-\code{qdate}.}
+the quotation date at which the discount functions and the yield curves are to
+be predicted. The quotation date is to be named after the quotation
+date column in \code{x}, which is also the name of the quotation date column of
+the \code{data} argument in \code{\link[=ycevo]{ycevo()}} that produces \code{x}. The default is \code{qdate}.}
 
-\item{loess}{Logical. Whether the returned discount function and yield curve
+\item{loess}{Logical. If TRUE, the returned discount functions and yield curves
 are loess smoothed.}
 
 \item{...}{Additional arguments required for generic consistency. Currently
@@ -29,16 +28,16 @@ be applied if one exists.}
 function and the yield curve respectively.
 }
 \description{
-Augment data with predicted discount function and yield curve
+Augment data with predicted discount functions and yield curves
 }
 \details{
 If \code{newdata} is not provided, returns the discount function and yield curve
-values at points specified for the estimation in \code{\link[=ycevo]{ycevo()}}.
+at the specified estimation points in \code{\link[=ycevo]{ycevo()}}.
 
-If \code{newdata} is provided, the discount function at the time-to-maturities
-specified in \code{newdata} will be generated from loess smoothing (see
-\code{\link[stats:loess]{stats::loess()}}), then interpolated to produce the discount function at the
-quotation date specified in \code{newdata}.
+If \code{newdata} is provided, the discount functions at the time-to-maturities
+specified in \code{newdata} are generated from loess smoothing (see
+\code{\link[stats:loess]{stats::loess()}}), and interpolated to produce the discount function values at the
+quotation date specified in \code{newdata}, before being converted to the yield curves.
 }
 \examples{
 # Simulating bond data

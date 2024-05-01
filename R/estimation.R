@@ -218,16 +218,16 @@ calc_hhat_num <- function(data, xgrid,
   hhat
 }
 
-#' @param xgrid Numeric vector of values between 0 and 1. Time grids over the
+#' @param xgrid Numeric vector. Values between 0 and 1. Time grids over the
 #'   entire time horizon (percentile) of the data at which the discount function is
 #'   evaluated.
-#' @param rgrid (Optional) Numeric vector of interest rate grids in percentage
-#'   at which the discount curve is evaluated, e.g. 4.03 means at interest rate
+#' @param rgrid (Optional) Numeric vector. Interest rate grids in percentage
+#'   at which the discount function is evaluated, e.g. 4.03 means at interest rate
 #'   of 4.03\%.
-#' @param hr (Optional) Numeric vector of bandwidth parameter in percentage
+#' @param hr (Optional) Numeric vector. Bandwidth parameter in percentage
 #'   determining the size of the window in the kernel function that corresponds
 #'   to each interest rate grid (`rgrid`).
-#' @param interest (Optional) Numeric vector of daily short term interest rates.
+#' @param interest (Optional) Numeric vector. Daily short term interest rates.
 #'   The length is the same as the number of quotation dates included in the
 #'   data, i.e. one interest rate per day.
 #' @param cfp_slist (Internal) Experienced users only. A list of matrices,

@@ -46,56 +46,58 @@ get_yield_at_vec(
 )
 }
 \arguments{
-\item{n_qdate}{Integer giving the number of quotation dates to use in the
+\item{n_qdate}{Integer. Number of quotation dates to use in the
 data. Defaults to 12.}
 
-\item{periods}{Integer giving the maximum number of time-to-maturity periods
+\item{periods}{Integer. Maximum number of time-to-maturity periods
 in 10 years that the yield curve is estimated for each quotation date.
 Defaults to 36}
 
-\item{b0}{Level term in yield curve equation, Defaults to 0. See
+\item{b0}{Level term in yield curve equation, Defaults is 0. See
 \code{Details}.}
 
-\item{b1}{Slope term in yield curve equation, Defaults to 0.05. See
+\item{b1}{Slope term in yield curve equation, Defaults is 0.05. See
 \code{Details}.}
 
-\item{b2}{Curvature term in yield curve equation, Defaults to 2. See
+\item{b2}{Curvature term in yield curve equation, Defaults is 2. See
 \code{Details}.}
 
-\item{t1}{Scaling parameter in yield curve equation, Defaults to 0.75. See
+\item{t1}{Scaling parameter in yield curve equation, Defaults is 0.75. See
 \code{Details}.}
 
-\item{t2}{Scaling parameter in yield curve equation, Defaults to 125. See
+\item{t2}{Scaling parameter in yield curve equation, Defaults is 125. See
 \code{Details}.}
 
-\item{linear}{Linear term in yield curve evolution, Defaults to -0.55. See
+\item{linear}{Linear term in yield curve evolution, Defaults is -0.55. See
 \code{Details}.}
 
-\item{quadratic}{Quadratic term in yield curve evolution. Defaults to 0.55.
+\item{quadratic}{Quadratic term in yield curve evolution. Defaults is 0.55.
 See \code{Details}.}
 
-\item{cubic}{Cubic term in yield curve evolution. Defaults to -0.55. See
+\item{cubic}{Cubic term in yield curve evolution. Defaults is -0.55. See
 \code{Details}.}
 
-\item{time}{Numeric value between 0 and 1.}
+\item{time}{Numeric value.}
 
 \item{maturity}{Numeric value. Maturity in years.}
 }
 \value{
 \describe{
-\item{\code{generate_yield}}{
-Numeric matrix. Each column is a yield curve in a point in time (a quotation date). Each row is for a time-to-maturity.
-For example, the number in the second column third row is the yield for the yield curve at the second quotation date,
-for the third time-to-maturity ranking from shortest to longest. See \code{Details} for the equation to generate the yield curve.
+\item{\code{generate_yield()}}{
+Numeric matrix. Each column contains the yield curve values at a point in time (a quotation date).
+Each row contains the yield curve values for a time-to-maturity.
+For example, the number in the second column third row is the yield at the second quotation date,
+for the third time-to-maturity ranking from shortest to longest.
+See \code{Details} for the equation to generate a yield curve.
 See \code{Examples} for a example with the code to visually inspect the yield curves.}
 }
 
 \describe{
-  \item{`get_yield_at`}{Numeric vector.}
+\item{\code{get_yield_at()}}{Numeric vector.}
 }
 
 \describe{
-  \item{`get_yield_at_vec`}{Numeric vector.}
+\item{\code{get_yield_at_vec()}}{Numeric vector.}
 }
 }
 \description{
@@ -106,13 +108,13 @@ setting (Equation (30)) of Koo, B., La Vecchia, D., & Linton, O. (2021). See
 }
 \details{
 The initial curve at time zero is generated from the following equation
-\deqn{Yield_{i, 0} = b_0 + b_1 * ((1 - \exp(-\tau_i / t_1)) / (\tau / t_1)) +
+\deqn{Yield_{i, 0} = b_0 + b_1 * ((1 - \exp(-\tau_i / t_1)) / (\tau_i / t_1)) +
 b_2 * ((1 - \exp(-\tau_i / t_2)) / (\tau_i / t_2) - \exp(-\tau_i / t_2))}
 where \eqn{\tau_i} is the time to maturity, usually measured in years. This
 defines the yield curve for the quotation date = 0. The yield curve for
-quotation dates \verb{time = 1, 2, ...} is obtained by multiplying this curve
+quotation dates \code{time} is obtained by multiplying this curve
 by the cubic equation,
-\deqn{Yield_{i, t} = Yield_{i, 0} * (1 + linear * time + quadratic *
+\deqn{Yield_{i, time} = Yield_{i, 0} * (1 + linear * time + quadratic *
 time^2 + cubic * time^3)}
 so the yield curve slowly changes over different quotation dates.
 }
@@ -122,7 +124,7 @@ so the yield curve slowly changes over different quotation dates.
 specific maturities.
 
 \item \code{get_yield_at_vec()}: Deprecated. Vectorised version of
-`get_yield_at`.
+\code{get_yield_at()}.
 
 }}
 \examples{

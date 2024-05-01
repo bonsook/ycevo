@@ -60,45 +60,47 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
 #' `Details` and `References`.
 #'
 #' The initial curve at time zero is generated from the following equation
-#' \deqn{Yield_{i, 0} = b_0 + b_1 * ((1 - \exp(-\tau_i / t_1)) / (\tau / t_1)) +
+#' \deqn{Yield_{i, 0} = b_0 + b_1 * ((1 - \exp(-\tau_i / t_1)) / (\tau_i / t_1)) +
 #' b_2 * ((1 - \exp(-\tau_i / t_2)) / (\tau_i / t_2) - \exp(-\tau_i / t_2))}
 #' where \eqn{\tau_i} is the time to maturity, usually measured in years. This
 #' defines the yield curve for the quotation date = 0. The yield curve for
-#' quotation dates `time = 1, 2, ...` is obtained by multiplying this curve
+#' quotation dates `time` is obtained by multiplying this curve
 #' by the cubic equation,
-#' \deqn{Yield_{i, t} = Yield_{i, 0} * (1 + linear * time + quadratic *
+#' \deqn{Yield_{i, time} = Yield_{i, 0} * (1 + linear * time + quadratic *
 #' time^2 + cubic * time^3)}
 #' so the yield curve slowly changes over different quotation dates.
 #'
 #' @md
-#' @param n_qdate Integer giving the number of quotation dates to use in the
+#' @param n_qdate Integer. Number of quotation dates to use in the
 #'   data. Defaults to 12.
-#' @param periods Integer giving the maximum number of time-to-maturity periods
+#' @param periods Integer. Maximum number of time-to-maturity periods
 #'   in 10 years that the yield curve is estimated for each quotation date.
 #'   Defaults to 36
-#' @param b0 Level term in yield curve equation, Defaults to 0. See
+#' @param b0 Level term in yield curve equation, Defaults is 0. See
 #'   `Details`.
-#' @param b1 Slope term in yield curve equation, Defaults to 0.05. See
+#' @param b1 Slope term in yield curve equation, Defaults is 0.05. See
 #'   `Details`.
-#' @param b2 Curvature term in yield curve equation, Defaults to 2. See
+#' @param b2 Curvature term in yield curve equation, Defaults is 2. See
 #'   `Details`.
-#' @param t1 Scaling parameter in yield curve equation, Defaults to 0.75. See
+#' @param t1 Scaling parameter in yield curve equation, Defaults is 0.75. See
 #'   `Details`.
-#' @param t2 Scaling parameter in yield curve equation, Defaults to 125. See
+#' @param t2 Scaling parameter in yield curve equation, Defaults is 125. See
 #'   `Details`.
-#' @param linear Linear term in yield curve evolution, Defaults to -0.55. See
+#' @param linear Linear term in yield curve evolution, Defaults is -0.55. See
 #'   `Details`.
-#' @param quadratic Quadratic term in yield curve evolution. Defaults to 0.55.
+#' @param quadratic Quadratic term in yield curve evolution. Defaults is 0.55.
 #'   See `Details`.
-#' @param cubic Cubic term in yield curve evolution. Defaults to -0.55. See
+#' @param cubic Cubic term in yield curve evolution. Defaults is -0.55. See
 #'   `Details`.
 #'
 #' @returns
 #' \describe{
-#'   \item{`generate_yield`}{
-#'   Numeric matrix. Each column is a yield curve in a point in time (a quotation date). Each row is for a time-to-maturity.
-#'   For example, the number in the second column third row is the yield for the yield curve at the second quotation date,
-#'   for the third time-to-maturity ranking from shortest to longest. See `Details` for the equation to generate the yield curve.
+#'   \item{`generate_yield()`}{
+#'   Numeric matrix. Each column contains the yield curve values at a point in time (a quotation date).
+#'   Each row contains the yield curve values for a time-to-maturity.
+#'   For example, the number in the second column third row is the yield at the second quotation date,
+#'   for the third time-to-maturity ranking from shortest to longest.
+#'   See `Details` for the equation to generate a yield curve.
 #'   See `Examples` for a example with the code to visually inspect the yield curves.}
 #' }
 #'
@@ -150,13 +152,14 @@ nelson_siegel <- function(maturity,
 }
 
 
-#' @param time Numeric value between 0 and 1.
+#' @md
+#' @param time Numeric value.
 #' @param maturity Numeric value. Maturity in years.
 #' @describeIn generate_yield Return the yield at specific points in time of
 #'   specific maturities.
 #' @returns
 #' \describe{
-#'   \item{`get_yield_at`}{Numeric vector.}
+#'   \item{`get_yield_at()`}{Numeric vector.}
 #' }
 #' @export
 get_yield_at <- function(time, maturity,
@@ -170,12 +173,13 @@ get_yield_at <- function(time, maturity,
 
 }
 
+#' @md
 #' @returns
 #' \describe{
-#'   \item{`get_yield_at_vec`}{Numeric vector.}
+#'   \item{`get_yield_at_vec()`}{Numeric vector.}
 #' }
 #' @describeIn generate_yield Deprecated. Vectorised version of
-#'   `get_yield_at`.
+#'   `get_yield_at()`.
 #' @export
 get_yield_at_vec <- function(time, maturity,
                              b0 = 0, b1 = 0.05, b2 = 2,

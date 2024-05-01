@@ -2,7 +2,7 @@
 % Please edit documentation in R/autoplot.R
 \name{autoplot.ycevo}
 \alias{autoplot.ycevo}
-\title{Plot discount function and yield curve}
+\title{Plot the estimated discount functions and yield curves}
 \usage{
 \method{autoplot}{ycevo}(
   object,
@@ -15,14 +15,14 @@
 \arguments{
 \item{object}{A \link{ycevo} object}
 
-\item{est}{Which estimated values to plot: discount function, yield curve, or
+\item{est}{String. Indicates which estimated values to plot: discount function, yield curve, or
 both. Default is both.}
 
-\item{against}{Which variable to plot against, i.e. what is on the x axis.
+\item{against}{String. Indicates which variable to plot against, i.e. what is on the x axis.
 Time-to-maturity \code{tau}, quotation date \code{x}, or both (requires package
 \code{plotly}). If both, an interactive 3D plot is generated.}
 
-\item{loess}{Logical. Whether the returned discount function and yield curve
+\item{loess}{Logical. If TRUE, the returned discount functions and yield curves
 are loess smoothed.}
 
 \item{...}{Additional arguments required for generic consistency. Currently
@@ -35,7 +35,7 @@ A \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} object if only one dimension i
 \code{against}. A \code{\link[plotly:plot_ly]{plotly::plot_ly()}} object if \code{against} is set to both.
 }
 \description{
-Plot discount function and yield curve
+Plots the estimated discount functions and yield curves from a \code{\link[=ycevo]{ycevo()}} object.
 }
 \examples{
 # Simulating bond data

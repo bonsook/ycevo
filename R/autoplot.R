@@ -5,15 +5,17 @@
 ggplot2::autoplot
 
 
-#' Plot discount function and yield curve
+#' Plot the estimated discount functions and yield curves
+#'
+#' Plots the estimated discount functions and yield curves from a [ycevo()] object.
 #'
 #'
 #' @md
 #' @inheritParams augment.ycevo
 #' @param object A [ycevo] object
-#' @param est Which estimated values to plot: discount function, yield curve, or
+#' @param est String. Indicates which estimated values to plot: discount function, yield curve, or
 #'   both. Default is both.
-#' @param against Which variable to plot against, i.e. what is on the x axis.
+#' @param against String. Indicates which variable to plot against, i.e. what is on the x axis.
 #'   Time-to-maturity `tau`, quotation date `x`, or both (requires package
 #'   `plotly`). If both, an interactive 3D plot is generated.
 #'

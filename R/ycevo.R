@@ -8,7 +8,7 @@
 #'   dates, time-to-maturities, and one additional covariate, usually interest
 #'   rate.
 #'
-#' @details Suppose that a bond \eqn{i} has a price \eqn{p_i} at time t with a
+#' @details Suppose that a bond \eqn{i} has a price \eqn{p_i} at time \eqn{t} with a
 #'   set of cash payments, say \eqn{c_1, c_2, \ldots, c_m} with a set of
 #'   corresponding discount values \eqn{d_1, d_2, \ldots, d_m}. In the bond
 #'   pricing literature, the market price of a bond should reflect the
@@ -29,14 +29,14 @@
 #'   Let \eqn{d(\tau, X_t)} be the discount function at given covariates
 #'   \eqn{X_t} (dates `x` and interest rates `rgrid`), and given
 #'   time-to-maturities \eqn{\tau} (`tau`). \eqn{y(\tau, X_t)} is the yield
-#'   curve at given covariates \eqn{X_t} (dates `xg` and interest rates
+#'   curve at given covariates \eqn{X_t} (dates `x` and interest rates
 #'   `rgrid`), and given time-to-maturities \eqn{\tau} (`tau`).
 #'
 #'   We pursue the minimum of the following smoothed sample least squares
 #' objective function for any smooth function \eqn{d(.)}: \deqn{Q(d) =
 #' \sum^T_{t=1}\sum^n_{i=1}\int\{p_{it}-\sum^{m_{it}}_{j=1}c_{it}(\tau_{ij})d(s_{ij},
 #' x)\}^2 \sum^{m_{it}}_{k=1}\{K_h(s_{ik}-\tau_{ik})ds_{ik}\}K_h(x-X_t)dx,}
-#'   where a bond \eqn{i} has a price \eqn{p_i} at time t with a set of cash
+#'   where a bond \eqn{i} has a price \eqn{p_i} at time \eqn{t} with a set of cash
 #'   payments \eqn{c_1, c_2, \ldots, c_m} with a set of corresponding discount
 #'   values \eqn{d_1, d_2, \ldots, d_m}, \eqn{K_h(.) = K(./h)} is the kernel
 #'   function with a bandwidth parameter \eqn{h}, the first kernel function is
@@ -75,16 +75,16 @@
 #'   the maximum (or the minimum) `qdate` with non-zero weight using the kernel
 #'   function, measured by the number of regular interval between two
 #'   consecutive `qdate`. Ignored if `hx` is specified. See `Details`.
-#' @param hx Numeric vector of the bandwidth parameter corresponds to each time
+#' @param hx Numeric vector. Bandwidth parameters corresponding to each time
 #'   point `x`.
-#' @param tau Numeric vector that represents time-to-maturities in years where
-#'   discount function and yield curve will be found for each time point `x`.
+#' @param tau Numeric vector. Time-to-maturities in years where
+#'   discount function and yield curve will be estimated for each of time points `x`.
 #'   See `Details`.
-#' @param ht Numeric vector of the bandwidth parameter corresponding to each
+#' @param ht Numeric vector. Bandwidth parameters corresponding to each value of
 #'   time-to-maturities `tau`. See `Details`.
-#' @param tau_p Numeric vector that represents  auxiliary time-to-maturities in
+#' @param tau_p Numeric vector. Auxiliary time-to-maturities in
 #'   years. See `Details`.
-#' @param htp Numeric vector of the bandwidth parameter corresponding to each
+#' @param htp Numeric vector. Bandwidth parameters corresponding to each of
 #'   auxiliary time-to-maturities `tau_p`. See `Details`.
 #' @param cols <[`tidy-select`][dplyr_tidy_select]> A named list or vector of
 #'   alternative names of required variables, following the `new_name =
@@ -97,16 +97,16 @@
 #'   similar to `x`, and `bandwidth` is the bandwidth parameter corresponding to
 #'   each of the `grid` values, similar to `hx`.
 #'
-#' @returns A [tibble::tibble] object of class `ycevo` with the following
+#' @returns A [tibble::tibble()] object of class `ycevo` with the following
 #'   columns.
 #'
 #'   \describe{
-#'     \item{qdate}{The time point that user-specified as `x`. The name of this
+#'     \item{qdate}{The time points that user-specified as `x`. The name of this
 #'       column will be consistent with the name of the time index column in the
 #'       `data` input, if the user choose to provide a data frame with the time
 #'       index column named differently from `qdate` with the `cols` argument.}
 #'     \item{.est}{A nested columns of estimation results containing a
-#'       [tibble::tibble] for each `qdate`. Each `tibble` contains three columns:
+#'       [tibble::tibble()] for each `qdate`. Each `tibble` contains three columns:
 #'       `tau` for the time-to-maturity specified by the user in the `tau` argument,
 #'       `.disount` for the estimated discount function at this time and this
 #'       time-to-maturity, and `.yield` for the estimated yield curve.}
