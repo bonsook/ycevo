@@ -18,7 +18,7 @@ estimation of the discount function and yield curve of bonds.
 If you use any data or code from the `ycevo` package CRAN release in a
 publication, please use the following citation:
 
-> Bonsoo Koo, and Yangzhuoran Fin Yang (2022). ycevo: Non-Parametric
+> Bonsoo Koo, and Yangzhuoran Fin Yang (2024). ycevo: Non-Parametric
 > Estimation of the Yield Curve Evolution. R package version 0.2.0.
 > <https://CRAN.R-project.org/package=ycevo>.
 
