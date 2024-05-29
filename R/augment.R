@@ -55,11 +55,13 @@ augment.ycevo <- function(
   qdate_label <- "qdate"
   if(!is.null(cols)) qdate_label <- vapply(as.list(cols)[-1], as.character, character(1))[qdate_label]
 
+  # if newdata isn't provided
+  # generate fitted value at the
+  # time and time-to-maturity where the curves are estimated
   if(is.null(newdata)) {
     newdata <- df_flat
   }
 
-  # newdata <- tibble(qdatetime, tupq, tau)
   if(!loess) {
     norow <- dplyr::anti_join(newdata, df_flat, by = c("tau", qdate_label))
     if(nrow(norow)>0) {
@@ -113,8 +115,8 @@ interpolate <- function(object, newdata, qdate_label){
   # or the new value is outside of the boundary,
   # return only that one value or one boundary value
   find_near <- function(x){
+    # example
     # x <- seq(ymd("2023-02-01"), ymd("2023-07-01"), by = "1 month")
-    # browser()
     target <- getElement(ls_x, dplyr::cur_column())
     l <- length(target)
 

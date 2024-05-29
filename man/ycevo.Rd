@@ -175,8 +175,10 @@ For more information on the estimation method, please refer to
 \section{Functions}{
 \itemize{
 \item \code{estimate_yield()}: Experienced users only. Yield estimation with interest rate
-  and manually selected bandwidth parameters. Returns a data frame of the
-  yield and discount rate at each combination of the provided grids.
+  and manually selected bandwidth parameters.
+  Only length one x and length one hx are supported at a time.
+  Returns a data frame of the yield and discount rate at each combination of
+  the provided grids.
 \describe{
   \item{discount}{Estimated discount rate}
   \item{xgrid}{Same as input `xgrid`}

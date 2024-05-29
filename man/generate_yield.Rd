@@ -124,7 +124,7 @@ so the yield curve slowly changes over different quotation dates.
 specific maturities.
 
 \item \code{get_yield_at_vec()}: Deprecated. Vectorised version of
-\code{get_yield_at()}.
+\code{get_yield_at()}. Use \code{get_yield_at()} instead.
 
 }}
 \examples{

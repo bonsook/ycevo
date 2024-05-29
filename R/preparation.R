@@ -1,16 +1,14 @@
 
 
 # Create lists of sparse matrices to represent cash flows and price
-
+#
 # Tranforms data into a format suitable for estimation
 #
 # This function converts and extracts coupon payments and bond prices over
 # quotation days and different bonds from the raw data
 # into a list of sparse matrices for estimation
 #
-# @param data data for bonds including quotation days, bond id,
-# time until payment and payment amount. See \code{?USbonds} for an example data structure.
-#
+# @inheritParams estimate_yield
 # @return If all the required information is present, then the
 # output will be two lists, each with length equal to the number of quotation
 # days in the data. In each list, each element of the output will be a sparseMatrix
@@ -19,9 +17,8 @@
 # Each row is a bond with cash flow or bond price indicated at the corresponding column (time).
 # @examples
 # \donttest{
-# cfp_slist <- get_cfp_slist(USbonds)
+# cfp_slist <- get_cfp_slist(ycevo_data())
 # }
-# @author Yangzhuoran Fin Yang, Bonsoo Koo and Kai-Yang Goh
 get_cfp_slist <- function(data){
   cfp_list <- data %>%
     select("qdate", "id", "tupq", "pdint", "price") %>%
@@ -56,6 +53,8 @@ get_cfp_slist <- function(data){
        cf_slist = cf_slist)
 }
 
+# Calculate Epanechnikov kernel weights at `gamma`
+# surrounding point `grid`` with `bandwidth`
 calc_epaker_weights <- function(gamma, grid, bandwidth) {
   uu <- mapply(function(grid, bandwidth) {(grid-gamma)/bandwidth},
                grid = grid,
@@ -87,11 +86,11 @@ calc_epaker_weights <- function(gamma, grid, bandwidth) {
 #  # quotation time
 #  xgrid <- c(0.2,0.4)
 #  hx <- c(0.18,0.18)
-#  out <- get_weights(grid = xgrid, bandwidth = hx, len = length(unique(USbonds$qdate)))
+#  out <- get_weights(grid = xgrid, bandwidth = hx, len = length(unique(ycevo_data()$qdate)))
 # tau <- c(30, 60, 90) / 365
 # ht <- c(15, 15 , 15) / 365
 # out <- get_weights(grid = tau, bandwidth = ht,
-#                    len = as.integer(max(USbonds$tupq)),
+#                    len = as.integer(max(ycevo_data()$tupq)),
 #                    units = 365)
 # # For time to maturity, units is 365 to match a year
 get_weights <- function(grid, bandwidth, len, units = len) {
@@ -112,14 +111,14 @@ get_weights <- function(grid, bandwidth, len, units = len) {
 #  xgrid <- c(0.2,0.4)
 #  hx <- c(0.18,0.18)
 #  out <- range_idx_nonzero(get_weights(grid = xgrid, bandwidth = hx,
-#                           len = length(unique(USbonds$qdate))))
+#                           len = length(unique(ycevo_data()$qdate))))
 # # Time to maturity
 # tau <- c(30, 60, 90) / 365
 # ht <- c(15, 15 , 15) / 365
 # out <- range_idx_nonzero(
 #   get_weights(
 #     grid = tau, bandwidth = ht,
-#     len = as.integer(max(USbonds$tupq)),
+#     len = as.integer(max(ycevo_data()$tupq)),
 #     units = 365),
 #   threshold = 0.01)
 # # For time to maturity a small threshold is set.
@@ -148,7 +147,6 @@ range_idx_nonzero <- function(mat_weights, threshold = 0) {
 # Each column represents the weights of each qdate for that \code{rgrid}.
 # Each column is a \code{rgrid} date with the weights of the qdates used in discount function estimation. qdates correspond to rows.
 #
-# @author Bonsoo Koo, Kai-Yang Goh and Nathaniel Tomasetti
 # @examples
 #  interest <- c(1.01, 1.02)
 #  rgrid <- c(0.2,0.4)
@@ -171,13 +169,12 @@ calc_r_window <- function(interest, rgrid, hr) {
 # Grid values without maturing bonds do not have sufficient data for stable estimates.
 # Grid values at the end of the sequence that do not cover enough bonds are dropped.
 # Values of \code{tau} that do not cover enough bonds in the middle of the sequence will be dropped,
-# and bindwidth \code{ht} associated with the two ends of the gap will be extended to cover the gap in the middle.
+# and bandwidth \code{ht} associated with the two ends of the gap will be extended to cover the gap in the middle.
 # will be extended to cover the
 #
 # The length of the provided tau may change for different xgrid values, so it is recommended
 # that the function is called separately for different values of xgrid.
 # @inheritParams ycevo
-# @param data Bond dataframe. See \code{?USbonds} for an example data strcture..
 # @param xgrid A single value for xgrid between 0 and 1
 # @param hx A single value for the bandwidth of the xgrid value
 # @param min_points Integer, minimum number of maturing bonds in a tau_p range to be included in tau.
@@ -189,7 +186,7 @@ calc_r_window <- function(interest, rgrid, hr) {
 #  hx <- 0.18
 #  tau_p <- c(30, 60, 90) / 365
 #  htp <- c(15, 15 , 15) / 365
-#  out <- create_tau_ht(data = USbonds, xgrid = xgrid, hx = hx, tau_p = tau_p,htp =htp, min_points = 5)
+#  out <- create_tau_ht(data = ycevo_data(), xgrid = xgrid, hx = hx, tau_p = tau_p,htp =htp, min_points = 5)
 create_tau_ht <- function(xgrid, hx, ht, htp, min_points = 5, data, tau, tau_p, rgrid, hr, interest) {
   ht <- as.numeric(ht)
   htp <- as.numeric(htp)

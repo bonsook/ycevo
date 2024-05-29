@@ -53,8 +53,10 @@ vis_kernel <- function(data,
                        x = NULL, hx = NULL,
                        tau = NULL, ht = NULL, ...) {
   p <- NULL
+  # parse covariates
   covar_ls <- handle_covariates(data, ...)
 
+  # Plot bandwidths in the time dimension
   if(assert_same_nullness(x, hx)) {
     assert_same_length(x, hx)
     if((!is.null(tau)) || (!is.null(ht))) {
@@ -63,17 +65,21 @@ vis_kernel <- function(data,
     if(!is.null(covar_ls$dots_name)) {
       stop("If \"x\" and \"hx\" are specified, \"...\" cannot be specified.")
     }
+    # The x axis in dates format
     dates <- sort(unique(data$qdate))
     ndates <- length(dates)
     nx <- length(x)
+    # The x to plot in numerical value
     xgrid <- stats::ecdf(dates)(x)
     nhx <- length(hx)
+    # The x axis in numerical value
     gamma <- seq_along(dates)/ndates
 
     df_p <- data.frame(dates = rep(dates, max(nhx, nx)),
                        gamma = rep(gamma, max(nhx, nx)),
                        xgrid = rep(xgrid, each = ndates),
                        hx = rep(hx, each = ndates)) %>%
+      # the weights
       mutate(weight = epaker((gamma - xgrid)/hx)) %>%
       mutate(hx = as.factor(hx))
 
@@ -85,6 +91,7 @@ vis_kernel <- function(data,
 
   }
 
+  # Plot bandwidth in the time-to-maturity dimension
   if(assert_same_nullness(tau, ht)) {
     assert_same_length(tau, ht)
     if(!is.null(covar_ls$dots_name)) {
@@ -92,6 +99,7 @@ vis_kernel <- function(data,
     }
     ntau <- length(tau)
     nht <- length(ht)
+    # the x axis
     gamma <- seq_len(as.integer(max(data$tupq)))/365
     ngamma <- length(gamma)
 
@@ -99,6 +107,7 @@ vis_kernel <- function(data,
       gamma = rep(gamma, max(nht, ntau)),
       tau = rep(tau, each = ngamma),
       ht = rep(ht, each = ngamma)) %>%
+      # the weights
       mutate(weight = epaker((tau - gamma)/ht)) %>%
       mutate(ht = as.factor(ht))
 
@@ -110,22 +119,25 @@ vis_kernel <- function(data,
       scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
   }
 
+  # Plot other covariates
   if(!is.null(covar_ls$dots_name)) {
     interest <- covar_ls$interest
+    # the x points to plot
     rgrid <- covar_ls$rgrid
     hr <- covar_ls$hr
     dot_name <- covar_ls$dots_name
 
     nrgrid <- length(rgrid)
     nhr <- length(hr)
+    # the x axis
     gamma <- interest
     ngamma <- length(gamma)
-    calc_epaker_weights(interest, rgrid, hr)
 
     df_p <- data.frame(
       gamma = rep(gamma, max(nhr, nrgrid)),
       rgrid = rep(rgrid, each = ngamma),
       hr = rep(hr, each = ngamma)) %>%
+      # the weights
       mutate(weight = epaker((rgrid - gamma)/hr)) %>%
       mutate(hr = as.factor(hr))
     p <- df_p %>%

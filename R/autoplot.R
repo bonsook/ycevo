@@ -40,6 +40,8 @@ autoplot.ycevo <- function(
     against = c("tau", "x", "both"), loess = TRUE, ...) {
   qdate_label <- attr(object, "qdate_label")
   est <- match.arg(est)
+  # Decide which estimate to drop
+  # from which estimate to plot
   which_drop <- switch(
     est,
     both = character(0),
@@ -48,7 +50,9 @@ autoplot.ycevo <- function(
   )
   df_plot <- augment(object, loess = loess) %>%
     mutate(!!sym(qdate_label)) %>%
+    # Drop estimates not plotted
     select(!all_of(which_drop)) %>%
+    # The one(s) not dopped is saved in .est
     tidyr::pivot_longer(any_of(c(".discount", ".yield")),
                  names_to = ".est",
                  values_to = ".value")

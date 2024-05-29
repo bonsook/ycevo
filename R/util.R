@@ -1,6 +1,6 @@
 
-# @title Calculates number of bonds that mature in each tau
-# @param data A data frame; bond data to estimate discount curve from.
+# Calculates number of bonds that mature in each tau
+# @inheritParams ycevo
 # @param xgrid A single value for xgrid between 0 and 1
 # @param hx A single value for the bandwidth of the xgrid value
 # @param tau A numeric vector of the time-to-maturity grid
@@ -10,8 +10,6 @@
 # @param rgrid Optional, a single value for rgrid
 # @param hr Optional, A single value for the bandwidth of the rgrid value for use with rgrid
 # @param interest Optional, A vector of daily interest rates for use with rgrid
-# @keywords internal
-# @author Bonsoo Koo, Kai-Yang Goh and Nathaniel Tomasetti
 #
 num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, interest = NULL, units = 365) {
   # Check dates in data matches interest rate
@@ -130,8 +128,7 @@ generate_yield <- function(n_qdate = 12, periods = 36,
 
   tauSeq <- (1:periods)/(periods/10)
 
-  yieldInit <- b0 + b1 * ((1 - exp(- tauSeq / t1)) / ( tauSeq / t1)) +
-    b2 * ((1 - exp(- tauSeq / t2)) / (tauSeq / t2) - exp(- tauSeq / t2))
+  yieldInit <- nelson_siegel(tauSeq, b0, b1, b2, t1, t2)
 
   yield <- matrix(0, periods, n_qdate)
   for(i in 1:n_qdate){
@@ -179,7 +176,7 @@ get_yield_at <- function(time, maturity,
 #'   \item{`get_yield_at_vec()`}{Numeric vector.}
 #' }
 #' @describeIn generate_yield Deprecated. Vectorised version of
-#'   `get_yield_at()`.
+#'   `get_yield_at()`. Use `get_yield_at()` instead.
 #' @export
 get_yield_at_vec <- function(time, maturity,
                              b0 = 0, b1 = 0.05, b2 = 2,
@@ -226,6 +223,9 @@ handle_cols <- function(data, cols, d_col, qdate_label) {
   list(data = data, qdate_label = qdate_label, loc = loc)
 }
 
+# Parsing additional covariate
+# currently supports one extra predictor
+# usually interest rate
 # @inheritParams ycevo
 handle_covariates <- function(data, ...) {
   dots <- list(...)
@@ -239,7 +239,7 @@ handle_covariates <- function(data, ...) {
   hr <- NULL
   if(length(dots) > 0){
     if(length(dots) != 1)
-      stop("Currently only supports one extra predictor (interest rate)")
+      stop("Currently only supports one extra predictor (e.g. interest rate)")
     interest <- data %>%
       select(all_of(c("qdate", names(dots)))) %>%
       arrange(.data$qdate) %>%

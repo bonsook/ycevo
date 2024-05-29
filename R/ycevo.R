@@ -186,10 +186,10 @@ ycevo <- function(data,
   }
   # ht
   if(is.null(ht))
-    ht <- find_bindwidth_from_tau(tau)
+    ht <- find_bandwidth_from_tau(tau)
   # ht
   if(is.null(htp))
-    htp <- find_bindwidth_from_tau(tau_p)
+    htp <- find_bandwidth_from_tau(tau_p)
 
   assert_length(ht, len = c(1, length(tau)))
   assert_length(htp, len = c(1, length(tau_p)))
@@ -267,7 +267,7 @@ ycevo <- function(data,
   new_ycevo(res)
 }
 
-
+# Default sequence of tau
 seq_tau <- function(max_tau) {
   tau <-  c(seq(30, 6 * 30, 30),  # Monthly up to six months
             seq(240, 2 * 365, 60),  # Two months up to two years
@@ -278,7 +278,9 @@ seq_tau <- function(max_tau) {
   tau[tau < max_tau]
 }
 
-find_bindwidth_from_tau <- function(tau){
+# Default bandwidth for tau and tau_p
+# The larger distance from neighbours
+find_bandwidth_from_tau <- function(tau){
   laggap <- tau - dplyr::lag(tau)
   leadgap <- dplyr::lead(tau) - tau
   vapply(
@@ -286,8 +288,6 @@ find_bindwidth_from_tau <- function(tau){
     function(x) max(laggap[x], leadgap[x], na.rm = TRUE),
     numeric(1L))
 }
-
-
 
 
 new_ycevo <- function(x) {
