@@ -86,3 +86,11 @@ assert_class <- function(x, class) {
          paste0(class, collapse = ", "), call. = FALSE)
   }
 }
+# Check if x is a vector (not a matrix or a data frame)
+assert_vector <- function(x) {
+  name_x <- substitute(x)
+  text_x <- deparse(name_x)
+  if(!is.vector(x)) {
+    stop("Object ", text_x, " must be a vector (not a matrix)", call. = FALSE)
+  }
+}

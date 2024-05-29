@@ -261,22 +261,25 @@ estimate_yield <- function(data, xgrid, hx,
   }
 
   # Check inputs
-  stopifnot(length(xgrid) == 1)
-  stopifnot(is.numeric(xgrid))
-  stopifnot(length(hx) == 1)
-  stopifnot(is.numeric(hx))
-  stopifnot(is.data.frame(data))
-  stopifnot(is.vector(tau))
-  stopifnot(is.numeric(tau))
-  stopifnot(is.vector(ht))
-  stopifnot(is.numeric(ht))
-  stopifnot(is.vector(tau_p))
-  stopifnot(is.numeric(tau_p))
-  stopifnot(is.vector(htp))
-  stopifnot(is.numeric(htp))
-  stopifnot(length(xgrid) == length(hx))
-  stopifnot(length(tau) == length(ht))
-  stopifnot(all(c('qdate', 'id', 'price', 'pdint', 'tupq') %in% colnames(data)))
+  assert_class(xgrid, "numeric")
+  assert_class(hx, "numeric")
+  assert_length(xgrid)
+  assert_length(hx)
+  assert_class(data, "data.frame")
+  assert_class(tau, "numeric")
+  assert_class(ht, "numeric")
+  assert_class(tau_p, "numeric")
+  assert_class(htp, "numeric")
+  assert_vector(tau)
+  assert_vector(ht)
+  assert_vector(tau_p)
+  assert_vector(htp)
+  assert_same_length(xgrid, hx)
+  assert_same_length(tau, ht)
+  assert_same_length(tau_p, htp)
+  if(!all(c("qdate", "id", "price", "pdint", "tupq") %in% colnames(data))) {
+    stop("The data object should contain columns qdate, id, price, pdint, and tupq.")
+  }
 
 
   if(is.null(cfp_slist)){
