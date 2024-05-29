@@ -174,7 +174,6 @@ ycevo <- function(data,
     function(span_x) span2h(span_x, length(unique(data$qdate))),
     FUN.VALUE = numeric(1))
   assert_length(hx, len = c(1, length(x)))
-  hx <- check_hx(xgrid, hx, data)
 
   if(length(hx) == 1) {
     hx <- rep(hx, length(xgrid))
@@ -268,19 +267,6 @@ ycevo <- function(data,
   new_ycevo(res)
 }
 
-check_hx <- function(xgrid, hx, data){
-
-  if(isTRUE(all.equal(hx, 1/length(xgrid)))) {
-    num_qdate <- length(unique(data$qdate))
-    mat_weights_qdatetime <- get_weights(xgrid, hx, len = num_qdate)
-    if(any(colSums(mat_weights_qdatetime) == 0)) {
-      recommend <- seq_along(xgrid)/length(xgrid)
-      stop("Inappropriate xgrid. Recommend to choose value(s) from: ", paste(recommend, collapse = ", "))
-    }
-  }
-
-  hx
-}
 
 seq_tau <- function(max_tau) {
   tau <-  c(seq(30, 6 * 30, 30),  # Monthly up to six months
