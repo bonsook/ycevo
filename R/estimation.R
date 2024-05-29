@@ -284,9 +284,9 @@ estimate_yield <- function(data, xgrid, hx,
 
   if(is.null(cfp_slist)){
     cfp_slist <- get_cfp_slist(data)
-    cf_slist <- cfp_slist$cf_slist
-    price_slist <- cfp_slist$price_slist
   }
+  cf_slist <- cfp_slist$cf_slist
+  price_slist <- cfp_slist$price_slist
 
   windows_ls <- prep_windows(data = data,
                              xgrid = xgrid,
