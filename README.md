@@ -19,7 +19,7 @@ If you use any data or code from the `ycevo` package CRAN release in a
 publication, please use the following citation:
 
 > Bonsoo Koo, and Yangzhuoran Fin Yang (2024). ycevo: Non-Parametric
-> Estimation of the Yield Curve Evolution. R package version 0.2.0.
+> Estimation of the Yield Curve Evolution. R package version 0.2.1.
 > <https://CRAN.R-project.org/package=ycevo>.
 
 The package provides code used in Koo, La Vecchia, & Linton (2021).
