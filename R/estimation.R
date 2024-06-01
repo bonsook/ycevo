@@ -11,7 +11,8 @@ prep_windows <- function(data, xgrid, hx, rgrid, hr,
   joint_window <-  NULL
   day_grid <- NULL
   if(interest_grid){
-    r_window <- calc_r_window(interest, rgrid, hr)
+    # kernel weight function in relation to interest rate grids
+    r_window <- calc_epaker_weights(interest, rgrid, hr)
     day_grid <- expand.grid(ug = xgrid, rg = rgrid)
     nday <- nrow(day_grid)
     joint_window <- matrix(0, nrow(mat_weights_qdatetime), nday)

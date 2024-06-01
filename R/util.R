@@ -23,7 +23,8 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
 
   window <- get_weights(xgrid, hx, len = length(unique(data$qdate)))
   if(!is.null(rgrid) & !is.null(hr) & !is.null(interest)){
-    windowR <- calc_r_window(interest, rgrid, hr)
+    # kernel weight function in relation to interest rate grids
+    windowR <- calc_epaker_weights(interest, rgrid, hr)
     window <- window * windowR
   }
 

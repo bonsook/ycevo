@@ -132,33 +132,6 @@ range_idx_nonzero <- function(mat_weights, threshold = 0) {
 }
 
 
-# Weights interest rate grid
-#
-# Generate a kernel weight function in relation to interest rate grids
-#
-# This function generates a weight function attached to each interest rate grid
-# for the estimation of a discount function
-#
-# @param interest vector of daily interest rates
-# @param rgrid vector of interest rate grid
-# @param hr vector of interest rate bandwidth
-#
-# @return Matrix with number of columns being the length of \code{rgrid} and number of rows being the number of unique qdates.
-# Each column represents the weights of each qdate for that \code{rgrid}.
-# Each column is a \code{rgrid} date with the weights of the qdates used in discount function estimation. qdates correspond to rows.
-#
-# @examples
-#  interest <- c(1.01, 1.02)
-#  rgrid <- c(0.2,0.4)
-#  hr <- c(0.18,0.18)
-#  out <- calc_r_window(interest = interest, rgrid = rgrid,hr = hr)
-calc_r_window <- function(interest, rgrid, hr) {
-
-  calc_epaker_weights(interest, rgrid, hr)
-}
-
-
-
 
 # Automatic selection of tau and ht values
 #
