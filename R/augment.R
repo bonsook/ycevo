@@ -149,7 +149,7 @@ interpolate <- function(object, newdata, qdate_label){
       select(!all_of(ax.)) %>%
       unnest("near.")
   } else {
-    df_near <- unnest(df_near, ax.)
+    df_near <- unnest(df_near, all_of(ax.))
   }
 
   df_predict <- df_near %>%
