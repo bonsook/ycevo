@@ -109,8 +109,6 @@ time-to-maturity, and \code{.yield} for the estimated yield curve.}
 }
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-
 Nonparametric estimation of discount functions and yield curves at given
 dates, time-to-maturities, and one additional covariate, usually interest
 rate.

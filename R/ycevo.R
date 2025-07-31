@@ -1,7 +1,7 @@
 #' Estimate yield function
 #'
 #' @md
-#' @description `r lifecycle::badge('experimental')`
+#' @description
 #'
 #'   Nonparametric estimation of discount functions and yield curves at given
 #'   dates, time-to-maturities, and one additional covariate, usually interest
