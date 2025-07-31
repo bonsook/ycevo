@@ -86,7 +86,7 @@
 #'   years. See `Details`.
 #' @param htp Numeric vector. Bandwidth parameters corresponding to each of
 #'   auxiliary time-to-maturities `tau_p`. See `Details`.
-#' @param cols <[`tidy-select`][dplyr_tidy_select]> A named list or vector of
+#' @param cols <[`tidy-select`][dplyr::dplyr_tidy_select]> A named list or vector of
 #'   alternative names of required variables, following the `new_name =
 #'   old_name` syntax of the [dplyr::rename()], where the `new_nam` takes one of
 #'   the five column names required in `data`. This enables the user to provide
