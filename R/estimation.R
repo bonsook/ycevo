@@ -1,63 +1,85 @@
-
-prep_windows <- function(data, xgrid, hx, rgrid, hr,
-                         tau, ht, tau_p, htp,
-                         interest, units, interest_grid){
+prep_windows <- function(
+  data,
+  xgrid,
+  hx,
+  rgrid,
+  hr,
+  tau,
+  ht,
+  tau_p,
+  htp,
+  interest,
+  units,
+  interest_grid
+) {
   # kernel weights on x (date, time)
-  mat_weights_qdatetime <- get_weights(xgrid, hx, len = length(unique(data$qdate)))
+  mat_weights_qdatetime <- get_weights(
+    xgrid,
+    hx,
+    len = length(unique(data$qdate))
+  )
   day_idx <- range_idx_nonzero(mat_weights_qdatetime, threshold = 0)
   nday <- length(xgrid)
 
   # kernel weights on the covariate (interest)
-  joint_window <-  NULL
+  joint_window <- NULL
   day_grid <- NULL
-  if(interest_grid){
+  if (interest_grid) {
     # kernel weight function in relation to interest rate grids
     r_window <- calc_epaker_weights(interest, rgrid, hr)
     day_grid <- expand.grid(ug = xgrid, rg = rgrid)
     nday <- nrow(day_grid)
     joint_window <- matrix(0, nrow(mat_weights_qdatetime), nday)
-    for(j in seq_along(rgrid)){
-      for(i in seq_along(xgrid)){
-        joint_window[, (j-1)*length(xgrid) + i] <- mat_weights_qdatetime[,i] * r_window[,j]
+    for (j in seq_along(rgrid)) {
+      for (i in seq_along(xgrid)) {
+        joint_window[, (j - 1) * length(xgrid) + i] <- mat_weights_qdatetime[,
+          i
+        ] *
+          r_window[, j]
       }
     }
     apply(joint_window, 2, function(y) {
-      if(all(y == 0)){
+      if (all(y == 0)) {
         day_idx <- c(0, 0)
       } else {
         window_idx <- which(y != 0)
         day_idx <- c(window_idx[1], window_idx[length(window_idx)])
       }
       day_idx
-    }) %>% t() -> day_idx
-    obs <- which(day_idx[,1] != 0)
+    }) %>%
+      t() -> day_idx
+    obs <- which(day_idx[, 1] != 0)
     day_grid <- day_grid[obs, ]
-    joint_window <- joint_window[,obs]
+    joint_window <- joint_window[, obs]
     day_idx <- day_idx[obs, ]
     nday <- length(obs)
-    if(nday == 1){
+    if (nday == 1) {
       joint_window <- matrix(joint_window, ncol = 1)
       day_idx <- matrix(day_idx, nrow = 1)
     }
-
   }
 
   # kernel weights on tau (time-to-maturity)
   stopifnot(is.vector(tau))
-  mat_weights_tau <- get_weights(tau, ht,
-                                 len = as.integer(max(data$tupq)),
-                                 units = units)
+  mat_weights_tau <- get_weights(
+    tau,
+    ht,
+    len = as.integer(max(data$tupq)),
+    units = units
+  )
   tupq_idx_tau <- range_idx_nonzero(mat_weights_tau, threshold = 0.01)
   ntupq_tau <- length(tau)
 
   # tau_p
   stopifnot(is.vector(tau_p))
-  mat_weights_tau_p <- get_weights(tau_p, htp,
-                                   len = as.integer(max(data$tupq)),
-                                   units = units)
+  mat_weights_tau_p <- get_weights(
+    tau_p,
+    htp,
+    len = as.integer(max(data$tupq)),
+    units = units
+  )
   tupq_idx_tau_p <- range_idx_nonzero(mat_weights_tau_p, threshold = 0.01)
   ntupq_tau_p <- length(tau_p)
-
 
   list(
     # qdatetime
@@ -76,7 +98,6 @@ prep_windows <- function(data, xgrid, hx, rgrid, hr,
     day_grid = day_grid
   )
 }
-
 
 
 # A component of the \code{estimate_yield} function that calculates \eqn{dbar}
@@ -102,10 +123,15 @@ prep_windows <- function(data, xgrid, hx, rgrid, hr,
 #   \item{xg}{Same as input \code{tau}}
 # }
 #
-calc_dbar <- function(data, xgrid,
-                      tau,
-                      price_slist, cf_slist,
-                      interest_grid, windows_ls) {
+calc_dbar <- function(
+  data,
+  xgrid,
+  tau,
+  price_slist,
+  cf_slist,
+  interest_grid,
+  windows_ls
+) {
   day_idx <- windows_ls$day_idx
   tupq_idx <- windows_ls$tupq_idx_tau
   mat_weights_tau <- windows_ls$mat_weights_tau
@@ -115,13 +141,38 @@ calc_dbar <- function(data, xgrid,
   nday <- windows_ls$nday
   day_grid <- windows_ls$day_grid
 
-  if(interest_grid){
-    dbar <- calc_dbar_c(ntupq, day_idx, tupq_idx, mat_weights_tau, joint_window, price_slist, cf_slist)
-    day_grid <- day_grid[rep(1:nday, each=ntupq),]
-    dbar <- tibble(ug = day_grid$ug, rg = day_grid$rg, dbar_numer = dbar[,1], dbar_denom = dbar[,2])
+  if (interest_grid) {
+    dbar <- calc_dbar_c(
+      ntupq,
+      day_idx,
+      tupq_idx,
+      mat_weights_tau,
+      joint_window,
+      price_slist,
+      cf_slist
+    )
+    day_grid <- day_grid[rep(1:nday, each = ntupq), ]
+    dbar <- tibble(
+      ug = day_grid$ug,
+      rg = day_grid$rg,
+      dbar_numer = dbar[, 1],
+      dbar_denom = dbar[, 2]
+    )
   } else {
-    dbar <- calc_dbar_c(ntupq, day_idx, tupq_idx, mat_weights_tau, mat_weights_qdatetime, price_slist, cf_slist)
-    dbar <- tibble(ug = rep(xgrid, rep(ntupq, nday)), dbar_numer = dbar[,1], dbar_denom = dbar[,2])
+    dbar <- calc_dbar_c(
+      ntupq,
+      day_idx,
+      tupq_idx,
+      mat_weights_tau,
+      mat_weights_qdatetime,
+      price_slist,
+      cf_slist
+    )
+    dbar <- tibble(
+      ug = rep(xgrid, rep(ntupq, nday)),
+      dbar_numer = dbar[, 1],
+      dbar_denom = dbar[, 2]
+    )
   }
   dbar$xg <- rep(tau, nday)
   dbar
@@ -153,11 +204,15 @@ calc_dbar <- function(data, xgrid,
 #   \item{qg}{Same as input \code{tau_p}}
 # }
 #
-calc_hhat_num <- function(data, xgrid,
-                          tau,
-                          tau_p = tau,
-                          cf_slist = NULL,
-                          interest_grid, windows_ls) {
+calc_hhat_num <- function(
+  data,
+  xgrid,
+  tau,
+  tau_p = tau,
+  cf_slist = NULL,
+  interest_grid,
+  windows_ls
+) {
   day_idx <- windows_ls$day_idx
   tupq_idx_tau <- windows_ls$tupq_idx_tau
   tupq_idx_tau_p <- windows_ls$tupq_idx_tau_p
@@ -171,22 +226,47 @@ calc_hhat_num <- function(data, xgrid,
   day_grid <- windows_ls$day_grid
   same_tau <- isTRUE(all.equal(tau, tau_p))
 
-  if(interest_grid){
-    hhat_mat <- calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p,
-                                mat_weights_tau, mat_weights_tau_p, joint_window, cf_slist,
-                                same_tau = same_tau)
-    if(same_tau) hhat_mat <- hhat_mat + `diag<-`(t(hhat_mat), 0)
-    day_grid <- day_grid[rep(1:nday, each=ntupq_tau_p*ntupq_tau),]
+  if (interest_grid) {
+    hhat_mat <- calc_hhat_num_c(
+      ntupq_tau,
+      ntupq_tau_p,
+      day_idx,
+      tupq_idx_tau,
+      tupq_idx_tau_p,
+      mat_weights_tau,
+      mat_weights_tau_p,
+      joint_window,
+      cf_slist,
+      same_tau = same_tau
+    )
+    if (same_tau) {
+      hhat_mat <- hhat_mat + `diag<-`(t(hhat_mat), 0)
+    }
+    day_grid <- day_grid[rep(1:nday, each = ntupq_tau_p * ntupq_tau), ]
     hhat <- tibble(hhat_numer = c(hhat_mat), ug = day_grid$ug, rg = day_grid$rg)
   } else {
-    hhat_mat <- calc_hhat_num_c(ntupq_tau, ntupq_tau_p, day_idx, tupq_idx_tau, tupq_idx_tau_p,
-                                mat_weights_tau, mat_weights_tau_p, mat_weights_qdatetime, cf_slist,
-                                same_tau = same_tau)
-    if(same_tau) hhat_mat <- hhat_mat + `diag<-`(t(hhat_mat), 0)
-    hhat <- tibble(hhat_numer = c(hhat_mat), ug = rep(xgrid, rep(ntupq_tau_p * ntupq_tau, nday)))
+    hhat_mat <- calc_hhat_num_c(
+      ntupq_tau,
+      ntupq_tau_p,
+      day_idx,
+      tupq_idx_tau,
+      tupq_idx_tau_p,
+      mat_weights_tau,
+      mat_weights_tau_p,
+      mat_weights_qdatetime,
+      cf_slist,
+      same_tau = same_tau
+    )
+    if (same_tau) {
+      hhat_mat <- hhat_mat + `diag<-`(t(hhat_mat), 0)
+    }
+    hhat <- tibble(
+      hhat_numer = c(hhat_mat),
+      ug = rep(xgrid, rep(ntupq_tau_p * ntupq_tau, nday))
+    )
   }
 
-  hhat$xg <- rep(tau, nday*ntupq_tau_p)
+  hhat$xg <- rep(tau, nday * ntupq_tau_p)
   hhat$qg <- rep(tau_p, rep(ntupq_tau, ntupq_tau_p))
 
   hhat
@@ -219,18 +299,25 @@ calc_hhat_num <- function(data, xgrid,
 #'   \item{yield}{Estimated yield}
 #' }
 #' @export
-estimate_yield <- function(data, xgrid, hx,
-                           tau, ht,
-                           tau_p = tau, htp = ht,
-                           rgrid = NULL, hr = NULL,
-                           interest = NULL,
-                           cfp_slist = NULL){
+estimate_yield <- function(
+  data,
+  xgrid,
+  hx,
+  tau,
+  ht,
+  tau_p = tau,
+  htp = ht,
+  rgrid = NULL,
+  hr = NULL,
+  interest = NULL,
+  cfp_slist = NULL
+) {
   units <- 365
-  if(min(tau)>min(tau_p) || max(tau) < max(tau_p)){
+  if (min(tau) > min(tau_p) || max(tau) < max(tau_p)) {
     stop('tau_p entries must lie inside tau')
   }
 
-  if(!is.null(rgrid) & !is.null(hr) & !is.null(interest)){
+  if (!is.null(rgrid) & !is.null(hr) & !is.null(interest)) {
     interest_grid <- TRUE
   } else {
     interest_grid <- FALSE
@@ -253,58 +340,72 @@ estimate_yield <- function(data, xgrid, hx,
   assert_same_length(xgrid, hx)
   assert_same_length(tau, ht)
   assert_same_length(tau_p, htp)
-  if(!all(c("qdate", "id", "price", "pdint", "tupq") %in% colnames(data))) {
-    stop("The data object should contain columns qdate, id, price, pdint, and tupq.")
+  if (!all(c("qdate", "id", "price", "pdint", "tupq") %in% colnames(data))) {
+    stop(
+      "The data object should contain columns qdate, id, price, pdint, and tupq."
+    )
   }
 
-
-  if(is.null(cfp_slist)){
+  if (is.null(cfp_slist)) {
     cfp_slist <- get_cfp_slist(data)
   }
   cf_slist <- cfp_slist$cf_slist
   price_slist <- cfp_slist$price_slist
 
-  windows_ls <- prep_windows(data = data,
-                             xgrid = xgrid,
-                             hx = hx,
-                             rgrid = rgrid,
-                             hr = hr,
-                             tau = tau,
-                             ht = ht,
-                             tau_p = tau_p,
-                             htp = htp,
-                             interest = interest,
-                             units = units,
-                             interest_grid = interest_grid)
+  windows_ls <- prep_windows(
+    data = data,
+    xgrid = xgrid,
+    hx = hx,
+    rgrid = rgrid,
+    hr = hr,
+    tau = tau,
+    ht = ht,
+    tau_p = tau_p,
+    htp = htp,
+    interest = interest,
+    units = units,
+    interest_grid = interest_grid
+  )
   # Estimate dbar & the numerator of the h-hat matrix
-  dbar <- calc_dbar(data = data,
-                    xgrid = xgrid,
-                    tau = tau,
-                    price_slist = price_slist,
-                    cf_slist = cf_slist,
-                    interest_grid = interest_grid,
-                    windows_ls = windows_ls)
+  dbar <- calc_dbar(
+    data = data,
+    xgrid = xgrid,
+    tau = tau,
+    price_slist = price_slist,
+    cf_slist = cf_slist,
+    interest_grid = interest_grid,
+    windows_ls = windows_ls
+  )
 
-  hhat_num <- calc_hhat_num(data = data,
-                            xgrid = xgrid,
-                            tau = tau,
-                            tau_p = tau_p,
-                            cf_slist = cf_slist,
-                            interest_grid = interest_grid,
-                            windows_ls = windows_ls)
+  hhat_num <- calc_hhat_num(
+    data = data,
+    xgrid = xgrid,
+    tau = tau,
+    tau_p = tau_p,
+    cf_slist = cf_slist,
+    interest_grid = interest_grid,
+    windows_ls = windows_ls
+  )
 
   # Drop badly specified tau values
   # and do again
-  if(any(dbar$dbar_denom == 0)) {
+  if (any(dbar$dbar_denom == 0)) {
     problem_tau <- filter(dbar, .data$dbar_denom == 0)$xg
-    if(!identical(tau_p, tau)) {
-      if(!(max(tau_p)<=min(problem_tau) || min(tau_p) >= max(problem_tau)))
-        stop("tau values at ", paste(problem_tau, collapse = ", "),
-             " does not have enough obs to estimate yield. ",
-             "Modified tau and tau_p." )
+    if (!identical(tau_p, tau)) {
+      if (!(max(tau_p) <= min(problem_tau) || min(tau_p) >= max(problem_tau))) {
+        stop(
+          "tau values at ",
+          paste(problem_tau, collapse = ", "),
+          " does not have enough obs to estimate yield. ",
+          "Modified tau and tau_p."
+        )
+      }
     }
-    warning("tau values at ", paste(problem_tau, collapse = ", "),
-            " does not have enough obs to estimate yield")
+    warning(
+      "tau values at ",
+      paste(problem_tau, collapse = ", "),
+      " does not have enough obs to estimate yield"
+    )
     output <- estimate_yield(
       data = data,
       xgrid = xgrid,
@@ -314,13 +415,14 @@ estimate_yield <- function(data, xgrid, hx,
       tau_p = tau_p[!tau_p %in% problem_tau],
       htp = htp[!tau_p %in% problem_tau],
       rgrid = rgrid,
-      hr = hr)
+      hr = hr
+    )
     return(output)
   }
 
   # The denominator of h-hat entries are estimated as part of dbar
-  dbar <- mutate(dbar, dbar = .data$dbar_numer/.data$dbar_denom)
-  if(any(is.na(dbar$dbar))) {
+  dbar <- mutate(dbar, dbar = .data$dbar_numer / .data$dbar_denom)
+  if (any(is.na(dbar$dbar))) {
     stop("Missing value in dbar")
   }
 
@@ -328,19 +430,17 @@ estimate_yield <- function(data, xgrid, hx,
     select(any_of(c("ug", "xg", "rg", "dbar_denom"))) %>%
     dplyr::right_join(
       hhat_num,
-      by = intersect(c("ug", "rg", "xg"), colnames(dbar))) %>%
-    mutate(hhat = .data$hhat_numer/.data$dbar_denom)
+      by = intersect(c("ug", "rg", "xg"), colnames(dbar))
+    ) %>%
+    mutate(hhat = .data$hhat_numer / .data$dbar_denom)
 
   # Create a matrix of interpolation weights
-  interpol_weights <- matrix(0,
-                             nrow = length(tau),
-                             ncol = length(tau_p))
-
+  interpol_weights <- matrix(0, nrow = length(tau), ncol = length(tau_p))
 
   # Iterate over the values of tau_p
-  for(j in 1:length(tau_p)){
+  for (j in 1:length(tau_p)) {
     # If tau_p is contained in tau then the weight will be one
-    if(any(tau == tau_p[j])){
+    if (any(tau == tau_p[j])) {
       interpol_weights[which(tau == tau_p[j]), j] <- 1
     } else {
       # Otherwise find the tau immediately above and below this tau
@@ -353,7 +453,6 @@ estimate_yield <- function(data, xgrid, hx,
     }
   }
 
-
   db <- dbar %>%
     select(any_of(c("ug", "rg", "dbar", "xg"))) %>%
     group_by(across(any_of(c("ug", "rg")))) %>%
@@ -365,29 +464,37 @@ estimate_yield <- function(data, xgrid, hx,
     group_by(across(any_of(c("ug", "rg")))) %>%
     tidyr::nest(.key = "hh") %>%
     ungroup() %>%
-    mutate(hh = lapply(hh, function(x) {
-      x %>%
-        arrange(.data$qg, .data$xg) %>%
-        tidyr::pivot_wider(names_from = "qg", values_from = "hhat") %>%
-        select(-"xg") %>%
-        as.matrix() %>%
-        unname()
-    }))
+    mutate(
+      hh = lapply(hh, function(x) {
+        x %>%
+          arrange(.data$qg, .data$xg) %>%
+          tidyr::pivot_wider(names_from = "qg", values_from = "hhat") %>%
+          select(-"xg") %>%
+          as.matrix() %>%
+          unname()
+      })
+    )
 
   dhat <- left_join(db, hh, by = intersect(c("ug", "rg"), colnames(db))) %>%
-    mutate(discount = mapply(function(hh, db) {
-      # Construct the length(tau) x length(tau) matrix of the interpolated hhat
-      hh_interpol <- hh %*% t(interpol_weights)
-      X <- diag(1, length(tau)) + hh_interpol
-      mutate(db, discount = as.vector(solve(X) %*% dbar), .keep = "unused")
-    }, hh = hh, db = db, SIMPLIFY = FALSE)) %>%
+    mutate(
+      discount = mapply(
+        function(hh, db) {
+          # Construct the length(tau) x length(tau) matrix of the interpolated hhat
+          hh_interpol <- hh %*% t(interpol_weights)
+          X <- diag(1, length(tau)) + hh_interpol
+          mutate(db, discount = as.vector(solve(X) %*% dbar), .keep = "unused")
+        },
+        hh = hh,
+        db = db,
+        SIMPLIFY = FALSE
+      )
+    ) %>%
     select(any_of(c("ug", "rg", "discount"))) %>%
     unnest("discount")
 
   dhat <- dhat %>%
     mutate(yield = discount2yield(.data$discount, .data$xg)) %>%
-    dplyr::rename(xgrid = "ug",
-                  tau = "xg") %>%
+    dplyr::rename(xgrid = "ug", tau = "xg") %>%
     rename_with(function(x) rep("rgrid", length(x)), any_of("rg"))
 
   dhat

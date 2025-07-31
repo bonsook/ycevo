@@ -1,5 +1,3 @@
-
-
 # Create lists of sparse matrices to represent cash flows and price
 #
 # Tranforms data into a format suitable for estimation
@@ -19,7 +17,7 @@
 # \donttest{
 # cfp_slist <- get_cfp_slist(ycevo_data())
 # }
-get_cfp_slist <- function(data){
+get_cfp_slist <- function(data) {
   cfp_list <- data %>%
     select("qdate", "id", "tupq", "pdint", "price") %>%
     split(.$qdate)
@@ -34,31 +32,37 @@ get_cfp_slist <- function(data){
   for (i in 1:qdate_len) {
     x_list <- cfp_list[[i]]
 
-    price_slist[[i]] <- sparseMatrix(i = match(x_list$id, id),
-                                     j = match(x_list$tupq, seq_tupq),
-                                     x = x_list$price,
-                                     dims = c(id_len, tupq_len),
-                                     dimnames=list(id,seq_tupq))
-    cf_slist[[i]] <- sparseMatrix(i = match(x_list$id, id),
-                                  j = match(x_list$tupq, seq_tupq),
-                                  x = x_list$pdint,
-                                  dims = c(id_len, tupq_len),
-                                  dimnames=list(id,seq_tupq))
+    price_slist[[i]] <- sparseMatrix(
+      i = match(x_list$id, id),
+      j = match(x_list$tupq, seq_tupq),
+      x = x_list$price,
+      dims = c(id_len, tupq_len),
+      dimnames = list(id, seq_tupq)
+    )
+    cf_slist[[i]] <- sparseMatrix(
+      i = match(x_list$id, id),
+      j = match(x_list$tupq, seq_tupq),
+      x = x_list$pdint,
+      dims = c(id_len, tupq_len),
+      dimnames = list(id, seq_tupq)
+    )
   }
-  names(price_slist) <-  unique(data$qdate)
-  names(cf_slist) <-  unique(data$qdate)
+  names(price_slist) <- unique(data$qdate)
+  names(cf_slist) <- unique(data$qdate)
 
-
-  list(price_slist = price_slist,
-       cf_slist = cf_slist)
+  list(price_slist = price_slist, cf_slist = cf_slist)
 }
 
 # Calculate Epanechnikov kernel weights at `gamma`
 # surrounding point `grid`` with `bandwidth`
 calc_epaker_weights <- function(gamma, grid, bandwidth) {
-  uu <- mapply(function(grid, bandwidth) {(grid-gamma)/bandwidth},
-               grid = grid,
-               bandwidth = bandwidth)
+  uu <- mapply(
+    function(grid, bandwidth) {
+      (grid - gamma) / bandwidth
+    },
+    grid = grid,
+    bandwidth = bandwidth
+  )
 
   epaker(uu)
 }
@@ -126,11 +130,12 @@ range_idx_nonzero <- function(mat_weights, threshold = 0) {
   mat_notzero <- mat_weights > threshold
   t(apply(mat_notzero, 2, function(x) {
     idx <- which(x)
-    if(length(idx) == 0) return(c(NA, NA))
+    if (length(idx) == 0) {
+      return(c(NA, NA))
+    }
     range(idx)
   }))
 }
-
 
 
 # Automatic selection of tau and ht values
@@ -160,15 +165,27 @@ range_idx_nonzero <- function(mat_weights, threshold = 0) {
 #  tau_p <- c(30, 60, 90) / 365
 #  htp <- c(15, 15 , 15) / 365
 #  out <- create_tau_ht(data = ycevo_data(), xgrid = xgrid, hx = hx, tau_p = tau_p,htp =htp, min_points = 5)
-create_tau_ht <- function(xgrid, hx, ht, htp, min_points = 5, data, tau, tau_p, rgrid, hr, interest) {
+create_tau_ht <- function(
+  xgrid,
+  hx,
+  ht,
+  htp,
+  min_points = 5,
+  data,
+  tau,
+  tau_p,
+  rgrid,
+  hr,
+  interest
+) {
   ht <- as.numeric(ht)
   htp <- as.numeric(htp)
   ## tau and ht
   points <- num_points_mat(data, xgrid, hx, tau, ht, rgrid, hr, interest)
 
   # Shrink window if there is not enough bonds at the end
-  while(points[length(points)] < min_points){
-    points <- points[seq_len(length(points)-1)]
+  while (points[length(points)] < min_points) {
+    points <- points[seq_len(length(points) - 1)]
   }
   tau <- tau[seq_along(points)]
   ht <- ht[seq_along(points)]
@@ -191,12 +208,11 @@ create_tau_ht <- function(xgrid, hx, ht, htp, min_points = 5, data, tau, tau_p, 
   ## tau_p and htp
   points <- num_points_mat(data, xgrid, hx, tau_p, htp, rgrid, hr, interest)
   # Shrink window if there is not enough bonds at the end
-  while(points[length(points)] < min_points){
-    points <- points[seq_len(length(points)-1)]
+  while (points[length(points)] < min_points) {
+    points <- points[seq_len(length(points) - 1)]
   }
   tau_p <- tau_p[seq_along(points)]
   htp <- htp[seq_along(points)]
 
   list(tau = tau, ht = ht, tau_p = tau_p, htp = htp)
-
 }

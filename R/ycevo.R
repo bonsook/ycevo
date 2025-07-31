@@ -1,4 +1,3 @@
-
 #' Estimate yield function
 #'
 #' @md
@@ -125,16 +124,18 @@
 #'   information. Journal of Econometrics, 220(2), 562-588.
 #' @order 1
 #' @export
-ycevo <- function(data,
-                  x,
-                  span_x = 60,
-                  hx = NULL,
-                  tau = NULL,
-                  ht = NULL,
-                  tau_p = tau,
-                  htp = NULL,
-                  cols = NULL,
-                  ...){
+ycevo <- function(
+  data,
+  x,
+  span_x = 60,
+  hx = NULL,
+  tau = NULL,
+  ht = NULL,
+  tau_p = tau,
+  htp = NULL,
+  cols = NULL,
+  ...
+) {
   assert_class(data, "data.frame")
   assert_no_missing(x)
   assert_no_missing(tau)
@@ -142,8 +143,11 @@ ycevo <- function(data,
   assert_unique(tau)
 
   # Now use id, not crspid
-  if(any(colnames(data) == "crspid"))
-    warning('Column name "crspid" is deprecated. Column "id" is now used as asset identifier.')
+  if (any(colnames(data) == "crspid")) {
+    warning(
+      'Column name "crspid" is deprecated. Column "id" is now used as asset identifier.'
+    )
+  }
 
   # The minimum required columns
   d_col <- c("qdate", "id", "price", "pdint", "tupq")
@@ -169,35 +173,42 @@ ycevo <- function(data,
   # Handle grids
   assert_length(span_x, len = c(1, length(x)))
   # xgrid and hx
-  if(is.null(hx)) hx <- vapply(
-    span_x,
-    function(span_x) span2h(span_x, length(unique(data$qdate))),
-    FUN.VALUE = numeric(1))
+  if (is.null(hx)) {
+    hx <- vapply(
+      span_x,
+      function(span_x) span2h(span_x, length(unique(data$qdate))),
+      FUN.VALUE = numeric(1)
+    )
+  }
   assert_length(hx, len = c(1, length(x)))
 
-  if(length(hx) == 1) {
+  if (length(hx) == 1) {
     hx <- rep(hx, length(xgrid))
   }
 
   # tau
-  if(is.null(tau)) {
+  if (is.null(tau)) {
     max_tupq <- max(data$tupq)
-    tau <- seq_tau(max_tupq/365)
+    tau <- seq_tau(max_tupq / 365)
   }
   # ht
-  if(is.null(ht))
+  if (is.null(ht)) {
     ht <- find_bandwidth_from_tau(tau)
+  }
   # ht
-  if(is.null(htp))
+  if (is.null(htp)) {
     htp <- find_bandwidth_from_tau(tau_p)
+  }
 
   assert_length(ht, len = c(1, length(tau)))
   assert_length(htp, len = c(1, length(tau_p)))
 
-  if(is.vector(ht))
+  if (is.vector(ht)) {
     ht <- matrix(ht, nrow = length(ht), ncol = length(xgrid))
-  if(is.vector(htp))
+  }
+  if (is.vector(htp)) {
     htp <- matrix(htp, nrow = length(htp), ncol = length(xgrid))
+  }
 
   # sort grids
   # in case the user don't specify them in sorted order
@@ -214,7 +225,7 @@ ycevo <- function(data,
   tau_p <- tau[order_tau_p]
   htp <- as.matrix(htp)[order_tau_p, order_xgrid, drop = FALSE]
   # rgrid
-  if(!is.null(rgrid)) {
+  if (!is.null(rgrid)) {
     rgrid_order <- order(rgrid)
     rgrid <- rgrid[rgrid_order]
     hr <- hr[rgrid_order]
@@ -222,15 +233,21 @@ ycevo <- function(data,
 
   # Handle tau and tau_p again
   # based on number of bonds in each window
-  tau_adjusted <- mapply(create_tau_ht,
-                         xgrid = xgrid,
-                         hx = hx,
-                         ht = asplit(ht, 2),
-                         htp = asplit(htp, 2),
-                         MoreArgs = list(
-                           data = data, tau = tau, tau_p = tau_p,
-                           rgrid = rgrid, hr = hr, interest = interest),
-                         SIMPLIFY = FALSE
+  tau_adjusted <- mapply(
+    create_tau_ht,
+    xgrid = xgrid,
+    hx = hx,
+    ht = asplit(ht, 2),
+    htp = asplit(htp, 2),
+    MoreArgs = list(
+      data = data,
+      tau = tau,
+      tau_p = tau_p,
+      rgrid = rgrid,
+      hr = hr,
+      interest = interest
+    ),
+    SIMPLIFY = FALSE
   )
 
   pb <- progressr::progressor(length(xgrid))
@@ -238,27 +255,40 @@ ycevo <- function(data,
     seq_along(xgrid),
     function(i) {
       on.exit(pb())
-      dplyr::rename(estimate_yield(
-        data = data ,
-        xgrid = xgrid[[i]],
-        hx = hx[[i]],
-        tau = tau_adjusted[[i]]$tau,
-        ht = tau_adjusted[[i]]$ht,
-        tau_p = tau_adjusted[[i]]$tau_p,
-        htp = tau_adjusted[[i]]$htp,
-        rgrid = rgrid[[i]],
-        hr = hr[[i]],
-        interest = interest),
-        .discount = "discount", .yield = "yield")
+      dplyr::rename(
+        estimate_yield(
+          data = data,
+          xgrid = xgrid[[i]],
+          hx = hx[[i]],
+          tau = tau_adjusted[[i]]$tau,
+          ht = tau_adjusted[[i]]$ht,
+          tau_p = tau_adjusted[[i]]$tau_p,
+          htp = tau_adjusted[[i]]$htp,
+          rgrid = rgrid[[i]],
+          hr = hr[[i]],
+          interest = interest
+        ),
+        .discount = "discount",
+        .yield = "yield"
+      )
     },
     future.seed = TRUE
   )
 
   res <- output %>%
     dplyr::bind_rows() %>%
-    dplyr::relocate(any_of(c("xgrid", "rgrid", "tau", ".discount", ".yield"))) %>%
+    dplyr::relocate(any_of(c(
+      "xgrid",
+      "rgrid",
+      "tau",
+      ".discount",
+      ".yield"
+    ))) %>%
     tidyr::nest(.est = c("tau", ".discount", ".yield")) %>%
-    rename_with(function(x) rep(dot_name %||% character(0), length(x)), any_of("rgrid")) %>%
+    rename_with(
+      function(x) rep(dot_name %||% character(0), length(x)),
+      any_of("rgrid")
+    ) %>%
     mutate(!!sym(qdate_label) := x, .before = 1) %>%
     select(-xgrid)
 
@@ -269,24 +299,28 @@ ycevo <- function(data,
 
 # Default sequence of tau
 seq_tau <- function(max_tau) {
-  tau <-  c(seq(30, 6 * 30, 30),  # Monthly up to six months
-            seq(240, 2 * 365, 60),  # Two months up to two years
-            seq(720 + 90, 6 * 365, 90),  # Three months up to six years
-            seq(2160 + 120, 20 * 365, 120),  # Four months up to 20 years
-            #               seq(20 * 365 + 182, 30 * 365, 182)) / 365 # Six months up to 30 years
-            seq(20 * 365 + 182, 30.6 * 365, 182)) / 365
+  tau <- c(
+    seq(30, 6 * 30, 30), # Monthly up to six months
+    seq(240, 2 * 365, 60), # Two months up to two years
+    seq(720 + 90, 6 * 365, 90), # Three months up to six years
+    seq(2160 + 120, 20 * 365, 120), # Four months up to 20 years
+    #               seq(20 * 365 + 182, 30 * 365, 182)) / 365 # Six months up to 30 years
+    seq(20 * 365 + 182, 30.6 * 365, 182)
+  ) /
+    365
   tau[tau < max_tau]
 }
 
 # Default bandwidth for tau and tau_p
 # The larger distance from neighbours
-find_bandwidth_from_tau <- function(tau){
+find_bandwidth_from_tau <- function(tau) {
   laggap <- tau - dplyr::lag(tau)
   leadgap <- dplyr::lead(tau) - tau
   vapply(
     1:length(tau),
     function(x) max(laggap[x], leadgap[x], na.rm = TRUE),
-    numeric(1L))
+    numeric(1L)
+  )
 }
 
 

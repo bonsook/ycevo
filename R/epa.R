@@ -2,11 +2,11 @@
 #
 # Kernel function for grid windows
 epaker <- function(x) {
-  (3/4)*(1-x^2)*(abs(x)<=1)
+  (3 / 4) * (1 - x^2) * (abs(x) <= 1)
 }
 
 qepa <- function(p, mu, r) {
-  2 * sin(asin(2 * p - 1)/3) * r + mu
+  2 * sin(asin(2 * p - 1) / 3) * r + mu
 }
 
 repa <- function(n, mu, r) {
@@ -49,20 +49,20 @@ repa <- function(n, mu, r) {
 #' vis_kernel(bonds, x = lubridate::ymd("2023-06-01"), hx = 0.2)
 #'
 #' @export
-vis_kernel <- function(data,
-                       x = NULL, hx = NULL,
-                       tau = NULL, ht = NULL, ...) {
+vis_kernel <- function(data, x = NULL, hx = NULL, tau = NULL, ht = NULL, ...) {
   p <- NULL
   # parse covariates
   covar_ls <- handle_covariates(data, ...)
 
   # Plot bandwidths in the time dimension
-  if(assert_same_nullness(x, hx)) {
+  if (assert_same_nullness(x, hx)) {
     assert_same_length(x, hx)
-    if((!is.null(tau)) || (!is.null(ht))) {
-      stop("If \"x\" and \"hx\" are specified, \"tau\" and \"ht\" cannot be specified.")
+    if ((!is.null(tau)) || (!is.null(ht))) {
+      stop(
+        "If \"x\" and \"hx\" are specified, \"tau\" and \"ht\" cannot be specified."
+      )
     }
-    if(!is.null(covar_ls$dots_name)) {
+    if (!is.null(covar_ls$dots_name)) {
       stop("If \"x\" and \"hx\" are specified, \"...\" cannot be specified.")
     }
     # The x axis in dates format
@@ -73,46 +73,48 @@ vis_kernel <- function(data,
     xgrid <- stats::ecdf(dates)(x)
     nhx <- length(hx)
     # The x axis in numerical value
-    gamma <- seq_along(dates)/ndates
+    gamma <- seq_along(dates) / ndates
 
-    df_p <- data.frame(dates = rep(dates, max(nhx, nx)),
-                       gamma = rep(gamma, max(nhx, nx)),
-                       xgrid = rep(xgrid, each = ndates),
-                       hx = rep(hx, each = ndates)) %>%
+    df_p <- data.frame(
+      dates = rep(dates, max(nhx, nx)),
+      gamma = rep(gamma, max(nhx, nx)),
+      xgrid = rep(xgrid, each = ndates),
+      hx = rep(hx, each = ndates)
+    ) %>%
       # the weights
-      mutate(weight = epaker((gamma - xgrid)/hx)) %>%
+      mutate(weight = epaker((gamma - xgrid) / hx)) %>%
       mutate(hx = as.factor(hx))
 
     p <- df_p %>%
-      ggplot(aes(x = .data$dates, y= .data$weight)) +
+      ggplot(aes(x = .data$dates, y = .data$weight)) +
       geom_line(aes(colour = hx, group = interaction(hx, xgrid))) +
       geom_hline(yintercept = 0, linewidth = 1) +
       scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
-
   }
 
   # Plot bandwidth in the time-to-maturity dimension
-  if(assert_same_nullness(tau, ht)) {
+  if (assert_same_nullness(tau, ht)) {
     assert_same_length(tau, ht)
-    if(!is.null(covar_ls$dots_name)) {
+    if (!is.null(covar_ls$dots_name)) {
       stop("If \"tau\" and \"ht\" are specified, \"...\" cannot be specified.")
     }
     ntau <- length(tau)
     nht <- length(ht)
     # the x axis
-    gamma <- seq_len(as.integer(max(data$tupq)))/365
+    gamma <- seq_len(as.integer(max(data$tupq))) / 365
     ngamma <- length(gamma)
 
     df_p <- data.frame(
       gamma = rep(gamma, max(nht, ntau)),
       tau = rep(tau, each = ngamma),
-      ht = rep(ht, each = ngamma)) %>%
+      ht = rep(ht, each = ngamma)
+    ) %>%
       # the weights
-      mutate(weight = epaker((tau - gamma)/ht)) %>%
+      mutate(weight = epaker((tau - gamma) / ht)) %>%
       mutate(ht = as.factor(ht))
 
     p <- df_p %>%
-      ggplot(aes(x = .data$gamma, y= .data$weight)) +
+      ggplot(aes(x = .data$gamma, y = .data$weight)) +
       geom_line(aes(colour = ht, group = interaction(ht, tau))) +
       xlab("tau") +
       geom_hline(yintercept = 0, linewidth = 1) +
@@ -120,7 +122,7 @@ vis_kernel <- function(data,
   }
 
   # Plot other covariates
-  if(!is.null(covar_ls$dots_name)) {
+  if (!is.null(covar_ls$dots_name)) {
     interest <- covar_ls$interest
     # the x points to plot
     rgrid <- covar_ls$rgrid
@@ -136,19 +138,18 @@ vis_kernel <- function(data,
     df_p <- data.frame(
       gamma = rep(gamma, max(nhr, nrgrid)),
       rgrid = rep(rgrid, each = ngamma),
-      hr = rep(hr, each = ngamma)) %>%
+      hr = rep(hr, each = ngamma)
+    ) %>%
       # the weights
-      mutate(weight = epaker((rgrid - gamma)/hr)) %>%
+      mutate(weight = epaker((rgrid - gamma) / hr)) %>%
       mutate(hr = as.factor(hr))
     p <- df_p %>%
-      ggplot(aes(x = .data$gamma, y= .data$weight)) +
+      ggplot(aes(x = .data$gamma, y = .data$weight)) +
       geom_line(aes(colour = hr, group = interaction(hr, rgrid))) +
       xlab(dot_name) +
       geom_hline(yintercept = 0, linewidth = 1) +
       scale_y_continuous(expand = expansion(mult = c(0, 0.05)))
-
   }
 
   p
 }
-

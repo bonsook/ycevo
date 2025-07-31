@@ -1,4 +1,3 @@
-
 # Calculates number of bonds that mature in each tau
 # @inheritParams ycevo
 # @param xgrid A single value for xgrid between 0 and 1
@@ -11,18 +10,30 @@
 # @param hr Optional, A single value for the bandwidth of the rgrid value for use with rgrid
 # @param interest Optional, A vector of daily interest rates for use with rgrid
 #
-num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, interest = NULL, units = 365) {
+num_points_mat <- function(
+  data,
+  xgrid,
+  hx,
+  tau,
+  ht,
+  rgrid = NULL,
+  hr = NULL,
+  interest = NULL,
+  units = 365
+) {
   # Check dates in data matches interest rate
   dates <- unique(data$qdate)
-  if(!is.null(interest)){
-    if(length(interest) != length(dates)){
-      stop('Length of interest rate vector does not match number of unique qdates')
+  if (!is.null(interest)) {
+    if (length(interest) != length(dates)) {
+      stop(
+        'Length of interest rate vector does not match number of unique qdates'
+      )
     }
   }
   # Calculate the u and r windows (if r is provided)
 
   window <- get_weights(xgrid, hx, len = length(unique(data$qdate)))
-  if(!is.null(rgrid) & !is.null(hr) & !is.null(interest)){
+  if (!is.null(rgrid) & !is.null(hr) & !is.null(interest)) {
     # kernel weight function in relation to interest rate grids
     windowR <- calc_epaker_weights(interest, rgrid, hr)
     window <- window * windowR
@@ -30,25 +41,32 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
 
   # Find subset of data with positive kernel
   kernel <- data.frame(qdate = dates, k = window)
-  if("k" %in% colnames(data)) colnames(data)[colnames(data) == "k"] <- "original_k"
+  if ("k" %in% colnames(data)) {
+    colnames(data)[colnames(data) == "k"] <- "original_k"
+  }
   data_sub <- data %>%
     left_join(kernel, by = 'qdate') %>%
     filter(.data$k > 0)
 
   # Calculate number of maturing bonds in each x window
   ### Highly rely on the notion that tupq and tau are in days
-  mat_weights_tau <- get_weights(tau, ht,
-                                 len = as.integer(max(data$tupq)),
-                                 units = units)
-  x_idx <- range_idx_nonzero(mat_weights_tau, threshold = 0.01)
-  sapply(seq_along(tau),
-         function(j) sum(
-           dplyr::between(
-             as.numeric(data_sub$tupq),
-             x_idx[j,1],
-             x_idx[j,2]) &
-             data_sub$pdint >= 100)
+  mat_weights_tau <- get_weights(
+    tau,
+    ht,
+    len = as.integer(max(data$tupq)),
+    units = units
   )
+  x_idx <- range_idx_nonzero(mat_weights_tau, threshold = 0.01)
+  sapply(seq_along(tau), function(j) {
+    sum(
+      dplyr::between(
+        as.numeric(data_sub$tupq),
+        x_idx[j, 1],
+        x_idx[j, 2]
+      ) &
+        data_sub$pdint >= 100
+    )
+  })
 }
 
 #' Generate a yield curve with cubic time evolution
@@ -122,31 +140,42 @@ num_points_mat <- function(data, xgrid, hx, tau, ht, rgrid = NULL, hr = NULL, in
 #'   nonparametric model for bond prices from cross-section and time series
 #'   information. Journal of Econometrics, 220(2), 562-588.
 #' @export
-generate_yield <- function(n_qdate = 12, periods = 36,
-                           b0 = 0, b1 = 0.05, b2 = 2,
-                           t1 = 0.75, t2 = 125,
-                           linear = -0.55, quadratic = 0.55, cubic = -0.55){
-
-  tauSeq <- (1:periods)/(periods/10)
+generate_yield <- function(
+  n_qdate = 12,
+  periods = 36,
+  b0 = 0,
+  b1 = 0.05,
+  b2 = 2,
+  t1 = 0.75,
+  t2 = 125,
+  linear = -0.55,
+  quadratic = 0.55,
+  cubic = -0.55
+) {
+  tauSeq <- (1:periods) / (periods / 10)
 
   yieldInit <- nelson_siegel(tauSeq, b0, b1, b2, t1, t2)
 
   yield <- matrix(0, periods, n_qdate)
-  for(i in 1:n_qdate){
+  for (i in 1:n_qdate) {
     t <- i / n_qdate
-    yield[,i] <- yieldInit * (1 + cubic * t^3 + quadratic * t^2 + linear * t)
+    yield[, i] <- yieldInit * (1 + cubic * t^3 + quadratic * t^2 + linear * t)
   }
   yield
-
-
 }
 
 # Nelson and Siegel yield model
-nelson_siegel <- function(maturity,
-                          b0 = 0, b1 = 0.05, b2 = 2,
-                          t1 = 0.75, t2 = 125) {
-  b0 + b1 * ((1 - exp(- maturity / t1)) / ( maturity / t1)) +
-    b2 * ((1 - exp(- maturity / t2)) / (maturity / t2) - exp(- maturity / t2))
+nelson_siegel <- function(
+  maturity,
+  b0 = 0,
+  b1 = 0.05,
+  b2 = 2,
+  t1 = 0.75,
+  t2 = 125
+) {
+  b0 +
+    b1 * ((1 - exp(-maturity / t1)) / (maturity / t1)) +
+    b2 * ((1 - exp(-maturity / t2)) / (maturity / t2) - exp(-maturity / t2))
 }
 
 
@@ -160,15 +189,22 @@ nelson_siegel <- function(maturity,
 #'   \item{`get_yield_at()`}{Numeric vector.}
 #' }
 #' @export
-get_yield_at <- function(time, maturity,
-                         b0 = 0, b1 = 0.05, b2 = 2,
-                         t1 = 0.75, t2 = 125,
-                         linear = -0.55, quadratic = 0.55, cubic = -0.55) {
+get_yield_at <- function(
+  time,
+  maturity,
+  b0 = 0,
+  b1 = 0.05,
+  b2 = 2,
+  t1 = 0.75,
+  t2 = 125,
+  linear = -0.55,
+  quadratic = 0.55,
+  cubic = -0.55
+) {
   assert_same_length(time, maturity)
   time <- as.numeric(time)
   yieldInit <- nelson_siegel(maturity, b0, b1, b2, t1, t2)
   yieldInit * (1 + cubic * time^3 + quadratic * time^2 + linear * time)
-
 }
 
 #' @md
@@ -179,10 +215,18 @@ get_yield_at <- function(time, maturity,
 #' @describeIn generate_yield Deprecated. Vectorised version of
 #'   `get_yield_at()`. Use `get_yield_at()` instead.
 #' @export
-get_yield_at_vec <- function(time, maturity,
-                             b0 = 0, b1 = 0.05, b2 = 2,
-                             t1 = 0.75, t2 = 125,
-                             linear = -0.55, quadratic = 0.55, cubic = -0.55) {
+get_yield_at_vec <- function(
+  time,
+  maturity,
+  b0 = 0,
+  b1 = 0.05,
+  b2 = 2,
+  t1 = 0.75,
+  t2 = 125,
+  linear = -0.55,
+  quadratic = 0.55,
+  cubic = -0.55
+) {
   .Deprecated("get_yield_at", "ycevo")
   get_yield_at(time, maturity, b0, b1, b2, t1, t2, linear, quadratic, cubic)
 }
@@ -190,9 +234,11 @@ get_yield_at_vec <- function(time, maturity,
 
 # span_x to hx
 span2h <- function(span, len, units = len) {
-  gamma <- seq_len(len) /units
+  gamma <- seq_len(len) / units
 
-  obj_fun <- function(h) sum(calc_epaker_weights(gamma, stats::median(gamma), h) > 0)/2 - span
+  obj_fun <- function(h) {
+    sum(calc_epaker_weights(gamma, stats::median(gamma), h) > 0) / 2 - span
+  }
   stats::uniroot(obj_fun, interval = c(0.0001, 1), extendInt = "up")$root
 }
 
@@ -203,22 +249,24 @@ span2h <- function(span, len, units = len) {
 # Currently only support one
 #' @importFrom rlang enexpr
 handle_cols <- function(data, cols, d_col, qdate_label) {
-
   # variables required but missing in data
   setd <- vars_missing_data <- setdiff(d_col, colnames(data))
   loc <- NULL
-  if(!is.null(cols)) {
+  if (!is.null(cols)) {
     loc <- tidyselect::eval_rename(cols, data)
     # variables required but missing in data and not specified by user
     setd <- setdiff(vars_missing_data, names(loc))
-    if(any(names(loc) == qdate_label))
-      qdate_label <-  colnames(data)[[loc[[qdate_label]]]]
+    if (any(names(loc) == qdate_label)) {
+      qdate_label <- colnames(data)[[loc[[qdate_label]]]]
+    }
     data <- dplyr::rename(data, !!cols)
   }
-  if(length(setd) > 0L) {
+  if (length(setd) > 0L) {
     stop(
       "The following columns are required but are not found in the data and are not specified in the cols argument: ",
-      paste0(setd, collapse = ", "), call. = FALSE)
+      paste0(setd, collapse = ", "),
+      call. = FALSE
+    )
   }
 
   list(data = data, qdate_label = qdate_label, loc = loc)
@@ -231,16 +279,20 @@ handle_cols <- function(data, cols, d_col, qdate_label) {
 handle_covariates <- function(data, ...) {
   dots <- list(...)
 
-  if(any(temp <- (!names(dots) %in% colnames(data)))){
-    stop(paste0(names(dots)[temp], collapse = ", "), " column(s) not found in the data")
+  if (any(temp <- (!names(dots) %in% colnames(data)))) {
+    stop(
+      paste0(names(dots)[temp], collapse = ", "),
+      " column(s) not found in the data"
+    )
   }
 
   interest <- NULL
   rgrid <- NULL
   hr <- NULL
-  if(length(dots) > 0){
-    if(length(dots) != 1)
+  if (length(dots) > 0) {
+    if (length(dots) != 1) {
       stop("Currently only supports one extra predictor (e.g. interest rate)")
+    }
     interest <- data %>%
       select(all_of(c("qdate", names(dots)))) %>%
       arrange(.data$qdate) %>%
@@ -250,11 +302,5 @@ handle_covariates <- function(data, ...) {
     hr <- dots[[1]][[2]]
   }
 
-  list(interest = interest,
-       rgrid = rgrid,
-       hr = hr,
-       dots_name = names(dots))
+  list(interest = interest, rgrid = rgrid, hr = hr, dots_name = names(dots))
 }
-
-
-
