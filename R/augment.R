@@ -302,21 +302,10 @@ interp2 <- function(x, y, xout) {
 #' specified in `newdata` are generated from loess smoothing (see
 #' [stats::loess()]), and interpolated to produce the discount function values at the
 #' quotation date specified in `newdata`, before being converted to the yield curves.
-#'
 #' @md
 #' @param object A [ycevo] object
-#' @param newdata A data frame containing time-to-maturity in years `tau` and
-#'   the quotation date at which the discount functions and the yield curves are to
-#'   be predicted. The quotation date is to be named after the quotation
-#'   date column in `x`, which is also the name of the quotation date column of
-#'   the `data` argument in [ycevo()] that produces `x`. The default is `qdate`.
+#' @inheritParams augment.ycevo
 #' @param type Whether to return the discount function or the yield curve.
-#' @param loess Logical. If TRUE, the returned discount functions and yield curves
-#'   are loess smoothed.
-#' @param ... Additional arguments required for generic consistency. Currently
-#'   not used. Warning: A misspelled argument will not raise an error. The
-#'   misspelled argument will be either disregarded, or the default value will
-#'   be applied if one exists.
 #'
 #' @returns A numeric vector of the discount function or the yield curve based on
 #' `type`.
