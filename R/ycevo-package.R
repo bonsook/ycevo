@@ -26,13 +26,16 @@
 #' @importFrom ggplot2 aes
 #' @importFrom ggplot2 geom_line
 #' @importFrom ggplot2 ggplot
+#' @importFrom graphics legend
+#' @importFrom graphics lines
+#' @importFrom graphics par
 #' @importFrom lubridate ymd
 #' @importFrom Matrix colSums rowSums sparseMatrix t
 #' @importFrom Rcpp evalCpp
 #' @importFrom Rcpp sourceCpp
-#' @importFrom rlang :=
 #' @importFrom rlang !! sym .data
 #' @importFrom rlang %||%
+#' @importFrom rlang :=
 #' @importFrom rlang syms
 #' @importFrom stats runif
 #' @importFrom tibble tibble
