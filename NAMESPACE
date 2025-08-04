@@ -2,6 +2,7 @@
 
 S3method(augment,ycevo)
 S3method(autoplot,ycevo)
+S3method(predict,ycevo)
 export(augment)
 export(autoplot)
 export(estimate_yield)

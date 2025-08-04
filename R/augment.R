@@ -33,7 +33,7 @@ generics::augment
 #'
 #' @returns `newdata` augmented with `.discount` and `.yield` for the discount
 #'   function and the yield curve respectively.
-#' @seealso [ycevo()]
+#' @seealso [ycevo()], [predict.ycevo()]
 #' @examples
 #' # Simulating bond data
 #' bonds <- ycevo_data(n = 10)
@@ -288,4 +288,60 @@ interp2 <- function(x, y, xout) {
     })
   }
   unname(as.vector(g))
+}
+
+
+#' Return predicted discount functions or yield curves
+#'
+#'
+#' @details
+#' If `newdata` is not provided, returns the discount function or yield curve
+#' at the specified estimation points in [ycevo()].
+#'
+#' If `newdata` is provided, the discount functions at the time-to-maturities
+#' specified in `newdata` are generated from loess smoothing (see
+#' [stats::loess()]), and interpolated to produce the discount function values at the
+#' quotation date specified in `newdata`, before being converted to the yield curves.
+#'
+#' @md
+#' @param object A [ycevo] object
+#' @param newdata A data frame containing time-to-maturity in years `tau` and
+#'   the quotation date at which the discount functions and the yield curves are to
+#'   be predicted. The quotation date is to be named after the quotation
+#'   date column in `x`, which is also the name of the quotation date column of
+#'   the `data` argument in [ycevo()] that produces `x`. The default is `qdate`.
+#' @param type Whether to return the discount function or the yield curve.
+#' @param loess Logical. If TRUE, the returned discount functions and yield curves
+#'   are loess smoothed.
+#' @param ... Additional arguments required for generic consistency. Currently
+#'   not used. Warning: A misspelled argument will not raise an error. The
+#'   misspelled argument will be either disregarded, or the default value will
+#'   be applied if one exists.
+#'
+#' @returns A numeric vector of the discount function or the yield curve based on
+#' `type`.
+#' @seealso [ycevo()], [augment.ycevo()]
+#' @examples
+#' # Simulating bond data
+#' bonds <- ycevo_data(n = 10)
+#' \donttest{
+#' # Estimation can take up to 30 seconds
+#' res <- ycevo(bonds, x = lubridate::ymd("2023-03-01"))
+#' # Prediction
+#' predict(res)
+#' }
+#'
+#' @export
+predict.ycevo <- function(
+  object,
+  newdata = NULL,
+  type = c("discount", "yield"),
+  loess = TRUE,
+  ...
+) {
+  type <- match.arg(type)
+  getElement(
+    augment(object, newdata = newdata, loess = loess, ...),
+    paste0(".", type)
+  )
 }
